@@ -6,6 +6,7 @@
 
 * 官方介绍: <https://aibidu.com/?m=home&c=View&a=index&aid=579>
 * ophub适配申请：<https://github.com/ophub/fnnas/issues/606>
+* g18交流贴：<https://github.com/ophub/amlogic-s9xxx-openwrt/issues/845>
 
 ## 目录
 
@@ -16,9 +17,21 @@
     * [飞牛fnos](docs/固件/fnos.md)
     * [istoreos](docs/固件/istoreos.md)
 
----
-
 ## 参数规格
+
+| 项目 | 参数说明 |
+|------|----------|
+| CPU型号 | **RK3588**（瑞芯微八核ARM SoC） |
+| 架构 | 八核 ARM Cortex-A76（+四核Cortex-A55，典型RK3588配置） |
+| 主频 | 2.4 GHz（A76大核） |
+| 双核GPU | 算力6T（指 Mali-G610 MP4 GPU，标称AI算力约6 TOPS INT8） |
+| 内存 | **DDR4 16GB**（板载，不可扩展） |
+| 无线规格 | —（无内置Wi-Fi模块） |
+| 存储 | 选配固态（需用户自行安装，支持NVMe×2 + SATA×1） |
+| 硬盘接口 | NVMe×2 + SATA×1（共10个存储接口，可组RAID或分布式存储） |
+| RJ45电口数 | 10个：<br>• 2.5G网口 ×2<br>• 千兆网口 ×8 |
+| USB口数 | USB3.0*2 |
+| AC/DC接口 | 220V交流输入 + DC-IN直流输入（双供电冗余设计） |
 
 ## maskrom短接点、TTL、硬盘电源
 
@@ -46,7 +59,7 @@
 - 对于因使用或无法使用本网站/平台内容所引发的任何直接或间接损失，不承担任何法律责任。
 - 用户在使用过程中应自行判断信息的适用性，并承担相应风险。
 
----
+
 
 
 
