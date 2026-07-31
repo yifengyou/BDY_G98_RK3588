@@ -1459,14 +1459,63 @@ aarch64-linux-gnu-gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0
 GNU ld (GNU Binutils for Ubuntu) 2.34
 => 
 
+=> printenv
+arch=arm
+baudrate=1500000
+board=nanopc-t6-rk3588
+board_name=nanopc-t6-rk3588
+boot_targets=mmc1 mmc0 usb scsi nvme pxe dhcp spi
+bootcmd=bootflow scan -lb
+bootdelay=2
+cpu=armv8
+cpuid#=41325241410000000000000000140a1e
+eth1addr=42:3b:0e:b3:20:d5
+eth2addr=ee:df:be:d6:95:e7
+eth3addr=6e:e8:97:22:5b:24
+ethaddr=42:3b:0e:b3:20:d4
+fdt_addr_r=0x12000000
+fdtcontroladdr=edbd0520
+fdtfile=rockchip/rk3588-bdy-g98.dtb
+fdtoverlay_addr_r=0x12100000
+kernel_addr_r=0x02000000
+kernel_comp_addr_r=0x0a000000
+kernel_comp_size=0x8000000
+loadaddr=0xc00800
+pxefile_addr_r=0x00e00000
+ramdisk_addr_r=0x12180000
+script_offset_f=0xffe000
+script_size_f=0x2000
+scriptaddr=0x00c00000
+serial#=3a53725ef135c0fb
+soc=rk3588
+stderr=serial@feb50000
+stdin=serial@feb50000
+stdout=serial@feb50000
+vendor=friendlyelec
+
+Environment size: 778/126972 bytes
 
 
 ```
 
 
 
+## ums刷机
 
+```shell
 
+=> nvme info
+=> nvme scan
+=> nvme info
+Device 0: Vendor: 0x1e4b Rev: SN10660 Prod: 0000307150297
+            Type: Hard Disk
+            Capacity: 244198.3 MB = 238.4 GB (500118192 x 512)
+=> ums 0 nvme 0
+UMS: LUN 0, dev nvme 0, hwpart 0, sector 0x0, count 0x1dcf32b0
+
+```
+
+* 
 
 
 
