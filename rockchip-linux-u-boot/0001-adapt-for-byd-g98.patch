@@ -1,0 +1,1852 @@
+From b2d38a003b1a0f1a775c20ccc5208ccc04aab242 Mon Sep 17 00:00:00 2001
+From: yifengyou <842056007@qq.com>
+Date: Fri, 31 Jul 2026 15:22:00 +0800
+Subject: [PATCH] adapt for byd g98
+
+Signed-off-by: yifengyou <842056007@qq.com>
+
+diff --git a/.gitignore b/.gitignore
+index f72f3a2fd4..bc98ef09f0 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -87,3 +87,10 @@ GTAGS
+ *.orig
+ *~
+ \#*#
++bl31_0x00040000.bin.digest
++bl31_0x00040000.bin.gz
++examples/standalone/rkspi
++go.sh
++tee.bin.digest
++tee.bin.gz
++
+diff --git a/arch/arm/dts/rk3588-evb.dts b/arch/arm/dts/rk3588-evb.dts
+index ad750d5b74..ed80736194 100644
+--- a/arch/arm/dts/rk3588-evb.dts
++++ b/arch/arm/dts/rk3588-evb.dts
+@@ -1,31 +1,877 @@
+-// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+-/*
+- * Copyright (c) 2021 Rockchip Electronics Co., Ltd
+- *
+- */
+-
+ /dts-v1/;
+-#include "rk3588.dtsi"
+-#include "rk3588-u-boot.dtsi"
+-#include <dt-bindings/input/input.h>
+ 
+ / {
+-	model = "Rockchip RK3588 Evaluation Board";
+-	compatible = "rockchip,rk3588-evb", "rockchip,rk3588";
++	compatible = "phoenix,rk3588\0rockchip,rk3588";
++	#address-cells = <0x02>;
++	#size-cells = <0x02>;
++	model = "Phoenix Compiled by Saigetsux@gmail.com";
++
++	aliases {
++		ethernet1 = "/ethernet@fe1c0000";
++		serial2 = "/serial@feb50000";
++		spi5 = "/spi@fe2b0000";
++		ethernet0 = "/ethernet@fe1b0000";
++		mmc0 = "/mmc@fe2c0000";
++		mmc1 = "/mmc@fe2e0000";
++	};
++
++	firmware {
++		u-boot,dm-spl;
++
++		scmi {
++			compatible = "arm,scmi-smc";
++			shmem = <0x10000009>;
++			arm,smc-id = <0x82000010>;
++			#address-cells = <0x01>;
++			#size-cells = <0x00>;
++			u-boot,dm-spl;
++
++			protocol@14 {
++				reg = <0x14>;
++				#clock-cells = <0x01>;
++				u-boot,dm-spl;
++				phandle = <0x1000000a>;
++			};
++		};
++	};
++
++	psci {
++		compatible = "arm,psci-1.0";
++		method = "smc";
++		u-boot,dm-pre-reloc;
++		status = "okay";
++	};
++
++	xin24m {
++		compatible = "fixed-clock";
++		#clock-cells = <0x00>;
++		clock-frequency = <0x16e3600>;
++		clock-output-names = "xin24m";
++		u-boot,dm-pre-reloc;
++		status = "okay";
++	};
++
++	sram@10f000 {
++		compatible = "mmio-sram";
++		reg = <0x00 0x10f000 0x00 0x100>;
++		#address-cells = <0x01>;
++		#size-cells = <0x01>;
++		ranges = <0x00 0x00 0x10f000 0x100>;
++		u-boot,dm-spl;
++
++		scmi_shmem@0 {
++			compatible = "arm,scmi-shmem";
++			reg = <0x00 0x100>;
++			u-boot,dm-spl;
++			phandle = <0x10000009>;
++		};
++	};
++
++	usb@fc800000 {
++		compatible = "rockchip,rk3588-ehci\0generic-ehci";
++		reg = <0x00 0xfc800000 0x00 0x40000>;
++		interrupts = <0x00 0xd7 0x04>;
++		clocks = <0x1000000b 0x19d 0x1000000b 0x19e 0x1000000d>;
++		clock-names = "usbhost\0arbiter\0utmi";
++		power-domains = <0x1000000c 0x1f>;
++		status = "okay";
++		u-boot,dm-pre-reloc;
++		companion = <0x1000000e>;
++		phys = <0x1000000f>;
++		phy-names = "usb2-phy";
++	};
++
++	usb@fc840000 {
++		compatible = "generic-ohci";
++		reg = <0x00 0xfc840000 0x00 0x40000>;
++		interrupts = <0x00 0xd8 0x04>;
++		clocks = <0x1000000b 0x19d 0x1000000b 0x19e 0x1000000d>;
++		clock-names = "usbhost\0arbiter\0utmi";
++		power-domains = <0x1000000c 0x1f>;
++		status = "okay";
++		u-boot,dm-pre-reloc;
++		phys = <0x1000000f>;
++		phy-names = "usb2-phy";
++		phandle = <0x1000000e>;
++	};
++
++	usb@fc880000 {
++		compatible = "rockchip,rk3588-ehci\0generic-ehci";
++		reg = <0x00 0xfc880000 0x00 0x40000>;
++		interrupts = <0x00 0xda 0x04>;
++		clocks = <0x1000000b 0x19f 0x1000000b 0x1a0 0x10000010>;
++		clock-names = "usbhost\0arbiter\0utmi";
++		power-domains = <0x1000000c 0x1f>;
++		status = "okay";
++		u-boot,dm-pre-reloc;
++		companion = <0x10000011>;
++		phys = <0x10000012>;
++		phy-names = "usb2-phy";
++	};
++
++	usb@fc8c0000 {
++		compatible = "generic-ohci";
++		reg = <0x00 0xfc8c0000 0x00 0x40000>;
++		interrupts = <0x00 0xdb 0x04>;
++		clocks = <0x1000000b 0x19f 0x1000000b 0x1a0 0x10000010>;
++		clock-names = "usbhost\0arbiter\0utmi";
++		power-domains = <0x1000000c 0x1f>;
++		status = "okay";
++		u-boot,dm-pre-reloc;
++		phys = <0x10000012>;
++		phy-names = "usb2-phy";
++		phandle = <0x10000011>;
++	};
++
++	syscon@fd58c000 {
++		compatible = "rockchip,rk3588-sys-grf\0syscon";
++		reg = <0x00 0xfd58c000 0x00 0x1000>;
++		u-boot,dm-spl;
++		status = "okay";
++		phandle = <0x10000024>;
++	};
++
++	syscon@fd5b0000 {
++		compatible = "rockchip,rk3588-php-grf\0syscon";
++		reg = <0x00 0xfd5b0000 0x00 0x1000>;
++		u-boot,dm-pre-reloc;
++		status = "okay";
++		phandle = <0x10000013>;
++	};
++
++	syscon@fd5bc000 {
++		compatible = "rockchip,pipe-phy-grf\0syscon";
++		reg = <0x00 0xfd5bc000 0x00 0x100>;
++		u-boot,dm-pre-reloc;
++		status = "okay";
++		phandle = <0x10000099>;
++	};
++
++	syscon@fd5c4000 {
++		compatible = "rockchip,pipe-phy-grf\0syscon";
++		reg = <0x00 0xfd5c4000 0x00 0x100>;
++		u-boot,dm-pre-reloc;
++		status = "okay";
++		phandle = <0x1000009a>;
++	};
++
++	syscon@fd5d0000 {
++		u-boot,dm-pre-reloc;
++		compatible = "rockchip,rk3588-usb2phy-grf\0syscon\0simple-mfd";
++		reg = <0x00 0xfd5d0000 0x00 0x4000>;
++		#address-cells = <0x01>;
++		#size-cells = <0x01>;
++
++		usb2-phy@0 {
++			compatible = "rockchip,rk3588-usb2phy";
++			reg = <0x00 0x10>;
++			interrupts = <0x00 0x189 0x04>;
++			clocks = <0x1000000b 0x2b5>;
++			clock-names = "phyclk";
++			#clock-cells = <0x00>;
++			status = "okay";
++			u-boot,dm-pre-reloc;
++
++			otg-port {
++				#phy-cells = <0x00>;
++				status = "okay";
++				u-boot,dm-pre-reloc;
++			};
++		};
++	};
++
++	syscon@fd5d8000 {
++		u-boot,dm-pre-reloc;
++		compatible = "rockchip,rk3588-usb2phy-grf\0syscon\0simple-mfd";
++		reg = <0x00 0xfd5d8000 0x00 0x4000>;
++		#address-cells = <0x01>;
++		#size-cells = <0x01>;
++
++		usb2-phy@8000 {
++			compatible = "rockchip,rk3588-usb2phy";
++			reg = <0x8000 0x10>;
++			interrupts = <0x00 0x187 0x04>;
++			resets = <0x1000000b 0xc0049 0x1000000b 0x48a>;
++			reset-names = "phy\0apb";
++			clocks = <0x1000000b 0x2b5>;
++			clock-names = "phyclk";
++			#clock-cells = <0x00>;
++			status = "okay";
++			u-boot,dm-pre-reloc;
++			phandle = <0x1000000d>;
++
++			host-port {
++				#phy-cells = <0x00>;
++				status = "okay";
++				u-boot,dm-pre-reloc;
++				phandle = <0x1000000f>;
++			};
++		};
++	};
++
++	syscon@fd5dc000 {
++		u-boot,dm-pre-reloc;
++		compatible = "rockchip,rk3588-usb2phy-grf\0syscon\0simple-mfd";
++		reg = <0x00 0xfd5dc000 0x00 0x4000>;
++		#address-cells = <0x01>;
++		#size-cells = <0x01>;
++
++		usb2-phy@c000 {
++			compatible = "rockchip,rk3588-usb2phy";
++			reg = <0xc000 0x10>;
++			interrupts = <0x00 0x188 0x04>;
++			resets = <0x1000000b 0xc004a 0x1000000b 0x48b>;
++			reset-names = "phy\0apb";
++			clocks = <0x1000000b 0x2b5>;
++			clock-names = "phyclk";
++			#clock-cells = <0x00>;
++			status = "okay";
++			u-boot,dm-pre-reloc;
++			phandle = <0x10000010>;
++
++			host-port {
++				#phy-cells = <0x00>;
++				status = "okay";
++				u-boot,dm-pre-reloc;
++				phandle = <0x10000012>;
++			};
++		};
++	};
++
++	syscon@fd5f0000 {
++		compatible = "rockchip,rk3588-ioc\0syscon";
++		reg = <0x00 0xfd5f0000 0x00 0x10000>;
++		u-boot,dm-spl;
++		phandle = <0x1000009b>;
++	};
++
++	clock-controller@fd7c0000 {
++		compatible = "rockchip,rk3588-cru";
++		rockchip,grf = <0x10000013>;
++		reg = <0x00 0xfd7c0000 0x00 0x5c000>;
++		#clock-cells = <0x01>;
++		#reset-cells = <0x01>;
++		u-boot,dm-spl;
++		status = "okay";
++		phandle = <0x1000000b>;
++	};
++
++	ethernet@fe1c0000 {
++		compatible = "rockchip,rk3588-gmac\0snps,dwmac-4.20a";
++		reg = <0x00 0xfe1c0000 0x00 0x10000>;
++		interrupts = <0x00 0xea 0x04 0x00 0xe9 0x04>;
++		interrupt-names = "macirq\0eth_wake_irq";
++		rockchip,grf = <0x10000024>;
++		rockchip,php_grf = <0x10000013>;
++		clocks = <0x1000000b 0x144 0x1000000b 0x145 0x1000000b 0x168 0x1000000b 0x16d 0x1000000b 0x143>;
++		clock-names = "stmmaceth\0clk_mac_ref\0pclk_mac\0aclk_mac\0ptp_ref";
++		resets = <0x1000000b 0x20b>;
++		reset-names = "stmmaceth";
++		snps,mixed-burst;
++		snps,tso;
++		snps,axi-config = <0x10000025>;
++		snps,mtl-rx-config = <0x10000026>;
++		snps,mtl-tx-config = <0x10000027>;
++		status = "okay";
++		u-boot,dm-pre-reloc;
++		phy-mode = "rgmii-rxid";
++		clock_in_out = "output";
++		tx_delay = <0x42>;
++		snps,reset-gpio = <0x10000028 0x0b 0x01>;
++		snps,reset-active-low;
++		snps,reset-delays-us = <0x00 0x4e20 0x186a0>;
++		pinctrl-names = "default";
++		pinctrl-0 = <0x10000029 0x1000002a 0x1000002b 0x1000002c 0x1000002d>;
++
++		mdio {
++			compatible = "snps,dwmac-mdio";
++			#address-cells = <0x01>;
++			#size-cells = <0x00>;
++			u-boot,dm-pre-reloc;
++			status = "okay";
++		};
++
++		fixed-link {
++			u-boot,dm-pre-reloc;
++			status = "okay";
++			speed = <0x3e8>;
++			full-duplex;
++			pause;
++		};
++	};
++
++	spi@fe2b0000 {
++		compatible = "rockchip,sfc";
++		reg = <0x00 0xfe2b0000 0x00 0x4000>;
++		interrupts = <0x00 0xce 0x04>;
++		clocks = <0x1000000b 0x13d 0x1000000b 0x13e>;
++		clock-names = "clk_sfc\0hclk_sfc";
++		#address-cells = <0x01>;
++		#size-cells = <0x00>;
++		status = "okay";
++		u-boot,dm-spl;
++		pinctrl-names = "default";
++		pinctrl-0 = <0x1000002e>;
++
++		flash@0 {
++			status = "disabled";
++			u-boot,dm-spl;
++			compatible = "spi-nand";
++			reg = <0x00>;
++			spi-tx-bus-width = <0x01>;
++			spi-rx-bus-width = <0x04>;
++			spi-max-frequency = <0x4c4b400>;
++		};
++
++		flash@1 {
++			u-boot,dm-spl;
++			compatible = "jedec,spi-nor";
++			label = "sfc_nor";
++			reg = <0x00>;
++			spi-tx-bus-width = <0x01>;
++			spi-rx-bus-width = <0x04>;
++			spi-max-frequency = <0x5f5e100>;
++			spi-4byte-addressing;
++			broken-flash-reset;
++		};
++	};
++
++	mmc@fe2c0000 {
++		compatible = "rockchip,rk3588-dw-mshc\0rockchip,rk3288-dw-mshc";
++		reg = <0x00 0xfe2c0000 0x00 0x4000>;
++		interrupts = <0x00 0xcb 0x04>;
++		clocks = <0x1000000a 0x09 0x1000000a 0x17 0x1000000b 0x2c2 0x1000000b 0x2c3>;
++		clock-names = "ciu\0biu\0ciu-drive\0ciu-sample";
++		fifo-depth = <0x100>;
++		max-frequency = <0xbebc200>;
++		pinctrl-names = "default";
++		pinctrl-0 = <0x1000002f 0x10000030 0x10000031 0x10000032>;
++		status = "okay";
++		bus-width = <0x04>;
++		u-boot,dm-spl;
++		cd-gpios = <0x10000033 0x04 0x00>;
++	};
++
++	mmc@fe2e0000 {
++		compatible = "rockchip,rk3588-dwcmshc\0rockchip,dwcmshc-sdhci";
++		reg = <0x00 0xfe2e0000 0x00 0x10000>;
++		interrupts = <0x00 0xcd 0x04>;
++		clocks = <0x1000000b 0x13a 0x1000000b 0x138 0x1000000b 0x139 0x1000000b 0x13b 0x1000000b 0x13c>;
++		clock-names = "core\0bus\0axi\0block\0timer";
++		max-frequency = <0xbebc200>;
++		status = "okay";
++		bus-width = <0x08>;
++		u-boot,dm-spl;
++		mmc-hs200-1_8v;
++		non-removable;
++	};
++
++	decompress@fea80000 {
++		compatible = "rockchip,hw-decompress";
++		reg = <0x00 0xfea80000 0x00 0x1000>;
++		interrupts = <0x00 0x55 0x04>;
++		clocks = <0x1000000b 0x75 0x1000000b 0x77 0x1000000b 0x76>;
++		clock-names = "aclk\0dclk\0pclk";
++		resets = <0x1000000b 0x118>;
++		reset-names = "dresetn";
++		status = "okay";
++		u-boot,dm-spl;
++	};
++
++	serial@feb50000 {
++		compatible = "rockchip,rk3588-uart\0snps,dw-apb-uart";
++		reg = <0x00 0xfeb50000 0x00 0x100>;
++		interrupts = <0x00 0x14d 0x04>;
++		clocks = <0x1000000b 0xbb 0x1000000b 0xac>;
++		clock-names = "baudclk\0apb_pclk";
++		reg-shift = <0x02>;
++		reg-io-width = <0x04>;
++		dmas = <0x10000015 0x0a 0x10000015 0x0b>;
++		pinctrl-names = "default";
++		pinctrl-0 = <0x10000078>;
++		status = "okay";
++		u-boot,dm-spl;
++	};
++
++	saradc@fec10000 {
++		compatible = "rockchip,rk3588-saradc";
++		reg = <0x00 0xfec10000 0x00 0x10000>;
++		interrupts = <0x00 0x18e 0x04>;
++		#io-channel-cells = <0x01>;
++		clocks = <0x1000000b 0x9d 0x1000000b 0x9c>;
++		clock-names = "saradc\0apb_pclk";
++		resets = <0x1000000b 0xbe>;
++		reset-names = "saradc-apb";
++		status = "okay";
++		u-boot,dm-pre-reloc;
++		phandle = <0x100000b6>;
++	};
++
++	pinctrl {
++		compatible = "rockchip,rk3588-pinctrl";
++		rockchip,grf = <0x1000009b>;
++		#address-cells = <0x02>;
++		#size-cells = <0x02>;
++		ranges;
++		u-boot,dm-spl;
++		phandle = <0x1000009c>;
++
++		gpio@fd8a0000 {
++			compatible = "rockchip,gpio-bank";
++			reg = <0x00 0xfd8a0000 0x00 0x100>;
++			interrupts = <0x00 0x115 0x04>;
++			clocks = <0x1000000b 0x284 0x1000000b 0x285>;
++			gpio-controller;
++			#gpio-cells = <0x02>;
++			gpio-ranges = <0x1000009c 0x00 0x00 0x20>;
++			interrupt-controller;
++			#interrupt-cells = <0x02>;
++			u-boot,dm-spl;
++			status = "okay";
++			phandle = <0x10000033>;
++		};
++
++		gpio@fec20000 {
++			compatible = "rockchip,gpio-bank";
++			reg = <0x00 0xfec20000 0x00 0x100>;
++			interrupts = <0x00 0x116 0x04>;
++			clocks = <0x1000000b 0x7d 0x1000000b 0x7e>;
++			gpio-controller;
++			#gpio-cells = <0x02>;
++			gpio-ranges = <0x1000009c 0x00 0x20 0x20>;
++			interrupt-controller;
++			#interrupt-cells = <0x02>;
++			u-boot,dm-pre-reloc;
++			status = "okay";
++		};
++
++		gpio@fec30000 {
++			compatible = "rockchip,gpio-bank";
++			reg = <0x00 0xfec30000 0x00 0x100>;
++			interrupts = <0x00 0x117 0x04>;
++			clocks = <0x1000000b 0x7f 0x1000000b 0x80>;
++			gpio-controller;
++			#gpio-cells = <0x02>;
++			gpio-ranges = <0x1000009c 0x00 0x40 0x20>;
++			interrupt-controller;
++			#interrupt-cells = <0x02>;
++			u-boot,dm-pre-reloc;
++			status = "okay";
++			phandle = <0x100000b8>;
++		};
++
++		gpio@fec40000 {
++			compatible = "rockchip,gpio-bank";
++			reg = <0x00 0xfec40000 0x00 0x100>;
++			interrupts = <0x00 0x118 0x04>;
++			clocks = <0x1000000b 0x81 0x1000000b 0x82>;
++			gpio-controller;
++			#gpio-cells = <0x02>;
++			gpio-ranges = <0x1000009c 0x00 0x60 0x20>;
++			interrupt-controller;
++			#interrupt-cells = <0x02>;
++			u-boot,dm-pre-reloc;
++			status = "okay";
++			phandle = <0x100000a7>;
++		};
++
++		gpio@fec50000 {
++			compatible = "rockchip,gpio-bank";
++			reg = <0x00 0xfec50000 0x00 0x100>;
++			interrupts = <0x00 0x119 0x04>;
++			clocks = <0x1000000b 0x83 0x1000000b 0x84>;
++			gpio-controller;
++			#gpio-cells = <0x02>;
++			gpio-ranges = <0x1000009c 0x00 0x80 0x20>;
++			interrupt-controller;
++			#interrupt-cells = <0x02>;
++			u-boot,dm-pre-reloc;
++			status = "okay";
++			phandle = <0x10000028>;
++		};
++
++		pcfg-pull-up {
++			bias-pull-up;
++			u-boot,dm-spl;
++			phandle = <0x1000009f>;
++		};
++
++		pcfg-pull-none {
++			bias-disable;
++			u-boot,dm-spl;
++			phandle = <0x1000009d>;
++		};
++
++		pcfg-pull-up-drv-level-2 {
++			bias-pull-up;
++			drive-strength = <0x02>;
++			u-boot,dm-spl;
++			phandle = <0x1000009e>;
++		};
++
++		fspi {
++			u-boot,dm-spl;
++
++			fspim0-pins {
++				rockchip,pins = <0x02 0x00 0x02 0x1000009d 0x02 0x1e 0x02 0x1000009d 0x02 0x18 0x02 0x1000009d 0x02 0x19 0x02 0x1000009d 0x02 0x1a 0x02 0x1000009d 0x02 0x1b 0x02 0x1000009d>;
++				u-boot,dm-spl;
++				phandle = <0x1000002e>;
++			};
++		};
++
++		gmac1 {
++
++			gmac1-miim {
++				rockchip,pins = <0x03 0x12 0x01 0x1000009d 0x03 0x13 0x01 0x1000009d>;
++				u-boot,dm-pre-reloc;
++				phandle = <0x10000029>;
++			};
++
++			gmac1-rx-bus2 {
++				rockchip,pins = <0x03 0x07 0x01 0x1000009d 0x03 0x08 0x01 0x1000009d 0x03 0x09 0x01 0x1000009d>;
++				u-boot,dm-pre-reloc;
++				phandle = <0x1000002b>;
++			};
++
++			gmac1-tx-bus2 {
++				rockchip,pins = <0x03 0x0b 0x01 0x1000009d 0x03 0x0c 0x01 0x1000009d 0x03 0x0d 0x01 0x1000009d>;
++				u-boot,dm-pre-reloc;
++				phandle = <0x1000002a>;
++			};
++
++			gmac1-rgmii-clk {
++				rockchip,pins = <0x03 0x05 0x01 0x1000009d 0x03 0x04 0x01 0x1000009d>;
++				u-boot,dm-pre-reloc;
++				phandle = <0x1000002c>;
++			};
++
++			gmac1-rgmii-bus {
++				rockchip,pins = <0x03 0x02 0x01 0x1000009d 0x03 0x03 0x01 0x1000009d 0x03 0x00 0x01 0x1000009d 0x03 0x01 0x01 0x1000009d>;
++				u-boot,dm-pre-reloc;
++				phandle = <0x1000002d>;
++			};
++		};
++
++		sdmmc {
++			u-boot,dm-spl;
++
++			sdmmc-bus4 {
++				rockchip,pins = <0x04 0x18 0x01 0x1000009e 0x04 0x19 0x01 0x1000009e 0x04 0x1a 0x01 0x1000009e 0x04 0x1b 0x01 0x1000009e>;
++				u-boot,dm-spl;
++				phandle = <0x10000032>;
++			};
++
++			sdmmc-clk {
++				rockchip,pins = <0x04 0x1d 0x01 0x1000009e>;
++				u-boot,dm-spl;
++				phandle = <0x1000002f>;
++			};
++
++			sdmmc-cmd {
++				rockchip,pins = <0x04 0x1c 0x01 0x1000009e>;
++				u-boot,dm-spl;
++				phandle = <0x10000030>;
++			};
++
++			sdmmc-det {
++				rockchip,pins = <0x00 0x04 0x01 0x1000009f>;
++				u-boot,dm-spl;
++				phandle = <0x10000031>;
++			};
++
++			sdmmc-pwren {
++				rockchip,pins = <0x00 0x05 0x02 0x1000009d>;
++				u-boot,dm-spl;
++			};
++
++			sata-reset {
++				u-boot,dm-spl;
++				rockchip,pins = <0x03 0x19 0x00 0x1000009f>;
++			};
++		};
++
++		gmac0 {
++
++			gmac0-miim {
++				rockchip,pins = <0x04 0x14 0x01 0x1000009d 0x04 0x15 0x01 0x1000009d>;
++				u-boot,dm-pre-reloc;
++				phandle = <0x100000ad>;
++			};
++
++			gmac0-rx-bus2 {
++				rockchip,pins = <0x02 0x11 0x01 0x1000009d 0x02 0x12 0x01 0x1000009d 0x04 0x12 0x01 0x1000009d>;
++				u-boot,dm-pre-reloc;
++				phandle = <0x100000af>;
++			};
++
++			gmac0-tx-bus2 {
++				rockchip,pins = <0x02 0x0e 0x01 0x1000009d 0x02 0x0f 0x01 0x1000009d 0x02 0x10 0x01 0x1000009d>;
++				u-boot,dm-pre-reloc;
++				phandle = <0x100000ae>;
++			};
++
++			gmac0-rgmii-clk {
++				rockchip,pins = <0x02 0x08 0x01 0x1000009d 0x02 0x0b 0x01 0x1000009d>;
++				u-boot,dm-pre-reloc;
++				phandle = <0x100000b0>;
++			};
++
++			gmac0-rgmii-bus {
++				rockchip,pins = <0x02 0x06 0x01 0x1000009d 0x02 0x07 0x01 0x1000009d 0x02 0x09 0x01 0x1000009d 0x02 0x0a 0x01 0x1000009d>;
++				u-boot,dm-pre-reloc;
++				phandle = <0x100000b1>;
++			};
++		};
++	};
++
++	syscon@fd5b8000 {
++		compatible = "rockchip,pcie30-phy-grf\0syscon";
++		reg = <0x00 0xfd5b8000 0x00 0x10000>;
++		u-boot,dm-pre-reloc;
++		status = "okay";
++		phandle = <0x100000b5>;
++	};
++
++	syscon@fd5c0000 {
++		compatible = "rockchip,pipe-phy-grf\0syscon";
++		reg = <0x00 0xfd5c0000 0x00 0x100>;
++		u-boot,dm-pre-reloc;
++		status = "okay";
++		phandle = <0x100000b4>;
++	};
++
++	syscon@fd5d4000 {
++		u-boot,dm-pre-reloc;
++		compatible = "rockchip,rk3588-usb2phy-grf\0syscon\0simple-mfd";
++		reg = <0x00 0xfd5d4000 0x00 0x4000>;
++		#address-cells = <0x01>;
++		#size-cells = <0x01>;
++
++		usb2-phy@4000 {
++			compatible = "rockchip,rk3588-usb2phy";
++			reg = <0x4000 0x10>;
++			interrupts = <0x00 0x18a 0x04>;
++			clocks = <0x1000000b 0x2b5>;
++			clock-names = "phyclk";
++			#clock-cells = <0x00>;
++			status = "okay";
++			u-boot,dm-pre-reloc;
++
++			otg-port {
++				#phy-cells = <0x00>;
++				status = "okay";
++				u-boot,dm-pre-reloc;
++			};
++		};
++	};
++
++	pcie@fe150000 {
++		compatible = "rockchip,rk3588-pcie\0snps,dw-pcie";
++		#address-cells = <0x03>;
++		#size-cells = <0x02>;
++		bus-range = <0x00 0x0f>;
++		clocks = <0x1000000b 0x14e 0x1000000b 0x153 0x1000000b 0x149 0x1000000b 0x158 0x1000000b 0x15e>;
++		clock-names = "aclk_mst\0aclk_slv\0aclk_dbi\0pclk\0aux";
++		device_type = "pci";
++		interrupts = <0x00 0x107 0x04 0x00 0x106 0x04 0x00 0x105 0x04 0x00 0x104 0x04 0x00 0x103 0x04>;
++		interrupt-names = "sys\0pmc\0msg\0legacy\0err";
++		#interrupt-cells = <0x01>;
++		interrupt-map-mask = <0x00 0x00 0x00 0x07>;
++		interrupt-map = <0x00 0x00 0x00 0x01 0x100000a3 0x00 0x00 0x00 0x00 0x02 0x100000a3 0x01 0x00 0x00 0x00 0x03 0x100000a3 0x02 0x00 0x00 0x00 0x04 0x100000a3 0x03>;
++		linux,pci-domain = <0x00>;
++		num-ib-windows = <0x10>;
++		num-ob-windows = <0x10>;
++		max-link-speed = <0x03>;
++		msi-map = <0x00 0x10000020 0x00 0x1000>;
++		num-lanes = <0x02>;
++		phys = <0x100000a4>;
++		phy-names = "pcie-phy";
++		power-domains = <0x1000000c 0x22>;
++		ranges = <0x800 0x00 0xf0000000 0x00 0xf0000000 0x00 0x100000 0x81000000 0x00 0xf0100000 0x00 0xf0100000 0x00 0x100000 0x82000000 0x00 0xf0200000 0x00 0xf0200000 0x00 0xe00000 0xc3000000 0x09 0x00 0x09 0x00 0x00 0x40000000>;
++		reg = <0x0a 0x40000000 0x00 0x400000 0x00 0xfe150000 0x00 0x10000>;
++		reg-names = "pcie-dbi\0pcie-apb";
++		resets = <0x1000000b 0x20d>;
++		reset-names = "pipe";
++		status = "okay";
++		u-boot,dm-pre-reloc;
++		vpcie3v3-supply = <0x100000a5>;
++		reset-gpios = <0x10000028 0x0e 0x00>;
++		rockchip,shared-phy-no-exit;
++	};
++
++	pcie@fe160000 {
++		compatible = "rockchip,rk3588-pcie\0snps,dw-pcie";
++		#address-cells = <0x03>;
++		#size-cells = <0x02>;
++		bus-range = <0x10 0x1f>;
++		clocks = <0x1000000b 0x14f 0x1000000b 0x154 0x1000000b 0x14a 0x1000000b 0x159 0x1000000b 0x15f>;
++		clock-names = "aclk_mst\0aclk_slv\0aclk_dbi\0pclk\0aux";
++		device_type = "pci";
++		interrupts = <0x00 0x102 0x04 0x00 0x101 0x04 0x00 0x100 0x04 0x00 0xff 0x04 0x00 0xfe 0x04>;
++		interrupt-names = "sys\0pmc\0msg\0legacy\0err";
++		#interrupt-cells = <0x01>;
++		interrupt-map-mask = <0x00 0x00 0x00 0x07>;
++		interrupt-map = <0x00 0x00 0x00 0x01 0x100000a6 0x00 0x00 0x00 0x00 0x02 0x100000a6 0x01 0x00 0x00 0x00 0x03 0x100000a6 0x02 0x00 0x00 0x00 0x04 0x100000a6 0x03>;
++		linux,pci-domain = <0x01>;
++		num-ib-windows = <0x10>;
++		num-ob-windows = <0x10>;
++		max-link-speed = <0x03>;
++		msi-map = <0x1000 0x10000020 0x1000 0x1000>;
++		num-lanes = <0x02>;
++		phys = <0x100000a4>;
++		phy-names = "pcie-phy";
++		power-domains = <0x1000000c 0x20>;
++		ranges = <0x800 0x00 0xf1000000 0x00 0xf1000000 0x00 0x100000 0x81000000 0x00 0xf1100000 0x00 0xf1100000 0x00 0x100000 0x82000000 0x00 0xf1200000 0x00 0xf1200000 0x00 0xe00000 0xc3000000 0x09 0x40000000 0x09 0x40000000 0x00 0x40000000>;
++		reg = <0x0a 0x40400000 0x00 0x400000 0x00 0xfe160000 0x00 0x10000>;
++		reg-names = "pcie-dbi\0pcie-apb";
++		resets = <0x1000000b 0x20e>;
++		reset-names = "pipe";
++		status = "okay";
++		u-boot,dm-pre-reloc;
++		vpcie3v3-supply = <0x100000a5>;
++		reset-gpios = <0x100000a7 0x1c 0x00>;
++		rockchip,shared-phy-no-exit;
++	};
++
++	ethernet@fe1b0000 {
++		compatible = "rockchip,rk3588-gmac\0snps,dwmac-4.20a";
++		reg = <0x00 0xfe1b0000 0x00 0x10000>;
++		interrupts = <0x00 0xe3 0x04 0x00 0xe2 0x04>;
++		interrupt-names = "macirq\0eth_wake_irq";
++		rockchip,grf = <0x10000024>;
++		rockchip,php_grf = <0x10000013>;
++		clocks = <0x1000000b 0x144 0x1000000b 0x145 0x1000000b 0x167 0x1000000b 0x16c 0x1000000b 0x142>;
++		clock-names = "stmmaceth\0clk_mac_ref\0pclk_mac\0aclk_mac\0ptp_ref";
++		resets = <0x1000000b 0x20a>;
++		reset-names = "stmmaceth";
++		snps,mixed-burst;
++		snps,tso;
++		snps,axi-config = <0x100000aa>;
++		snps,mtl-rx-config = <0x100000ab>;
++		snps,mtl-tx-config = <0x100000ac>;
++		status = "okay";
++		u-boot,dm-pre-reloc;
++		phy-mode = "rgmii-rxid";
++		clock_in_out = "output";
++		tx_delay = <0x44>;
++		snps,reset-gpio = <0x100000a7 0x18 0x01>;
++		snps,reset-active-low;
++		snps,reset-delays-us = <0x00 0x4e20 0x186a0>;
++		pinctrl-names = "default";
++		pinctrl-0 = <0x100000ad 0x100000ae 0x100000af 0x100000b0 0x100000b1>;
++
++		mdio {
++			compatible = "snps,dwmac-mdio";
++			#address-cells = <0x01>;
++			#size-cells = <0x00>;
++			u-boot,dm-pre-reloc;
++			status = "okay";
++		};
++
++		fixed-link {
++			u-boot,dm-pre-reloc;
++			status = "okay";
++			speed = <0x3e8>;
++			full-duplex;
++			pause;
++		};
++	};
++
++	crypto@fe370000 {
++		compatible = "rockchip,rk3588-crypto";
++		reg = <0x00 0xfe370000 0x00 0x4000>;
++		clocks = <0x1000000a 0x14 0x1000000a 0x15>;
++		clock-names = "sclk_crypto\0apkclk_crypto";
++		clock-frequency = <0x14dc9380 0x14dc9380>;
++		status = "okay";
++		u-boot,dm-spl;
++	};
++
++	rng@fe378000 {
++		compatible = "rockchip,trngv1";
++		reg = <0x00 0xfe378000 0x00 0x200>;
++		status = "okay";
++		u-boot,dm-pre-reloc;
++	};
++
++	phy@fee80000 {
++		compatible = "rockchip,rk3588-pcie3-phy";
++		reg = <0x00 0xfee80000 0x00 0x20000>;
++		#phy-cells = <0x00>;
++		clocks = <0x1000000b 0x188>;
++		clock-names = "pclk";
++		resets = <0x1000000b 0x2000a>;
++		reset-names = "phy";
++		rockchip,pipe-grf = <0x10000013>;
++		rockchip,phy-grf = <0x100000b5>;
++		status = "okay";
++		u-boot,dm-pre-reloc;
++		rockchip,pcie30-phymode = <0x00>;
++		phandle = <0x100000a4>;
++	};
++
++	chosen {
++		stdout-path = "/serial@feb50000";
++		u-boot,spl-boot-order = "/mmc@fe2c0000\0/mmc@fe2e0000\0/spi@fe2b0000/flash@0\0/spi@fe2b0000/flash@1";
++	};
++
++	secure-otp@fe3a0000 {
++		u-boot,dm-spl;
++		compatible = "rockchip,rk3588-secure-otp";
++		reg = <0x00 0xfe3a0000 0x00 0x4000>;
++	};
+ 
+ 	adc-keys {
+ 		compatible = "adc-keys";
+-		io-channels = <&saradc 1>;
++		io-channels = <0x100000b6 0x01>;
+ 		io-channel-names = "buttons";
+-		keyup-threshold-microvolt = <1800000>;
++		keyup-threshold-microvolt = <0x1b7740>;
+ 		u-boot,dm-pre-reloc;
+ 		status = "okay";
+ 
+ 		volumeup-key {
+ 			u-boot,dm-pre-reloc;
+-			linux,code = <KEY_VOLUMEUP>;
++			linux,code = <0x73>;
+ 			label = "volume up";
+-			press-threshold-microvolt = <1750>;
++			press-threshold-microvolt = <0x6d6>;
+ 		};
+ 	};
++
++	vcc5v0-sys {
++		u-boot,dm-pre-reloc;
++		compatible = "regulator-fixed";
++		regulator-name = "vcc5v0_sys";
++		regulator-always-on;
++		regulator-boot-on;
++		regulator-min-microvolt = <0x4c4b40>;
++		regulator-max-microvolt = <0x4c4b40>;
++		phandle = <0x100000b7>;
++	};
++
++	vcc5v0-host {
++		u-boot,dm-pre-reloc;
++		compatible = "regulator-fixed";
++		regulator-name = "vcc5v0_host";
++		regulator-boot-on;
++		regulator-always-on;
++		regulator-min-microvolt = <0x4c4b40>;
++		regulator-max-microvolt = <0x4c4b40>;
++		enable-active-high;
++		gpio = <0x100000a7 0x1d 0x00>;
++		vin-supply = <0x100000b7>;
++	};
++
++	vcc3v3-pcie30 {
++		u-boot,dm-pre-reloc;
++		compatible = "regulator-fixed";
++		regulator-name = "vcc3v3_pcie30";
++		regulator-min-microvolt = <0x325aa0>;
++		regulator-max-microvolt = <0x325aa0>;
++		enable-active-high;
++		gpio = <0x100000b8 0x0e 0x00>;
++		regulator-boot-on;
++		regulator-always-on;
++		vin-supply = <0x100000b7>;
++		phandle = <0x100000a5>;
++	};
+ };
+diff --git a/arch/arm/dts/rk3588-u-boot.dtsi b/arch/arm/dts/rk3588-u-boot.dtsi
+index 8dbc5d688e..dfea11f56f 100644
+--- a/arch/arm/dts/rk3588-u-boot.dtsi
++++ b/arch/arm/dts/rk3588-u-boot.dtsi
+@@ -14,7 +14,7 @@
+ 
+ 	chosen {
+ 		stdout-path = &uart2;
+-		u-boot,spl-boot-order = &sdmmc, &sdhci, &spi_nand, &spi_nor;
++		u-boot,spl-boot-order = &sdmmc, &sdhci, &spi_nand, &spi_nor, &sata1;
+ 	};
+ 
+ 	secure-otp@fe3a0000 {
+diff --git a/configs/rk3588_defconfig b/configs/rk3588_defconfig
+index fb8b752793..b6593c5fdb 100644
+--- a/configs/rk3588_defconfig
++++ b/configs/rk3588_defconfig
+@@ -78,7 +78,7 @@ CONFIG_CMD_USB_MASS_STORAGE=y
+ CONFIG_CMD_TFTPPUT=y
+ CONFIG_CMD_TFTP_BOOTM=y
+ CONFIG_CMD_TFTP_FLASH=y
+-# CONFIG_CMD_MISC is not set
++CONFIG_CMD_MISC=y
+ CONFIG_CMD_MTD_BLK=y
+ # CONFIG_SPL_DOS_PARTITION is not set
+ # CONFIG_ISO_PARTITION is not set
+@@ -236,3 +236,12 @@ CONFIG_RK_AVB_LIBAVB_USER=y
+ CONFIG_OPTEE_CLIENT=y
+ CONFIG_OPTEE_V2=y
+ CONFIG_OPTEE_ALWAYS_USE_SECURITY_PARTITION=y
++CONFIG_PCI=y
++CONFIG_CMD_PCI=y
++CONFIG_NVME=y
++CONFIG_DM_PCI=y
++CONFIG_PCIE_DW_ROCKCHIP=y
++CONFIG_CMD_NVME=y
++CONFIG_CMD_MTD=y
++CONFIG_CMD_MTD_BLK=y
++
+diff --git a/rk3588-evb.dts b/rk3588-evb.dts
+new file mode 120000
+index 0000000000..ea8b124985
+--- /dev/null
++++ b/rk3588-evb.dts
+@@ -0,0 +1 @@
++arch/arm/dts/rk3588-evb.dts
+\ No newline at end of file
+diff --git a/uboot.dts b/uboot.dts
+new file mode 100644
+index 0000000000..ed80736194
+--- /dev/null
++++ b/uboot.dts
+@@ -0,0 +1,877 @@
++/dts-v1/;
++
++/ {
++	compatible = "phoenix,rk3588\0rockchip,rk3588";
++	#address-cells = <0x02>;
++	#size-cells = <0x02>;
++	model = "Phoenix Compiled by Saigetsux@gmail.com";
++
++	aliases {
++		ethernet1 = "/ethernet@fe1c0000";
++		serial2 = "/serial@feb50000";
++		spi5 = "/spi@fe2b0000";
++		ethernet0 = "/ethernet@fe1b0000";
++		mmc0 = "/mmc@fe2c0000";
++		mmc1 = "/mmc@fe2e0000";
++	};
++
++	firmware {
++		u-boot,dm-spl;
++
++		scmi {
++			compatible = "arm,scmi-smc";
++			shmem = <0x10000009>;
++			arm,smc-id = <0x82000010>;
++			#address-cells = <0x01>;
++			#size-cells = <0x00>;
++			u-boot,dm-spl;
++
++			protocol@14 {
++				reg = <0x14>;
++				#clock-cells = <0x01>;
++				u-boot,dm-spl;
++				phandle = <0x1000000a>;
++			};
++		};
++	};
++
++	psci {
++		compatible = "arm,psci-1.0";
++		method = "smc";
++		u-boot,dm-pre-reloc;
++		status = "okay";
++	};
++
++	xin24m {
++		compatible = "fixed-clock";
++		#clock-cells = <0x00>;
++		clock-frequency = <0x16e3600>;
++		clock-output-names = "xin24m";
++		u-boot,dm-pre-reloc;
++		status = "okay";
++	};
++
++	sram@10f000 {
++		compatible = "mmio-sram";
++		reg = <0x00 0x10f000 0x00 0x100>;
++		#address-cells = <0x01>;
++		#size-cells = <0x01>;
++		ranges = <0x00 0x00 0x10f000 0x100>;
++		u-boot,dm-spl;
++
++		scmi_shmem@0 {
++			compatible = "arm,scmi-shmem";
++			reg = <0x00 0x100>;
++			u-boot,dm-spl;
++			phandle = <0x10000009>;
++		};
++	};
++
++	usb@fc800000 {
++		compatible = "rockchip,rk3588-ehci\0generic-ehci";
++		reg = <0x00 0xfc800000 0x00 0x40000>;
++		interrupts = <0x00 0xd7 0x04>;
++		clocks = <0x1000000b 0x19d 0x1000000b 0x19e 0x1000000d>;
++		clock-names = "usbhost\0arbiter\0utmi";
++		power-domains = <0x1000000c 0x1f>;
++		status = "okay";
++		u-boot,dm-pre-reloc;
++		companion = <0x1000000e>;
++		phys = <0x1000000f>;
++		phy-names = "usb2-phy";
++	};
++
++	usb@fc840000 {
++		compatible = "generic-ohci";
++		reg = <0x00 0xfc840000 0x00 0x40000>;
++		interrupts = <0x00 0xd8 0x04>;
++		clocks = <0x1000000b 0x19d 0x1000000b 0x19e 0x1000000d>;
++		clock-names = "usbhost\0arbiter\0utmi";
++		power-domains = <0x1000000c 0x1f>;
++		status = "okay";
++		u-boot,dm-pre-reloc;
++		phys = <0x1000000f>;
++		phy-names = "usb2-phy";
++		phandle = <0x1000000e>;
++	};
++
++	usb@fc880000 {
++		compatible = "rockchip,rk3588-ehci\0generic-ehci";
++		reg = <0x00 0xfc880000 0x00 0x40000>;
++		interrupts = <0x00 0xda 0x04>;
++		clocks = <0x1000000b 0x19f 0x1000000b 0x1a0 0x10000010>;
++		clock-names = "usbhost\0arbiter\0utmi";
++		power-domains = <0x1000000c 0x1f>;
++		status = "okay";
++		u-boot,dm-pre-reloc;
++		companion = <0x10000011>;
++		phys = <0x10000012>;
++		phy-names = "usb2-phy";
++	};
++
++	usb@fc8c0000 {
++		compatible = "generic-ohci";
++		reg = <0x00 0xfc8c0000 0x00 0x40000>;
++		interrupts = <0x00 0xdb 0x04>;
++		clocks = <0x1000000b 0x19f 0x1000000b 0x1a0 0x10000010>;
++		clock-names = "usbhost\0arbiter\0utmi";
++		power-domains = <0x1000000c 0x1f>;
++		status = "okay";
++		u-boot,dm-pre-reloc;
++		phys = <0x10000012>;
++		phy-names = "usb2-phy";
++		phandle = <0x10000011>;
++	};
++
++	syscon@fd58c000 {
++		compatible = "rockchip,rk3588-sys-grf\0syscon";
++		reg = <0x00 0xfd58c000 0x00 0x1000>;
++		u-boot,dm-spl;
++		status = "okay";
++		phandle = <0x10000024>;
++	};
++
++	syscon@fd5b0000 {
++		compatible = "rockchip,rk3588-php-grf\0syscon";
++		reg = <0x00 0xfd5b0000 0x00 0x1000>;
++		u-boot,dm-pre-reloc;
++		status = "okay";
++		phandle = <0x10000013>;
++	};
++
++	syscon@fd5bc000 {
++		compatible = "rockchip,pipe-phy-grf\0syscon";
++		reg = <0x00 0xfd5bc000 0x00 0x100>;
++		u-boot,dm-pre-reloc;
++		status = "okay";
++		phandle = <0x10000099>;
++	};
++
++	syscon@fd5c4000 {
++		compatible = "rockchip,pipe-phy-grf\0syscon";
++		reg = <0x00 0xfd5c4000 0x00 0x100>;
++		u-boot,dm-pre-reloc;
++		status = "okay";
++		phandle = <0x1000009a>;
++	};
++
++	syscon@fd5d0000 {
++		u-boot,dm-pre-reloc;
++		compatible = "rockchip,rk3588-usb2phy-grf\0syscon\0simple-mfd";
++		reg = <0x00 0xfd5d0000 0x00 0x4000>;
++		#address-cells = <0x01>;
++		#size-cells = <0x01>;
++
++		usb2-phy@0 {
++			compatible = "rockchip,rk3588-usb2phy";
++			reg = <0x00 0x10>;
++			interrupts = <0x00 0x189 0x04>;
++			clocks = <0x1000000b 0x2b5>;
++			clock-names = "phyclk";
++			#clock-cells = <0x00>;
++			status = "okay";
++			u-boot,dm-pre-reloc;
++
++			otg-port {
++				#phy-cells = <0x00>;
++				status = "okay";
++				u-boot,dm-pre-reloc;
++			};
++		};
++	};
++
++	syscon@fd5d8000 {
++		u-boot,dm-pre-reloc;
++		compatible = "rockchip,rk3588-usb2phy-grf\0syscon\0simple-mfd";
++		reg = <0x00 0xfd5d8000 0x00 0x4000>;
++		#address-cells = <0x01>;
++		#size-cells = <0x01>;
++
++		usb2-phy@8000 {
++			compatible = "rockchip,rk3588-usb2phy";
++			reg = <0x8000 0x10>;
++			interrupts = <0x00 0x187 0x04>;
++			resets = <0x1000000b 0xc0049 0x1000000b 0x48a>;
++			reset-names = "phy\0apb";
++			clocks = <0x1000000b 0x2b5>;
++			clock-names = "phyclk";
++			#clock-cells = <0x00>;
++			status = "okay";
++			u-boot,dm-pre-reloc;
++			phandle = <0x1000000d>;
++
++			host-port {
++				#phy-cells = <0x00>;
++				status = "okay";
++				u-boot,dm-pre-reloc;
++				phandle = <0x1000000f>;
++			};
++		};
++	};
++
++	syscon@fd5dc000 {
++		u-boot,dm-pre-reloc;
++		compatible = "rockchip,rk3588-usb2phy-grf\0syscon\0simple-mfd";
++		reg = <0x00 0xfd5dc000 0x00 0x4000>;
++		#address-cells = <0x01>;
++		#size-cells = <0x01>;
++
++		usb2-phy@c000 {
++			compatible = "rockchip,rk3588-usb2phy";
++			reg = <0xc000 0x10>;
++			interrupts = <0x00 0x188 0x04>;
++			resets = <0x1000000b 0xc004a 0x1000000b 0x48b>;
++			reset-names = "phy\0apb";
++			clocks = <0x1000000b 0x2b5>;
++			clock-names = "phyclk";
++			#clock-cells = <0x00>;
++			status = "okay";
++			u-boot,dm-pre-reloc;
++			phandle = <0x10000010>;
++
++			host-port {
++				#phy-cells = <0x00>;
++				status = "okay";
++				u-boot,dm-pre-reloc;
++				phandle = <0x10000012>;
++			};
++		};
++	};
++
++	syscon@fd5f0000 {
++		compatible = "rockchip,rk3588-ioc\0syscon";
++		reg = <0x00 0xfd5f0000 0x00 0x10000>;
++		u-boot,dm-spl;
++		phandle = <0x1000009b>;
++	};
++
++	clock-controller@fd7c0000 {
++		compatible = "rockchip,rk3588-cru";
++		rockchip,grf = <0x10000013>;
++		reg = <0x00 0xfd7c0000 0x00 0x5c000>;
++		#clock-cells = <0x01>;
++		#reset-cells = <0x01>;
++		u-boot,dm-spl;
++		status = "okay";
++		phandle = <0x1000000b>;
++	};
++
++	ethernet@fe1c0000 {
++		compatible = "rockchip,rk3588-gmac\0snps,dwmac-4.20a";
++		reg = <0x00 0xfe1c0000 0x00 0x10000>;
++		interrupts = <0x00 0xea 0x04 0x00 0xe9 0x04>;
++		interrupt-names = "macirq\0eth_wake_irq";
++		rockchip,grf = <0x10000024>;
++		rockchip,php_grf = <0x10000013>;
++		clocks = <0x1000000b 0x144 0x1000000b 0x145 0x1000000b 0x168 0x1000000b 0x16d 0x1000000b 0x143>;
++		clock-names = "stmmaceth\0clk_mac_ref\0pclk_mac\0aclk_mac\0ptp_ref";
++		resets = <0x1000000b 0x20b>;
++		reset-names = "stmmaceth";
++		snps,mixed-burst;
++		snps,tso;
++		snps,axi-config = <0x10000025>;
++		snps,mtl-rx-config = <0x10000026>;
++		snps,mtl-tx-config = <0x10000027>;
++		status = "okay";
++		u-boot,dm-pre-reloc;
++		phy-mode = "rgmii-rxid";
++		clock_in_out = "output";
++		tx_delay = <0x42>;
++		snps,reset-gpio = <0x10000028 0x0b 0x01>;
++		snps,reset-active-low;
++		snps,reset-delays-us = <0x00 0x4e20 0x186a0>;
++		pinctrl-names = "default";
++		pinctrl-0 = <0x10000029 0x1000002a 0x1000002b 0x1000002c 0x1000002d>;
++
++		mdio {
++			compatible = "snps,dwmac-mdio";
++			#address-cells = <0x01>;
++			#size-cells = <0x00>;
++			u-boot,dm-pre-reloc;
++			status = "okay";
++		};
++
++		fixed-link {
++			u-boot,dm-pre-reloc;
++			status = "okay";
++			speed = <0x3e8>;
++			full-duplex;
++			pause;
++		};
++	};
++
++	spi@fe2b0000 {
++		compatible = "rockchip,sfc";
++		reg = <0x00 0xfe2b0000 0x00 0x4000>;
++		interrupts = <0x00 0xce 0x04>;
++		clocks = <0x1000000b 0x13d 0x1000000b 0x13e>;
++		clock-names = "clk_sfc\0hclk_sfc";
++		#address-cells = <0x01>;
++		#size-cells = <0x00>;
++		status = "okay";
++		u-boot,dm-spl;
++		pinctrl-names = "default";
++		pinctrl-0 = <0x1000002e>;
++
++		flash@0 {
++			status = "disabled";
++			u-boot,dm-spl;
++			compatible = "spi-nand";
++			reg = <0x00>;
++			spi-tx-bus-width = <0x01>;
++			spi-rx-bus-width = <0x04>;
++			spi-max-frequency = <0x4c4b400>;
++		};
++
++		flash@1 {
++			u-boot,dm-spl;
++			compatible = "jedec,spi-nor";
++			label = "sfc_nor";
++			reg = <0x00>;
++			spi-tx-bus-width = <0x01>;
++			spi-rx-bus-width = <0x04>;
++			spi-max-frequency = <0x5f5e100>;
++			spi-4byte-addressing;
++			broken-flash-reset;
++		};
++	};
++
++	mmc@fe2c0000 {
++		compatible = "rockchip,rk3588-dw-mshc\0rockchip,rk3288-dw-mshc";
++		reg = <0x00 0xfe2c0000 0x00 0x4000>;
++		interrupts = <0x00 0xcb 0x04>;
++		clocks = <0x1000000a 0x09 0x1000000a 0x17 0x1000000b 0x2c2 0x1000000b 0x2c3>;
++		clock-names = "ciu\0biu\0ciu-drive\0ciu-sample";
++		fifo-depth = <0x100>;
++		max-frequency = <0xbebc200>;
++		pinctrl-names = "default";
++		pinctrl-0 = <0x1000002f 0x10000030 0x10000031 0x10000032>;
++		status = "okay";
++		bus-width = <0x04>;
++		u-boot,dm-spl;
++		cd-gpios = <0x10000033 0x04 0x00>;
++	};
++
++	mmc@fe2e0000 {
++		compatible = "rockchip,rk3588-dwcmshc\0rockchip,dwcmshc-sdhci";
++		reg = <0x00 0xfe2e0000 0x00 0x10000>;
++		interrupts = <0x00 0xcd 0x04>;
++		clocks = <0x1000000b 0x13a 0x1000000b 0x138 0x1000000b 0x139 0x1000000b 0x13b 0x1000000b 0x13c>;
++		clock-names = "core\0bus\0axi\0block\0timer";
++		max-frequency = <0xbebc200>;
++		status = "okay";
++		bus-width = <0x08>;
++		u-boot,dm-spl;
++		mmc-hs200-1_8v;
++		non-removable;
++	};
++
++	decompress@fea80000 {
++		compatible = "rockchip,hw-decompress";
++		reg = <0x00 0xfea80000 0x00 0x1000>;
++		interrupts = <0x00 0x55 0x04>;
++		clocks = <0x1000000b 0x75 0x1000000b 0x77 0x1000000b 0x76>;
++		clock-names = "aclk\0dclk\0pclk";
++		resets = <0x1000000b 0x118>;
++		reset-names = "dresetn";
++		status = "okay";
++		u-boot,dm-spl;
++	};
++
++	serial@feb50000 {
++		compatible = "rockchip,rk3588-uart\0snps,dw-apb-uart";
++		reg = <0x00 0xfeb50000 0x00 0x100>;
++		interrupts = <0x00 0x14d 0x04>;
++		clocks = <0x1000000b 0xbb 0x1000000b 0xac>;
++		clock-names = "baudclk\0apb_pclk";
++		reg-shift = <0x02>;
++		reg-io-width = <0x04>;
++		dmas = <0x10000015 0x0a 0x10000015 0x0b>;
++		pinctrl-names = "default";
++		pinctrl-0 = <0x10000078>;
++		status = "okay";
++		u-boot,dm-spl;
++	};
++
++	saradc@fec10000 {
++		compatible = "rockchip,rk3588-saradc";
++		reg = <0x00 0xfec10000 0x00 0x10000>;
++		interrupts = <0x00 0x18e 0x04>;
++		#io-channel-cells = <0x01>;
++		clocks = <0x1000000b 0x9d 0x1000000b 0x9c>;
++		clock-names = "saradc\0apb_pclk";
++		resets = <0x1000000b 0xbe>;
++		reset-names = "saradc-apb";
++		status = "okay";
++		u-boot,dm-pre-reloc;
++		phandle = <0x100000b6>;
++	};
++
++	pinctrl {
++		compatible = "rockchip,rk3588-pinctrl";
++		rockchip,grf = <0x1000009b>;
++		#address-cells = <0x02>;
++		#size-cells = <0x02>;
++		ranges;
++		u-boot,dm-spl;
++		phandle = <0x1000009c>;
++
++		gpio@fd8a0000 {
++			compatible = "rockchip,gpio-bank";
++			reg = <0x00 0xfd8a0000 0x00 0x100>;
++			interrupts = <0x00 0x115 0x04>;
++			clocks = <0x1000000b 0x284 0x1000000b 0x285>;
++			gpio-controller;
++			#gpio-cells = <0x02>;
++			gpio-ranges = <0x1000009c 0x00 0x00 0x20>;
++			interrupt-controller;
++			#interrupt-cells = <0x02>;
++			u-boot,dm-spl;
++			status = "okay";
++			phandle = <0x10000033>;
++		};
++
++		gpio@fec20000 {
++			compatible = "rockchip,gpio-bank";
++			reg = <0x00 0xfec20000 0x00 0x100>;
++			interrupts = <0x00 0x116 0x04>;
++			clocks = <0x1000000b 0x7d 0x1000000b 0x7e>;
++			gpio-controller;
++			#gpio-cells = <0x02>;
++			gpio-ranges = <0x1000009c 0x00 0x20 0x20>;
++			interrupt-controller;
++			#interrupt-cells = <0x02>;
++			u-boot,dm-pre-reloc;
++			status = "okay";
++		};
++
++		gpio@fec30000 {
++			compatible = "rockchip,gpio-bank";
++			reg = <0x00 0xfec30000 0x00 0x100>;
++			interrupts = <0x00 0x117 0x04>;
++			clocks = <0x1000000b 0x7f 0x1000000b 0x80>;
++			gpio-controller;
++			#gpio-cells = <0x02>;
++			gpio-ranges = <0x1000009c 0x00 0x40 0x20>;
++			interrupt-controller;
++			#interrupt-cells = <0x02>;
++			u-boot,dm-pre-reloc;
++			status = "okay";
++			phandle = <0x100000b8>;
++		};
++
++		gpio@fec40000 {
++			compatible = "rockchip,gpio-bank";
++			reg = <0x00 0xfec40000 0x00 0x100>;
++			interrupts = <0x00 0x118 0x04>;
++			clocks = <0x1000000b 0x81 0x1000000b 0x82>;
++			gpio-controller;
++			#gpio-cells = <0x02>;
++			gpio-ranges = <0x1000009c 0x00 0x60 0x20>;
++			interrupt-controller;
++			#interrupt-cells = <0x02>;
++			u-boot,dm-pre-reloc;
++			status = "okay";
++			phandle = <0x100000a7>;
++		};
++
++		gpio@fec50000 {
++			compatible = "rockchip,gpio-bank";
++			reg = <0x00 0xfec50000 0x00 0x100>;
++			interrupts = <0x00 0x119 0x04>;
++			clocks = <0x1000000b 0x83 0x1000000b 0x84>;
++			gpio-controller;
++			#gpio-cells = <0x02>;
++			gpio-ranges = <0x1000009c 0x00 0x80 0x20>;
++			interrupt-controller;
++			#interrupt-cells = <0x02>;
++			u-boot,dm-pre-reloc;
++			status = "okay";
++			phandle = <0x10000028>;
++		};
++
++		pcfg-pull-up {
++			bias-pull-up;
++			u-boot,dm-spl;
++			phandle = <0x1000009f>;
++		};
++
++		pcfg-pull-none {
++			bias-disable;
++			u-boot,dm-spl;
++			phandle = <0x1000009d>;
++		};
++
++		pcfg-pull-up-drv-level-2 {
++			bias-pull-up;
++			drive-strength = <0x02>;
++			u-boot,dm-spl;
++			phandle = <0x1000009e>;
++		};
++
++		fspi {
++			u-boot,dm-spl;
++
++			fspim0-pins {
++				rockchip,pins = <0x02 0x00 0x02 0x1000009d 0x02 0x1e 0x02 0x1000009d 0x02 0x18 0x02 0x1000009d 0x02 0x19 0x02 0x1000009d 0x02 0x1a 0x02 0x1000009d 0x02 0x1b 0x02 0x1000009d>;
++				u-boot,dm-spl;
++				phandle = <0x1000002e>;
++			};
++		};
++
++		gmac1 {
++
++			gmac1-miim {
++				rockchip,pins = <0x03 0x12 0x01 0x1000009d 0x03 0x13 0x01 0x1000009d>;
++				u-boot,dm-pre-reloc;
++				phandle = <0x10000029>;
++			};
++
++			gmac1-rx-bus2 {
++				rockchip,pins = <0x03 0x07 0x01 0x1000009d 0x03 0x08 0x01 0x1000009d 0x03 0x09 0x01 0x1000009d>;
++				u-boot,dm-pre-reloc;
++				phandle = <0x1000002b>;
++			};
++
++			gmac1-tx-bus2 {
++				rockchip,pins = <0x03 0x0b 0x01 0x1000009d 0x03 0x0c 0x01 0x1000009d 0x03 0x0d 0x01 0x1000009d>;
++				u-boot,dm-pre-reloc;
++				phandle = <0x1000002a>;
++			};
++
++			gmac1-rgmii-clk {
++				rockchip,pins = <0x03 0x05 0x01 0x1000009d 0x03 0x04 0x01 0x1000009d>;
++				u-boot,dm-pre-reloc;
++				phandle = <0x1000002c>;
++			};
++
++			gmac1-rgmii-bus {
++				rockchip,pins = <0x03 0x02 0x01 0x1000009d 0x03 0x03 0x01 0x1000009d 0x03 0x00 0x01 0x1000009d 0x03 0x01 0x01 0x1000009d>;
++				u-boot,dm-pre-reloc;
++				phandle = <0x1000002d>;
++			};
++		};
++
++		sdmmc {
++			u-boot,dm-spl;
++
++			sdmmc-bus4 {
++				rockchip,pins = <0x04 0x18 0x01 0x1000009e 0x04 0x19 0x01 0x1000009e 0x04 0x1a 0x01 0x1000009e 0x04 0x1b 0x01 0x1000009e>;
++				u-boot,dm-spl;
++				phandle = <0x10000032>;
++			};
++
++			sdmmc-clk {
++				rockchip,pins = <0x04 0x1d 0x01 0x1000009e>;
++				u-boot,dm-spl;
++				phandle = <0x1000002f>;
++			};
++
++			sdmmc-cmd {
++				rockchip,pins = <0x04 0x1c 0x01 0x1000009e>;
++				u-boot,dm-spl;
++				phandle = <0x10000030>;
++			};
++
++			sdmmc-det {
++				rockchip,pins = <0x00 0x04 0x01 0x1000009f>;
++				u-boot,dm-spl;
++				phandle = <0x10000031>;
++			};
++
++			sdmmc-pwren {
++				rockchip,pins = <0x00 0x05 0x02 0x1000009d>;
++				u-boot,dm-spl;
++			};
++
++			sata-reset {
++				u-boot,dm-spl;
++				rockchip,pins = <0x03 0x19 0x00 0x1000009f>;
++			};
++		};
++
++		gmac0 {
++
++			gmac0-miim {
++				rockchip,pins = <0x04 0x14 0x01 0x1000009d 0x04 0x15 0x01 0x1000009d>;
++				u-boot,dm-pre-reloc;
++				phandle = <0x100000ad>;
++			};
++
++			gmac0-rx-bus2 {
++				rockchip,pins = <0x02 0x11 0x01 0x1000009d 0x02 0x12 0x01 0x1000009d 0x04 0x12 0x01 0x1000009d>;
++				u-boot,dm-pre-reloc;
++				phandle = <0x100000af>;
++			};
++
++			gmac0-tx-bus2 {
++				rockchip,pins = <0x02 0x0e 0x01 0x1000009d 0x02 0x0f 0x01 0x1000009d 0x02 0x10 0x01 0x1000009d>;
++				u-boot,dm-pre-reloc;
++				phandle = <0x100000ae>;
++			};
++
++			gmac0-rgmii-clk {
++				rockchip,pins = <0x02 0x08 0x01 0x1000009d 0x02 0x0b 0x01 0x1000009d>;
++				u-boot,dm-pre-reloc;
++				phandle = <0x100000b0>;
++			};
++
++			gmac0-rgmii-bus {
++				rockchip,pins = <0x02 0x06 0x01 0x1000009d 0x02 0x07 0x01 0x1000009d 0x02 0x09 0x01 0x1000009d 0x02 0x0a 0x01 0x1000009d>;
++				u-boot,dm-pre-reloc;
++				phandle = <0x100000b1>;
++			};
++		};
++	};
++
++	syscon@fd5b8000 {
++		compatible = "rockchip,pcie30-phy-grf\0syscon";
++		reg = <0x00 0xfd5b8000 0x00 0x10000>;
++		u-boot,dm-pre-reloc;
++		status = "okay";
++		phandle = <0x100000b5>;
++	};
++
++	syscon@fd5c0000 {
++		compatible = "rockchip,pipe-phy-grf\0syscon";
++		reg = <0x00 0xfd5c0000 0x00 0x100>;
++		u-boot,dm-pre-reloc;
++		status = "okay";
++		phandle = <0x100000b4>;
++	};
++
++	syscon@fd5d4000 {
++		u-boot,dm-pre-reloc;
++		compatible = "rockchip,rk3588-usb2phy-grf\0syscon\0simple-mfd";
++		reg = <0x00 0xfd5d4000 0x00 0x4000>;
++		#address-cells = <0x01>;
++		#size-cells = <0x01>;
++
++		usb2-phy@4000 {
++			compatible = "rockchip,rk3588-usb2phy";
++			reg = <0x4000 0x10>;
++			interrupts = <0x00 0x18a 0x04>;
++			clocks = <0x1000000b 0x2b5>;
++			clock-names = "phyclk";
++			#clock-cells = <0x00>;
++			status = "okay";
++			u-boot,dm-pre-reloc;
++
++			otg-port {
++				#phy-cells = <0x00>;
++				status = "okay";
++				u-boot,dm-pre-reloc;
++			};
++		};
++	};
++
++	pcie@fe150000 {
++		compatible = "rockchip,rk3588-pcie\0snps,dw-pcie";
++		#address-cells = <0x03>;
++		#size-cells = <0x02>;
++		bus-range = <0x00 0x0f>;
++		clocks = <0x1000000b 0x14e 0x1000000b 0x153 0x1000000b 0x149 0x1000000b 0x158 0x1000000b 0x15e>;
++		clock-names = "aclk_mst\0aclk_slv\0aclk_dbi\0pclk\0aux";
++		device_type = "pci";
++		interrupts = <0x00 0x107 0x04 0x00 0x106 0x04 0x00 0x105 0x04 0x00 0x104 0x04 0x00 0x103 0x04>;
++		interrupt-names = "sys\0pmc\0msg\0legacy\0err";
++		#interrupt-cells = <0x01>;
++		interrupt-map-mask = <0x00 0x00 0x00 0x07>;
++		interrupt-map = <0x00 0x00 0x00 0x01 0x100000a3 0x00 0x00 0x00 0x00 0x02 0x100000a3 0x01 0x00 0x00 0x00 0x03 0x100000a3 0x02 0x00 0x00 0x00 0x04 0x100000a3 0x03>;
++		linux,pci-domain = <0x00>;
++		num-ib-windows = <0x10>;
++		num-ob-windows = <0x10>;
++		max-link-speed = <0x03>;
++		msi-map = <0x00 0x10000020 0x00 0x1000>;
++		num-lanes = <0x02>;
++		phys = <0x100000a4>;
++		phy-names = "pcie-phy";
++		power-domains = <0x1000000c 0x22>;
++		ranges = <0x800 0x00 0xf0000000 0x00 0xf0000000 0x00 0x100000 0x81000000 0x00 0xf0100000 0x00 0xf0100000 0x00 0x100000 0x82000000 0x00 0xf0200000 0x00 0xf0200000 0x00 0xe00000 0xc3000000 0x09 0x00 0x09 0x00 0x00 0x40000000>;
++		reg = <0x0a 0x40000000 0x00 0x400000 0x00 0xfe150000 0x00 0x10000>;
++		reg-names = "pcie-dbi\0pcie-apb";
++		resets = <0x1000000b 0x20d>;
++		reset-names = "pipe";
++		status = "okay";
++		u-boot,dm-pre-reloc;
++		vpcie3v3-supply = <0x100000a5>;
++		reset-gpios = <0x10000028 0x0e 0x00>;
++		rockchip,shared-phy-no-exit;
++	};
++
++	pcie@fe160000 {
++		compatible = "rockchip,rk3588-pcie\0snps,dw-pcie";
++		#address-cells = <0x03>;
++		#size-cells = <0x02>;
++		bus-range = <0x10 0x1f>;
++		clocks = <0x1000000b 0x14f 0x1000000b 0x154 0x1000000b 0x14a 0x1000000b 0x159 0x1000000b 0x15f>;
++		clock-names = "aclk_mst\0aclk_slv\0aclk_dbi\0pclk\0aux";
++		device_type = "pci";
++		interrupts = <0x00 0x102 0x04 0x00 0x101 0x04 0x00 0x100 0x04 0x00 0xff 0x04 0x00 0xfe 0x04>;
++		interrupt-names = "sys\0pmc\0msg\0legacy\0err";
++		#interrupt-cells = <0x01>;
++		interrupt-map-mask = <0x00 0x00 0x00 0x07>;
++		interrupt-map = <0x00 0x00 0x00 0x01 0x100000a6 0x00 0x00 0x00 0x00 0x02 0x100000a6 0x01 0x00 0x00 0x00 0x03 0x100000a6 0x02 0x00 0x00 0x00 0x04 0x100000a6 0x03>;
++		linux,pci-domain = <0x01>;
++		num-ib-windows = <0x10>;
++		num-ob-windows = <0x10>;
++		max-link-speed = <0x03>;
++		msi-map = <0x1000 0x10000020 0x1000 0x1000>;
++		num-lanes = <0x02>;
++		phys = <0x100000a4>;
++		phy-names = "pcie-phy";
++		power-domains = <0x1000000c 0x20>;
++		ranges = <0x800 0x00 0xf1000000 0x00 0xf1000000 0x00 0x100000 0x81000000 0x00 0xf1100000 0x00 0xf1100000 0x00 0x100000 0x82000000 0x00 0xf1200000 0x00 0xf1200000 0x00 0xe00000 0xc3000000 0x09 0x40000000 0x09 0x40000000 0x00 0x40000000>;
++		reg = <0x0a 0x40400000 0x00 0x400000 0x00 0xfe160000 0x00 0x10000>;
++		reg-names = "pcie-dbi\0pcie-apb";
++		resets = <0x1000000b 0x20e>;
++		reset-names = "pipe";
++		status = "okay";
++		u-boot,dm-pre-reloc;
++		vpcie3v3-supply = <0x100000a5>;
++		reset-gpios = <0x100000a7 0x1c 0x00>;
++		rockchip,shared-phy-no-exit;
++	};
++
++	ethernet@fe1b0000 {
++		compatible = "rockchip,rk3588-gmac\0snps,dwmac-4.20a";
++		reg = <0x00 0xfe1b0000 0x00 0x10000>;
++		interrupts = <0x00 0xe3 0x04 0x00 0xe2 0x04>;
++		interrupt-names = "macirq\0eth_wake_irq";
++		rockchip,grf = <0x10000024>;
++		rockchip,php_grf = <0x10000013>;
++		clocks = <0x1000000b 0x144 0x1000000b 0x145 0x1000000b 0x167 0x1000000b 0x16c 0x1000000b 0x142>;
++		clock-names = "stmmaceth\0clk_mac_ref\0pclk_mac\0aclk_mac\0ptp_ref";
++		resets = <0x1000000b 0x20a>;
++		reset-names = "stmmaceth";
++		snps,mixed-burst;
++		snps,tso;
++		snps,axi-config = <0x100000aa>;
++		snps,mtl-rx-config = <0x100000ab>;
++		snps,mtl-tx-config = <0x100000ac>;
++		status = "okay";
++		u-boot,dm-pre-reloc;
++		phy-mode = "rgmii-rxid";
++		clock_in_out = "output";
++		tx_delay = <0x44>;
++		snps,reset-gpio = <0x100000a7 0x18 0x01>;
++		snps,reset-active-low;
++		snps,reset-delays-us = <0x00 0x4e20 0x186a0>;
++		pinctrl-names = "default";
++		pinctrl-0 = <0x100000ad 0x100000ae 0x100000af 0x100000b0 0x100000b1>;
++
++		mdio {
++			compatible = "snps,dwmac-mdio";
++			#address-cells = <0x01>;
++			#size-cells = <0x00>;
++			u-boot,dm-pre-reloc;
++			status = "okay";
++		};
++
++		fixed-link {
++			u-boot,dm-pre-reloc;
++			status = "okay";
++			speed = <0x3e8>;
++			full-duplex;
++			pause;
++		};
++	};
++
++	crypto@fe370000 {
++		compatible = "rockchip,rk3588-crypto";
++		reg = <0x00 0xfe370000 0x00 0x4000>;
++		clocks = <0x1000000a 0x14 0x1000000a 0x15>;
++		clock-names = "sclk_crypto\0apkclk_crypto";
++		clock-frequency = <0x14dc9380 0x14dc9380>;
++		status = "okay";
++		u-boot,dm-spl;
++	};
++
++	rng@fe378000 {
++		compatible = "rockchip,trngv1";
++		reg = <0x00 0xfe378000 0x00 0x200>;
++		status = "okay";
++		u-boot,dm-pre-reloc;
++	};
++
++	phy@fee80000 {
++		compatible = "rockchip,rk3588-pcie3-phy";
++		reg = <0x00 0xfee80000 0x00 0x20000>;
++		#phy-cells = <0x00>;
++		clocks = <0x1000000b 0x188>;
++		clock-names = "pclk";
++		resets = <0x1000000b 0x2000a>;
++		reset-names = "phy";
++		rockchip,pipe-grf = <0x10000013>;
++		rockchip,phy-grf = <0x100000b5>;
++		status = "okay";
++		u-boot,dm-pre-reloc;
++		rockchip,pcie30-phymode = <0x00>;
++		phandle = <0x100000a4>;
++	};
++
++	chosen {
++		stdout-path = "/serial@feb50000";
++		u-boot,spl-boot-order = "/mmc@fe2c0000\0/mmc@fe2e0000\0/spi@fe2b0000/flash@0\0/spi@fe2b0000/flash@1";
++	};
++
++	secure-otp@fe3a0000 {
++		u-boot,dm-spl;
++		compatible = "rockchip,rk3588-secure-otp";
++		reg = <0x00 0xfe3a0000 0x00 0x4000>;
++	};
++
++	adc-keys {
++		compatible = "adc-keys";
++		io-channels = <0x100000b6 0x01>;
++		io-channel-names = "buttons";
++		keyup-threshold-microvolt = <0x1b7740>;
++		u-boot,dm-pre-reloc;
++		status = "okay";
++
++		volumeup-key {
++			u-boot,dm-pre-reloc;
++			linux,code = <0x73>;
++			label = "volume up";
++			press-threshold-microvolt = <0x6d6>;
++		};
++	};
++
++	vcc5v0-sys {
++		u-boot,dm-pre-reloc;
++		compatible = "regulator-fixed";
++		regulator-name = "vcc5v0_sys";
++		regulator-always-on;
++		regulator-boot-on;
++		regulator-min-microvolt = <0x4c4b40>;
++		regulator-max-microvolt = <0x4c4b40>;
++		phandle = <0x100000b7>;
++	};
++
++	vcc5v0-host {
++		u-boot,dm-pre-reloc;
++		compatible = "regulator-fixed";
++		regulator-name = "vcc5v0_host";
++		regulator-boot-on;
++		regulator-always-on;
++		regulator-min-microvolt = <0x4c4b40>;
++		regulator-max-microvolt = <0x4c4b40>;
++		enable-active-high;
++		gpio = <0x100000a7 0x1d 0x00>;
++		vin-supply = <0x100000b7>;
++	};
++
++	vcc3v3-pcie30 {
++		u-boot,dm-pre-reloc;
++		compatible = "regulator-fixed";
++		regulator-name = "vcc3v3_pcie30";
++		regulator-min-microvolt = <0x325aa0>;
++		regulator-max-microvolt = <0x325aa0>;
++		enable-active-high;
++		gpio = <0x100000b8 0x0e 0x00>;
++		regulator-boot-on;
++		regulator-always-on;
++		vin-supply = <0x100000b7>;
++		phandle = <0x100000a5>;
++	};
++};
+-- 
+2.43.0
+
