@@ -9,4 +9,5 @@
     * [istoreos](docs/固件/istoreos.md)
 * [适配](docs/适配.md)
     * [SPI](docs/适配/SPI.md)
+    * [uboot](docs/适配/uboot.md)
 
