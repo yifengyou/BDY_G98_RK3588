@@ -7,4 +7,6 @@
     * [armbian](docs/固件/armbian.md)
     * [飞牛fnos](docs/固件/fnos.md)
     * [istoreos](docs/固件/istoreos.md)
+* [适配](docs/适配.md)
+    * [SPI](docs/适配/SPI.md)
 
