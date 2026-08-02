@@ -1,4 +1,4 @@
-From a31824a3b73dbecf4d5bf28db31ff646cfc81085 Mon Sep 17 00:00:00 2001
+From 5384efea12350f31357fb541965e78a6d988585a Mon Sep 17 00:00:00 2001
 From: yifengyou <842056007@qq.com>
 Date: Fri, 31 Jul 2026 15:22:00 +0800
 Subject: [PATCH] adapt for byd g98
@@ -21,7 +21,7 @@ index f72f3a2fd4..bc98ef09f0 100644
 +tee.bin.gz
 +
 diff --git a/arch/arm/dts/rk3588-evb.dts b/arch/arm/dts/rk3588-evb.dts
-index ad750d5b74..4044c035e5 100644
+index ad750d5b74..5f5708e867 100644
 --- a/arch/arm/dts/rk3588-evb.dts
 +++ b/arch/arm/dts/rk3588-evb.dts
 @@ -1,8 +1,8 @@
@@ -153,7 +153,7 @@ index ad750d5b74..4044c035e5 100644
 +&gpio3 {
 +	status = "okay";
 +	u-boot,dm-pre-reloc;
-+};
+ };
 +
 +/* gpio4: gpio@fec50000 */
 +&gpio4 {
@@ -234,32 +234,43 @@ index ad750d5b74..4044c035e5 100644
 +&pcie30phy {
 +	status = "okay";
 +	u-boot,dm-pre-reloc;
- };
-+
-+&pcie3x2 {
-+	status = "disabled";  /* 不要设为 okay！未接设备的端口会导致枚举异常 */
++	rockchip,pcie30-phymode = <0>;
 +};
 +
-+// pcie3x2: pcie@fe160000
-+/*
++/* ===== pcie3x2: pcie@fe160000 (靠近sata口的NVME槽位) ===== */
 +&pcie3x2 {
 +	pinctrl-names = "default";
 +	pinctrl-0 = <&pcie3x2_rst>;
 +	num-lanes = <2>;
++	max-link-speed = <3>;
 +	reset-gpios = <&gpio3 RK_PD4 GPIO_ACTIVE_HIGH>;
 +	vpcie3v3-supply = <&vcc3v3_nvme>;
++
++	/* ★ 关键修复：恢复使用 pcie30phy，删除错误的 combphy1_ps 引用 */
++	/* rk3588.dtsi 中已正确定义 phys = <&pcie30phy>，这里不要覆盖 */
++	/* 如果必须显式声明，请使用: phys = <&pcie30phy>; phy-names = "pcie-phy"; */
++
++	/* ★ 关键：共享 PHY 模式下，禁止重复退出/复位 PHY */
++	rockchip,shared-phy-no-exit;
++
++	/* MAP1202 DRAM-less SSD 可能需要更长的复位释放延迟 */
++	reset-delay-us = <100000>;
++
 +	status = "okay";
 +	u-boot,dm-pre-reloc;
 +};
-+*/
 +
-+// pcie3x4: pcie@fe150000
++/* pcie3x4: pcie@fe150000 （靠近CPU的NVME槽位） */
 +&pcie3x4 {
 +	pinctrl-names = "default";
 +	pinctrl-0 = <&pcie3x4_rst>;
 +	num-lanes = <2>;
 +	reset-gpios = <&gpio4 RK_PB6 GPIO_ACTIVE_HIGH>;
 +	vpcie3v3-supply = <&vcc3v3_nvme>;
++
++	/* ★ 关键：共享 PHY 模式下，禁止重复退出/复位 PHY */
++	rockchip,shared-phy-no-exit;
++
 +	status = "okay";
 +	u-boot,dm-pre-reloc;
 +};
@@ -668,17 +679,6 @@ index ad750d5b74..4044c035e5 100644
 +};
 +
 +/* ===== 2.5G ethernet (RTL8168 via PCIe) ===== */
-+
-+&combphy1_ps {
-+	status = "okay";
-+	u-boot,dm-pre-reloc;
-+};
-+
-+&combphy2_psu {
-+	status = "okay";
-+	u-boot,dm-pre-reloc;
-+};
-+
 +&pipe_phy1_grf {
 +	status = "okay";
 +	u-boot,dm-pre-reloc;
@@ -2076,10 +2076,10 @@ index 5297e300a7..c9e76cac7a 100644
 \ No newline at end of file
 diff --git a/g98-uboot.dts b/g98-uboot.dts
 new file mode 100644
-index 0000000000..3229a5a1f7
+index 0000000000..0ce629d1a1
 --- /dev/null
 +++ b/g98-uboot.dts
-@@ -0,0 +1,5660 @@
+@@ -0,0 +1,5670 @@
 +/dts-v1/;
 +
 +/ {
@@ -4314,7 +4314,7 @@ index 0000000000..3229a5a1f7
 +		reset-names = "saradc-apb";
 +		status = "okay";
 +		u-boot,dm-pre-reloc;
-+		phandle = <0x100000c1>;
++		phandle = <0x100000c2>;
 +	};
 +
 +	mailbox@fec60000 {
@@ -4542,7 +4542,7 @@ index 0000000000..3229a5a1f7
 +			#interrupt-cells = <0x02>;
 +			u-boot,dm-pre-reloc;
 +			status = "okay";
-+			phandle = <0x100000b1>;
++			phandle = <0x100000b3>;
 +		};
 +
 +		gpio@fec30000 {
@@ -4571,7 +4571,7 @@ index 0000000000..3229a5a1f7
 +			#interrupt-cells = <0x02>;
 +			u-boot,dm-pre-reloc;
 +			status = "okay";
-+			phandle = <0x100000ba>;
++			phandle = <0x100000af>;
 +		};
 +
 +		gpio@fec50000 {
@@ -6950,7 +6950,7 @@ index 0000000000..3229a5a1f7
 +			gmac0-miim {
 +				rockchip,pins = <0x04 0x14 0x01 0x100000a1 0x04 0x15 0x01 0x100000a1>;
 +				u-boot,dm-pre-reloc;
-+				phandle = <0x100000b5>;
++				phandle = <0x100000b7>;
 +			};
 +
 +			gmac0-clkinout {
@@ -6960,25 +6960,25 @@ index 0000000000..3229a5a1f7
 +			gmac0-rx-bus2 {
 +				rockchip,pins = <0x02 0x11 0x01 0x100000a1 0x02 0x12 0x01 0x100000a1 0x04 0x12 0x01 0x100000a1>;
 +				u-boot,dm-pre-reloc;
-+				phandle = <0x100000b7>;
++				phandle = <0x100000b9>;
 +			};
 +
 +			gmac0-tx-bus2 {
 +				rockchip,pins = <0x02 0x0e 0x01 0x100000a1 0x02 0x0f 0x01 0x100000a1 0x02 0x10 0x01 0x100000a1>;
 +				u-boot,dm-pre-reloc;
-+				phandle = <0x100000b6>;
++				phandle = <0x100000b8>;
 +			};
 +
 +			gmac0-rgmii-clk {
 +				rockchip,pins = <0x02 0x08 0x01 0x100000a1 0x02 0x0b 0x01 0x100000a1>;
 +				u-boot,dm-pre-reloc;
-+				phandle = <0x100000b8>;
++				phandle = <0x100000ba>;
 +			};
 +
 +			gmac0-rgmii-bus {
 +				rockchip,pins = <0x02 0x06 0x01 0x100000a1 0x02 0x07 0x01 0x100000a1 0x02 0x09 0x01 0x100000a1 0x02 0x0a 0x01 0x100000a1>;
 +				u-boot,dm-pre-reloc;
-+				phandle = <0x100000b9>;
++				phandle = <0x100000bb>;
 +			};
 +
 +			gmac0-ppsclk {
@@ -7009,7 +7009,7 @@ index 0000000000..3229a5a1f7
 +
 +			pcie2-0-rst {
 +				rockchip,pins = <0x01 0x0c 0x00 0x100000a1>;
-+				phandle = <0x100000b0>;
++				phandle = <0x100000b2>;
 +			};
 +
 +			pcie2-1-rst {
@@ -7019,6 +7019,7 @@ index 0000000000..3229a5a1f7
 +
 +			pcie3x2-rst {
 +				rockchip,pins = <0x03 0x1c 0x00 0x100000a1>;
++				phandle = <0x100000ae>;
 +			};
 +
 +			pcie3x4-rst {
@@ -7031,7 +7032,7 @@ index 0000000000..3229a5a1f7
 +
 +			nvme-power-en {
 +				rockchip,pins = <0x03 0x1d 0x00 0x100000a1>;
-+				phandle = <0x100000c3>;
++				phandle = <0x100000c4>;
 +			};
 +		};
 +
@@ -7039,12 +7040,12 @@ index 0000000000..3229a5a1f7
 +
 +			vcc5v0-host-en {
 +				rockchip,pins = <0x04 0x08 0x00 0x100000a1>;
-+				phandle = <0x100000c4>;
++				phandle = <0x100000c5>;
 +			};
 +
 +			vcc5v0-otg-en {
 +				rockchip,pins = <0x04 0x07 0x00 0x100000a1>;
-+				phandle = <0x100000c6>;
++				phandle = <0x100000c7>;
 +			};
 +		};
 +	};
@@ -7085,7 +7086,7 @@ index 0000000000..3229a5a1f7
 +		reg = <0x00 0xfd5b8000 0x00 0x10000>;
 +		u-boot,dm-pre-reloc;
 +		status = "okay";
-+		phandle = <0x100000c0>;
++		phandle = <0x100000c1>;
 +	};
 +
 +	syscon@fd5c0000 {
@@ -7093,7 +7094,7 @@ index 0000000000..3229a5a1f7
 +		reg = <0x00 0xfd5c0000 0x00 0x100>;
 +		u-boot,dm-pre-reloc;
 +		status = "okay";
-+		phandle = <0x100000bf>;
++		phandle = <0x100000c0>;
 +	};
 +
 +	syscon@fd5cc000 {
@@ -7101,7 +7102,7 @@ index 0000000000..3229a5a1f7
 +		reg = <0x00 0xfd5cc000 0x00 0x4000>;
 +		status = "okay";
 +		u-boot,dm-pre-reloc;
-+		phandle = <0x100000be>;
++		phandle = <0x100000bf>;
 +	};
 +
 +	syscon@fd5d4000 {
@@ -7111,7 +7112,7 @@ index 0000000000..3229a5a1f7
 +		#size-cells = <0x01>;
 +		status = "okay";
 +		u-boot,dm-pre-reloc;
-+		phandle = <0x100000bd>;
++		phandle = <0x100000be>;
 +
 +		usb2-phy@4000 {
 +			compatible = "rockchip,rk3588-usb2phy";
@@ -7138,7 +7139,7 @@ index 0000000000..3229a5a1f7
 +	syscon@fd5e4000 {
 +		compatible = "rockchip,rk3588-hdptxphy-grf\0syscon";
 +		reg = <0x00 0xfd5e4000 0x00 0x100>;
-+		phandle = <0x100000bc>;
++		phandle = <0x100000bd>;
 +	};
 +
 +	spdif-tx@fddb8000 {
@@ -7296,6 +7297,7 @@ index 0000000000..3229a5a1f7
 +		pinctrl-0 = <0x100000ac>;
 +		reset-gpios = <0x10000023 0x0e 0x00>;
 +		vpcie3v3-supply = <0x10000024>;
++		rockchip,shared-phy-no-exit;
 +		u-boot,dm-pre-reloc;
 +
 +		legacy-interrupt-controller {
@@ -7335,7 +7337,14 @@ index 0000000000..3229a5a1f7
 +		reg-names = "pcie-dbi\0pcie-apb";
 +		resets = <0x1000000b 0x20e>;
 +		reset-names = "pipe";
-+		status = "disabled";
++		status = "okay";
++		pinctrl-names = "default";
++		pinctrl-0 = <0x100000ae>;
++		reset-gpios = <0x100000af 0x1c 0x00>;
++		vpcie3v3-supply = <0x10000024>;
++		rockchip,shared-phy-no-exit;
++		reset-delay-us = <0x186a0>;
++		u-boot,dm-pre-reloc;
 +
 +		legacy-interrupt-controller {
 +			interrupt-controller;
@@ -7359,14 +7368,14 @@ index 0000000000..3229a5a1f7
 +		interrupt-names = "sys\0pmc\0msg\0legacy\0err";
 +		#interrupt-cells = <0x01>;
 +		interrupt-map-mask = <0x00 0x00 0x00 0x07>;
-+		interrupt-map = <0x00 0x00 0x00 0x01 0x100000ae 0x00 0x00 0x00 0x00 0x02 0x100000ae 0x01 0x00 0x00 0x00 0x03 0x100000ae 0x02 0x00 0x00 0x00 0x04 0x100000ae 0x03>;
++		interrupt-map = <0x00 0x00 0x00 0x01 0x100000b0 0x00 0x00 0x00 0x00 0x02 0x100000b0 0x01 0x00 0x00 0x00 0x03 0x100000b0 0x02 0x00 0x00 0x00 0x04 0x100000b0 0x03>;
 +		linux,pci-domain = <0x02>;
 +		num-ib-windows = <0x08>;
 +		num-ob-windows = <0x08>;
 +		max-link-speed = <0x02>;
 +		msi-map = <0x2000 0x10000020 0x2000 0x1000>;
 +		num-lanes = <0x01>;
-+		phys = <0x100000af 0x02>;
++		phys = <0x100000b1 0x02>;
 +		phy-names = "pcie-phy";
 +		power-domains = <0x1000000c 0x20>;
 +		ranges = <0x800 0x00 0xf2000000 0x00 0xf2000000 0x00 0x100000 0x81000000 0x00 0xf2100000 0x00 0xf2100000 0x00 0x100000 0x82000000 0x00 0xf2200000 0x00 0xf2200000 0x00 0xe00000 0xc3000000 0x09 0x80000000 0x09 0x80000000 0x00 0x40000000>;
@@ -7376,9 +7385,9 @@ index 0000000000..3229a5a1f7
 +		reset-names = "pipe";
 +		status = "disabled";
 +		pinctrl-names = "default";
-+		pinctrl-0 = <0x100000b0>;
++		pinctrl-0 = <0x100000b2>;
 +		supports-clkreq;
-+		reset-gpios = <0x100000b1 0x0c 0x00>;
++		reset-gpios = <0x100000b3 0x0c 0x00>;
 +		vpcie3v3-supply = <0x10000024>;
 +		reset-delay-us = <0x186a0>;
 +		u-boot,dm-pre-reloc;
@@ -7389,7 +7398,7 @@ index 0000000000..3229a5a1f7
 +			#interrupt-cells = <0x01>;
 +			interrupt-parent = <0x10000000>;
 +			interrupts = <0x00 0xf0 0x01>;
-+			phandle = <0x100000ae>;
++			phandle = <0x100000b0>;
 +		};
 +	};
 +
@@ -7406,20 +7415,20 @@ index 0000000000..3229a5a1f7
 +		reset-names = "stmmaceth";
 +		snps,mixed-burst;
 +		snps,tso;
-+		snps,axi-config = <0x100000b2>;
-+		snps,mtl-rx-config = <0x100000b3>;
-+		snps,mtl-tx-config = <0x100000b4>;
++		snps,axi-config = <0x100000b4>;
++		snps,mtl-rx-config = <0x100000b5>;
++		snps,mtl-tx-config = <0x100000b6>;
 +		status = "disabled";
 +		clock_in_out = "output";
 +		phy-mode = "rgmii-rxid";
 +		tx_delay = <0x44>;
-+		pinctrl-0 = <0x100000b5 0x100000b6 0x100000b7 0x100000b8 0x100000b9>;
++		pinctrl-0 = <0x100000b7 0x100000b8 0x100000b9 0x100000ba 0x100000bb>;
 +		pinctrl-names = "default";
 +		snps,reset-active-low;
 +		snps,reset-delays-us = <0x00 0x4e20 0x186a0>;
-+		snps,reset-gpio = <0x100000ba 0x18 0x01>;
++		snps,reset-gpio = <0x100000af 0x18 0x01>;
 +		u-boot,dm-pre-reloc;
-+		phandle = <0x100000bb>;
++		phandle = <0x100000bc>;
 +
 +		mdio {
 +			compatible = "snps,dwmac-mdio";
@@ -7470,7 +7479,7 @@ index 0000000000..3229a5a1f7
 +					ethernet-port@9 {
 +						reg = <0x09>;
 +						phy-mode = "rgmii";
-+						ethernet = <0x100000bb>;
++						ethernet = <0x100000bc>;
 +
 +						fixed-link {
 +							speed = <0x3e8>;
@@ -7485,12 +7494,12 @@ index 0000000000..3229a5a1f7
 +			snps,wr_osr_lmt = <0x04>;
 +			snps,rd_osr_lmt = <0x08>;
 +			snps,blen = <0x00 0x00 0x00 0x00 0x10 0x08 0x04>;
-+			phandle = <0x100000b2>;
++			phandle = <0x100000b4>;
 +		};
 +
 +		rx-queues-config {
 +			snps,rx-queues-to-use = <0x02>;
-+			phandle = <0x100000b3>;
++			phandle = <0x100000b5>;
 +
 +			queue0 {
 +			};
@@ -7501,7 +7510,7 @@ index 0000000000..3229a5a1f7
 +
 +		tx-queues-config {
 +			snps,tx-queues-to-use = <0x02>;
-+			phandle = <0x100000b4>;
++			phandle = <0x100000b6>;
 +
 +			queue0 {
 +			};
@@ -7525,7 +7534,7 @@ index 0000000000..3229a5a1f7
 +		clock-names = "sata\0pmalive\0rxoob\0ref";
 +		interrupts = <0x00 0x112 0x04>;
 +		interrupt-names = "hostc";
-+		phys = <0x100000af 0x01>;
++		phys = <0x100000b1 0x01>;
 +		phy-names = "sata-phy";
 +		ports-implemented = <0x01>;
 +		power-domains = <0x1000000c 0x20>;
@@ -7557,7 +7566,7 @@ index 0000000000..3229a5a1f7
 +		clock-names = "ref\0apb";
 +		resets = <0x1000000b 0x491 0x1000000b 0x486 0x1000000b 0xc003f 0x1000000b 0xc0040 0x1000000b 0xc0041 0x1000000b 0x48f 0x1000000b 0x490>;
 +		reset-names = "phy\0apb\0init\0cmn\0lane\0ropll\0lcpll";
-+		rockchip,grf = <0x100000bc>;
++		rockchip,grf = <0x100000bd>;
 +		#phy-cells = <0x00>;
 +		status = "disabled";
 +		phandle = <0x100000a9>;
@@ -7566,9 +7575,9 @@ index 0000000000..3229a5a1f7
 +	phy@fed90000 {
 +		compatible = "rockchip,rk3588-usbdp-phy";
 +		reg = <0x00 0xfed90000 0x00 0x10000>;
-+		rockchip,u2phy-grf = <0x100000bd>;
++		rockchip,u2phy-grf = <0x100000be>;
 +		rockchip,usb-grf = <0x10000099>;
-+		rockchip,usbdpphy-grf = <0x100000be>;
++		rockchip,usbdpphy-grf = <0x100000bf>;
 +		rockchip,vo-grf = <0x1000009b>;
 +		clocks = <0x1000000b 0x2b6 0x1000000b 0x280 0x1000000b 0x26a>;
 +		clock-names = "refclk\0immortal\0pclk";
@@ -7602,11 +7611,11 @@ index 0000000000..3229a5a1f7
 +		resets = <0x1000000b 0x20006 0x1000000b 0x4d7>;
 +		reset-names = "combphy-apb\0combphy";
 +		rockchip,pipe-grf = <0x10000013>;
-+		rockchip,pipe-phy-grf = <0x100000bf>;
++		rockchip,pipe-phy-grf = <0x100000c0>;
 +		rockchip,pcie1ln-sel-bits = <0x100 0x00 0x00 0x00>;
 +		status = "okay";
 +		u-boot,dm-pre-reloc;
-+		phandle = <0x100000af>;
++		phandle = <0x100000b1>;
 +	};
 +
 +	phy@fee80000 {
@@ -7618,9 +7627,10 @@ index 0000000000..3229a5a1f7
 +		resets = <0x1000000b 0x2000a>;
 +		reset-names = "phy";
 +		rockchip,pipe-grf = <0x10000013>;
-+		rockchip,phy-grf = <0x100000c0>;
++		rockchip,phy-grf = <0x100000c1>;
 +		status = "okay";
 +		u-boot,dm-pre-reloc;
++		rockchip,pcie30-phymode = <0x00>;
 +		phandle = <0x100000ab>;
 +	};
 +
@@ -7637,7 +7647,7 @@ index 0000000000..3229a5a1f7
 +
 +	adc-keys {
 +		compatible = "adc-keys";
-+		io-channels = <0x100000c1 0x01>;
++		io-channels = <0x100000c2 0x01>;
 +		io-channel-names = "buttons";
 +		keyup-threshold-microvolt = <0x1b7740>;
 +		u-boot,dm-pre-reloc;
@@ -7658,9 +7668,9 @@ index 0000000000..3229a5a1f7
 +		regulator-min-microvolt = <0x4c4b40>;
 +		regulator-max-microvolt = <0x4c4b40>;
 +		regulator-name = "vcc5v0_sys";
-+		vin-supply = <0x100000c2>;
++		vin-supply = <0x100000c3>;
 +		u-boot,dm-pre-reloc;
-+		phandle = <0x100000c5>;
++		phandle = <0x100000c6>;
 +	};
 +
 +	vcc12v-dcin {
@@ -7671,7 +7681,7 @@ index 0000000000..3229a5a1f7
 +		regulator-max-microvolt = <0xb71b00>;
 +		regulator-name = "vcc12v_dcin";
 +		u-boot,dm-pre-reloc;
-+		phandle = <0x100000c2>;
++		phandle = <0x100000c3>;
 +	};
 +
 +	vcc3v3-nvme {
@@ -7679,12 +7689,12 @@ index 0000000000..3229a5a1f7
 +		regulator-min-microvolt = <0x325aa0>;
 +		regulator-max-microvolt = <0x325aa0>;
 +		regulator-name = "vcc3v3_nvme";
-+		vin-supply = <0x100000c2>;
++		vin-supply = <0x100000c3>;
 +		enable-active-high;
-+		gpios = <0x100000ba 0x1d 0x00>;
++		gpios = <0x100000af 0x1d 0x00>;
 +		startup-delay-us = <0x1d4c>;
 +		pinctrl-names = "default";
-+		pinctrl-0 = <0x100000c3>;
++		pinctrl-0 = <0x100000c4>;
 +		u-boot,dm-pre-reloc;
 +		phandle = <0x10000024>;
 +	};
@@ -7694,13 +7704,13 @@ index 0000000000..3229a5a1f7
 +		enable-active-high;
 +		gpio = <0x10000023 0x08 0x00>;
 +		pinctrl-names = "default";
-+		pinctrl-0 = <0x100000c4>;
++		pinctrl-0 = <0x100000c5>;
 +		regulator-name = "vcc5v0_host";
 +		regulator-boot-on;
 +		regulator-always-on;
 +		regulator-min-microvolt = <0x4c4b40>;
 +		regulator-max-microvolt = <0x4c4b40>;
-+		vin-supply = <0x100000c5>;
++		vin-supply = <0x100000c6>;
 +		u-boot,dm-pre-reloc;
 +		phandle = <0x10000012>;
 +	};
@@ -7710,11 +7720,11 @@ index 0000000000..3229a5a1f7
 +		enable-active-high;
 +		gpio = <0x10000023 0x07 0x00>;
 +		pinctrl-names = "default";
-+		pinctrl-0 = <0x100000c6>;
++		pinctrl-0 = <0x100000c7>;
 +		regulator-min-microvolt = <0x4c4b40>;
 +		regulator-max-microvolt = <0x4c4b40>;
 +		regulator-name = "vcc5v0_otg";
-+		vin-supply = <0x100000c5>;
++		vin-supply = <0x100000c6>;
 +		u-boot,dm-pre-reloc;
 +		phandle = <0x10000011>;
 +	};
@@ -7726,16 +7736,16 @@ index 0000000000..3229a5a1f7
 +
 +		hdd-led {
 +			default-state = "off";
-+			gpios = <0x100000ba 0x11 0x00>;
++			gpios = <0x100000af 0x11 0x00>;
 +		};
 +
 +		net-led {
 +			default-state = "off";
-+			gpios = <0x100000ba 0x10 0x00>;
++			gpios = <0x100000af 0x10 0x00>;
 +		};
 +
 +		work-led {
-+			gpios = <0x100000ba 0x0f 0x00>;
++			gpios = <0x100000af 0x0f 0x00>;
 +			linux,default-trigger = "heartbeat";
 +		};
 +	};
