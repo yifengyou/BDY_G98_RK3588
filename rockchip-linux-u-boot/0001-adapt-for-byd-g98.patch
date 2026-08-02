@@ -1,4 +1,4 @@
-From 5384efea12350f31357fb541965e78a6d988585a Mon Sep 17 00:00:00 2001
+From 57441e4e1fccfc395542ee5905061815b640a81e Mon Sep 17 00:00:00 2001
 From: yifengyou <842056007@qq.com>
 Date: Fri, 31 Jul 2026 15:22:00 +0800
 Subject: [PATCH] adapt for byd g98
@@ -741,8 +741,30 @@ index 8dbc5d688e..dfea11f56f 100644
  	};
  
  	secure-otp@fe3a0000 {
+diff --git a/cmd/source.c b/cmd/source.c
+index 6b1c8b744b..1a00af93e4 100644
+--- a/cmd/source.c
++++ b/cmd/source.c
+@@ -23,6 +23,8 @@
+ #include <asm/byteorder.h>
+ #include <asm/io.h>
+ 
++#define CONFIG_IMAGE_FORMAT_LEGACY 
++
+ int
+ source (ulong addr, const char *fit_uname)
+ {
+@@ -87,7 +89,7 @@ source (ulong addr, const char *fit_uname)
+ 		 * past the zero-terminated sequence of image lengths to get
+ 		 * to the actual image data
+ 		 */
+-		while (*data++ != IMAGE_PARAM_INVAL);
++		while (*data++ != 0);
+ 		break;
+ #endif
+ #if defined(CONFIG_FIT)
 diff --git a/configs/rk3588_defconfig b/configs/rk3588_defconfig
-index fb8b752793..5ac13735cf 100644
+index fb8b752793..c7f9431f0b 100644
 --- a/configs/rk3588_defconfig
 +++ b/configs/rk3588_defconfig
 @@ -78,7 +78,7 @@ CONFIG_CMD_USB_MASS_STORAGE=y
@@ -754,7 +776,7 @@ index fb8b752793..5ac13735cf 100644
  CONFIG_CMD_MTD_BLK=y
  # CONFIG_SPL_DOS_PARTITION is not set
  # CONFIG_ISO_PARTITION is not set
-@@ -236,3 +236,32 @@ CONFIG_RK_AVB_LIBAVB_USER=y
+@@ -236,3 +236,34 @@ CONFIG_RK_AVB_LIBAVB_USER=y
  CONFIG_OPTEE_CLIENT=y
  CONFIG_OPTEE_V2=y
  CONFIG_OPTEE_ALWAYS_USE_SECURITY_PARTITION=y
@@ -786,7 +808,9 @@ index fb8b752793..5ac13735cf 100644
 +CONFIG_RTL8169=y
 +CONFIG_PHY_REALTEK=y
 +CONFIG_ETH_DESIGNWARE=y
-+
++CONFIG_CMD_IMI=y
++CONFIG_CMD_SETEXPR=y
++CONFIG_IMAGE_FORMAT_LEGACY=y
 diff --git a/drivers/net/rtl8169.c b/drivers/net/rtl8169.c
 index 5297e300a7..c9e76cac7a 100644
 --- a/drivers/net/rtl8169.c
@@ -7752,10 +7776,10 @@ index 0000000000..0ce629d1a1
 +};
 diff --git a/kdev-build.sh b/kdev-build.sh
 new file mode 100755
-index 0000000000..54a4d49c79
+index 0000000000..a9d20480e3
 --- /dev/null
 +++ b/kdev-build.sh
-@@ -0,0 +1,20 @@
+@@ -0,0 +1,22 @@
 +#!/bin/bash
 +#
 +
@@ -7770,6 +7794,8 @@ index 0000000000..54a4d49c79
 +grep -i CONFIG_PHY_ROCKCHIP_SNPS_PCIE3  .config
 +grep -Ei "SCSI|SATA" .config
 +grep -i RTL8169 .config
++grep -i CONFIG_CMD_IMI .config
++grep -i CONFIG_CMD_SETEXPR .config
 +
 +dtc -I dtb -O dts arch/arm/dts/rk3588-evb.dtb -o g98-uboot.dts
 +fdtdump u-boot.dtb > u-boot.dts

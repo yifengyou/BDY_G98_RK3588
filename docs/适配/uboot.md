@@ -1540,7 +1540,8 @@ booti ${kernel_addr_r} ${ramdisk_addr_r}:${filesize} ${fdt_addr_r}
 ```
 
 
-
+# 从 MMC 设备 0 分区 1 加载 boot.scr 到内存并执行
+load mmc 1:1 ${scriptaddr} boot.scr && source ${scriptaddr}
 
 
 ``shell
@@ -1577,7 +1578,68 @@ root@G98:/# [   31.712798] vcc3v3_sd_s0: disabling
 
 
 
+## 启动顺序问题
 
+```shell
+=> printenv
+arch=arm
+autoload=no
+baudrate=1500000
+board=evb_rk3588
+board_name=evb_rk3588
+boot_a_script=load ${devtype} ${devnum}:${distro_bootpart} ${scriptaddr} ${prefix}${script}; source ${scriptaddr}
+boot_extlinux=sysboot ${devtype} ${devnum}:${distro_bootpart} any ${scriptaddr} ${prefix}extlinux/extlinux.conf
+boot_net_pci_enum=pci enum
+boot_net_usb_start=usb start
+boot_prefixes=/ /boot/
+boot_script_dhcp=boot.scr.uimg
+boot_scripts=boot.scr.uimg boot.scr
+boot_targets=mmc1 mmc0 mtd2 mtd1 mtd0 usb0 pxe dhcp 
+bootargs=storagemedia=mtd androidboot.storagemedia=mtd androidboot.mode=normal  androidboot.verifiedbootstate=orange
+bootcmd=boot_android ${devtype} ${devnum};boot_fit;bootrkp;run distro_bootcmd;
+bootcmd_dhcp=run boot_net_usb_start; run boot_net_pci_enum; if dhcp ${scriptaddr} ${boot_script_dhcp}; then source ${scriptaddr}; fi;
+bootcmd_mmc0=setenv devnum 0; run mmc_boot
+bootcmd_mmc1=setenv devnum 1; run mmc_boot
+bootcmd_mtd0=setenv devnum 0; run mtd_boot
+bootcmd_mtd1=setenv devnum 1; run mtd_boot
+bootcmd_mtd2=setenv devnum 2; run mtd_boot
+bootcmd_pxe=run boot_net_usb_start; run boot_net_pci_enum; dhcp; if pxe get; then pxe boot; fi
+bootcmd_usb0=setenv devnum 0; run usb_boot
+bootdelay=0
+cpu=armv8
+devnum=0
+devplist=1
+devtype=usb
+distro_bootcmd=setenv scsi_need_init; for target in ${boot_targets}; do run bootcmd_${target}; done
+eth1addr=fa:0f:54:44:b8:9f
+ethaddr=f6:0f:54:44:b8:9f
+fdt_addr_r=0x08300000
+kernel_addr_c=0x05480000
+kernel_addr_r=0x00400000
+mmc_boot=if mmc dev ${devnum}; then setenv devtype mmc; run scan_dev_for_boot_part; fi
+mtd_boot=if mtd_blk dev ${devnum}; then setenv devtype mtd; run scan_dev_for_boot_part; fi
+partitions=uuid_disk=${uuid_gpt_disk};name=uboot,start=8MB,size=4MB,uuid=${uuid_gpt_loader2};name=trust,size=4M,uuid=${uuid_gpt_atf};name=misc,size=4MB,uuid=${uuid_gpt_misc};name=resource,size=16MB,uuid=${uuid_gpt_resource};name=kernel,size=32M,uuid=${uuid_gpt_kernel};name=boot,size=32M,bootable,uuid=${uuid_gpt_boot};name=recovery,size=32M,uuid=${uuid_gpt_recovery};name=backup,size=112M,uuid=${uuid_gpt_backup};name=cache,size=512M,uuid=${uuid_gpt_cache};name=system,size=2048M,uuid=${uuid_gpt_system};name=metadata,size=16M,uuid=${uuid_gpt_metadata};name=vendor,size=32M,uuid=${uuid_gpt_vendor};name=oem,size=32M,uuid=${uuid_gpt_oem};name=frp,size=512K,uuid=${uuid_gpt_frp};name=security,size=2M,uuid=${uuid_gpt_security};name=userdata,size=-,uuid=${uuid_gpt_userdata};
+pxefile_addr_r=0x00600000
+ramdisk_addr_r=0x0a200000
+rkimg_bootdev=if mmc dev 1 && rkimgtest mmc 1; then setenv devtype mmc; setenv devnum 1; echo Boot from SDcard;elif mmc dev 0; then setenv devtype mmc; setenv devnum 0;elif mtd_blk dev 0; then setenv devtype mtd; setenv devnum 0;elif mtd_blk dev 1; then setenv devtype mtd; setenv devnum 1;elif mtd_blk dev 2; then setenv devtype mtd; setenv devnum 2;elif rknand dev 0; then setenv devtype rknand; setenv devnum 0;elif rksfc dev 0; then setenv devtype spinand; setenv devnum 0;elif rksfc dev 1; then setenv devtype spinor; setenv devnum 1;else;setenv devtype ramdisk; setenv devnum 0;fi; 
+scan_dev_for_boot=echo Scanning ${devtype} ${devnum}:${distro_bootpart}...; for prefix in ${boot_prefixes}; do run scan_dev_for_extlinux; run scan_dev_for_scripts; done;
+scan_dev_for_boot_part=part list ${devtype} ${devnum} -bootable devplist; env exists devplist || setenv devplist 1; for distro_bootpart in ${devplist}; do if fstype ${devtype} ${devnum}:${distro_bootpart} bootfstype; then run scan_dev_for_boot; fi; done
+scan_dev_for_extlinux=if test -e ${devtype} ${devnum}:${distro_bootpart} ${prefix}extlinux/extlinux.conf; then echo Found ${prefix}extlinux/extlinux.conf; run boot_extlinux; echo SCRIPT FAILED: continuing...; fi
+scan_dev_for_scripts=for script in ${boot_scripts}; do if test -e ${devtype} ${devnum}:${distro_bootpart} ${prefix}${script}; then echo Found U-Boot script ${prefix}${script}; run boot_a_script; echo SCRIPT FAILED: continuing...; fi; done
+scriptaddr=0x00500000
+scsi_boot=run scsi_init; if scsi dev ${devnum}; then setenv devtype scsi; run scan_dev_for_boot_part; fi
+scsi_init=if ${scsi_need_init}; then setenv scsi_need_init false; scsi scan; fi
+soc=rockchip
+stderr=serial,vidconsole
+stdin=serial,usbkbd
+stdout=serial,vidconsole
+usb_boot=usb start; if usb dev ${devnum}; then setenv devtype usb; run scan_dev_for_boot_part; fi
+vendor=rockchip
+
+Environment size: 4443/32764 bytes
+=> 
+
+```
 
 
 
