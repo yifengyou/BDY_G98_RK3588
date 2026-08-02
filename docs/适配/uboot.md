@@ -1543,8 +1543,31 @@ booti ${kernel_addr_r} ${ramdisk_addr_r}:${filesize} ${fdt_addr_r}
 
 
 
-
-
+``shell
+root@G98:/# lsblk
+NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
+sda           8:0    0 119.2G  0 disk
+├─sda1        8:1    0   330M  0 part /boot
+└─sda2        8:2    0    32G  0 part /
+sdb           8:16   1  29.3G  0 disk
+├─sdb1        8:17   1  29.3G  0 part /vol00/DataTraveler_3.0
+└─sdb2        8:18   1    32M  0 part /vol00/DataTraveler_3.0_1
+zram0       252:0    0   7.8G  0 disk [SWAP]
+nvme0n1     259:0    0 119.2G  0 disk /vol00/aigo NVMe SSD P2000
+nvme1n1     259:1    0 238.5G  0 disk
+├─nvme1n1p1 259:2    0   330M  0 part /vol00/KINGBANK KP230
+└─nvme1n1p2 259:3    0    32G  0 part /vol00/KINGBANK KP230_1
+root@G98:/# blkid
+/dev/sda2: LABEL="rootfs" UUID="0f053ba0-e232-4915-8247-236cf7c3b617" UUID_SUB="689a4c12-2380-411d-92d5-df6f8bb17845" BLOCK_SIZE="4096" TYPE="btrfs" PARTUUID="56e010cc-c18b-2e4f-9bd2-6429b2b82310"
+/dev/sda1: LABEL="BOOT" UUID="03474b05-9e83-4d2e-99c1-17d31f507f0d" BLOCK_SIZE="1024" TYPE="ext4" PARTLABEL="BOOT" PARTUUID="48e10c2e-81bd-4c7d-8a57-afbb70a8012a"
+/dev/nvme0n1: UUID="c9fe79ef-411f-4d35-9ff2-8c471132b7b0" BLOCK_SIZE="4096" TYPE="ext4"
+/dev/sdb2: SEC_TYPE="msdos" LABEL_FATBOOT="VTOYEFI" LABEL="VTOYEFI" UUID="29A9-B74C" BLOCK_SIZE="512" TYPE="vfat" PARTUUID="3c79ab87-02"
+/dev/sdb1: LABEL="Ventoy" UUID="4E21-0000" BLOCK_SIZE="512" TYPE="exfat" PTTYPE="dos" PARTUUID="3c79ab87-01"
+/dev/nvme1n1p2: LABEL="rootfs" UUID="0f053ba0-e232-4915-8247-236cf7c3b617" UUID_SUB="689a4c12-2380-411d-92d5-df6f8bb17845" BLOCK_SIZE="4096" TYPE="btrfs" PARTUUID="8cd51f3c-2b55-6d44-a966-c80735b54822"
+/dev/nvme1n1p1: LABEL="BOOT" UUID="03474b05-9e83-4d2e-99c1-17d31f507f0d" BLOCK_SIZE="1024" TYPE="ext4" PARTLABEL="BOOT" PARTUUID="48e10c2e-81bd-4c7d-8a57-afbb70a8012a"
+/dev/zram0: UUID="03a2dca4-a072-49bd-a688-051fb35c1c28" TYPE="swap"
+root@G98:/# [   31.712798] vcc3v3_sd_s0: disabling
+``
 
 
 
