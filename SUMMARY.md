@@ -10,4 +10,8 @@
 * [适配](docs/适配.md)
     * [SPI](docs/适配/SPI.md)
     * [uboot](docs/适配/uboot.md)
+    * [nvme](docs/适配/nvme.md)
+    * [usb](docs/适配/usb.md)
+    * [2.5G网卡](docs/适配/2_5G网卡.md)
+    * [led](docs/适配/led.md)
 

@@ -1515,7 +1515,29 @@ UMS: LUN 0, dev nvme 0, hwpart 0, sector 0x0, count 0x1dcf32b0
 
 ```
 
-* 
+
+
+
+## kdev 适配 uboot
+
+```shell
+scsi scan
+
+# 1. 加载内核
+load scsi 0:1 ${kernel_addr_r} /vmlinuz-6.18.18-trim
+
+# 2. 加载 initramfs
+load scsi 0:1 ${ramdisk_addr_r} /fnos-universal-initramfs-v3.cpio.gz
+
+# 3. 加载设备树（RK3588 EVB）
+load scsi 0:1 ${fdt_addr_r} /dtb/rockchip/rk3588-bdy-g98.dtb
+
+# 4. 设置启动参数
+setenv bootargs "storagemedia=mtd androidboot.storagemedia=mtd androidboot.mode=normal androidboot.verifiedbootstate=orange root=/dev/sda2 rw rootwait console=ttyS2,1500000 earlycon"
+
+# 5. 启动内核
+booti ${kernel_addr_r} ${ramdisk_addr_r}:${filesize} ${fdt_addr_r}
+```
 
 
 
