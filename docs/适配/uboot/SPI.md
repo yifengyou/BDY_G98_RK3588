@@ -1,6 +1,6 @@
 # SPI Nor Flash
 
-![](./images/3881892324300.png)
+![](images881892324300.png)
 
 - 接口选择：RK3588 支持多个 SPI 控制器（如 SPI0-SPI4）。通常 SPI0 被保留用于系统启动（FSPI），建议优先将 NOR Flash 连接到 FSPI/SPI0 以确保原生 BootROM 支持。
 - 电压匹配：RK3588 的 IO 电平通常为 1.8V 或 3.3V（取决于电源域设计）。务必确认 NOR Flash 的 VCC 和 IO 电平与 SoC 对应 Bank 的电平一致，否则可能损坏芯片或导致通信失败。
@@ -79,7 +79,7 @@ DECIMAL       HEXADECIMAL     DESCRIPTION
 1895936       0x1CEE00        Flattened device tree, size: 17558 bytes, version: 17
 ```
 
-![](./images/53550000625400.png)
+![](images3550000625400.png)
 
 ## uboot中的spi
 
