@@ -1,3 +1,5 @@
 secret
 *.tmp
 *.o
+rockchip-linux-u-boot.git
+
