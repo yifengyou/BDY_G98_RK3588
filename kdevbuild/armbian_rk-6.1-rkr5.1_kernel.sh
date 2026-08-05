@@ -47,7 +47,6 @@ mv RKDevTool_Release_v3.37/uboot.img ${WORKDIR}/release/uboot.img
 ls -alh ${WORKDIR}/release/uboot.img
 md5sum ${WORKDIR}/release/uboot.img
 
-
 #==========================================================================#
 #                        build kernel                                      #
 #==========================================================================#
@@ -101,7 +100,7 @@ make ARCH=arm64 \
   KBUILD_BUILD_USER="builder" \
   KBUILD_BUILD_HOST="kdevbuilder" \
   LOCALVERSION=-kdev \
-   -j$(nproc)
+  -j$(nproc)
 
 make ARCH=arm64 \
   CROSS_COMPILE=aarch64-linux-gnu- \
