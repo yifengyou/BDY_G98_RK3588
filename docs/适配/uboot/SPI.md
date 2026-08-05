@@ -129,6 +129,296 @@ RKUSB: LUN 0, dev 2, hwpart 0, sector 0x0, count 0x10000
 
 
 
+## saveenv 到 spi 引导crash问题
+
+```shell
+=> run bootcmd_scsi
+SCSI: scsi scan
+scanning bus for devices...
+Target spinup took 0 ms.
+AHCI 0001.0300 32 slots 1 ports 6 Gbps 0x1 impl SATA mode
+flags: ncq stag pm led clo only pmp fbss pio slum part ccc apst 
+  Device 0: (0:0) Vendor: ATA Prod.: ADATA SP920SS Rev: 1.08
+            Type: Hard Disk
+            Capacity: 122104.3 MB = 119.2 GB (250069679 x 512)
+
+Device 0: (0:0) Vendor: ATA Prod.: ADATA SP920SS Rev: 1.08
+            Type: Hard Disk
+            Capacity: 122104.3 MB = 119.2 GB (250069679 x 512)
+... is now current device
+Try scsi 0:1 /boot.scr
+Found boot.scr on scsi 0:1
+4222 bytes read in 18 ms (228.5 KiB/s)
+## Executing script at 00500000
+Booting BDY-G98 fnOS universal media (v19 fdtfile, script v5, initramfs v3)
+Selected fnOS media: scsi 0:1
+127 bytes read in 26 ms (3.9 KiB/s)
+32926208 bytes read in 32914 ms (976.6 KiB/s)
+1799671 bytes read in 64 ms (26.8 MiB/s)
+133135 bytes read in 665 ms (195.3 KiB/s)
+Starting fnOS from scsi 0, root PARTUUID=56e010cc-c18b-2e4f-9bd2-6429b2b82310
+Fdt Ramdisk skip relocation
+"Synchronous Abort" handler, esr 0x96000010
+
+* Reason:        Exception from a Data abort, from current exception level
+* PC         =   000000000028bf10
+* LR         =   000000000028bd48
+* SP         =   00000000eb7f4750
+* ESR_EL2    =   0000000096000010
+* Reloc Off  =   00000000ed8e5000
+
+x0 : 0000000000000000 x1 : 0000000000000000
+x2 : 0000000000000200 x3 : 00000000eb7f49c0
+x4 : 00000000edb70d1c x5 : 00000000edc27588
+x6 : 0000000000000041 x7 : 00000000edc26e68
+x8 : 00000000ebb0e8c0 x9 : 0000000000000008
+x10: 00000000ebb0df30 x11: 00000000ebaf6c40
+x12: 0000000000000000 x13: 0000000000000200
+x14: 0000000000000006 x15: 00000000ffffffff
+x16: 00000000edc241e3 x17: 00000000edc241e3
+x18: 00000000eb7ffcd8 x19: 00000000ebaf5c80
+x20: 00000000ebaf5790 x21: 0000000000000000
+x22: 00000000edc60908 x23: 0000000000000001
+x24: 00000000ebaf1a80 x25: 0000000000000001
+x26: 00000000eb7f49c0 x27: 000000000000000c
+x28: 00000000ebb0de40 x29: 00000000eb7f4930
+
+
+Call trace:
+  PC:	[< 0028bf10 >]
+  LR:	[< 0028bd48 >]
+
+Stack:
+	[< 0028bf10 >]
+	[< 00237168 >]
+	[< 0023779c >]
+	[< 00235c10 >]
+	[< 0022d5e8 >]
+	[< 00202e4c >]
+	[< 00204ab4 >]
+	[< 0021d720 >]
+	[< 0020ac8c >]
+	[< 002343f0 >]
+	[< 0021bf0c >]
+	[< 0021c0ac >]
+	[< 0021b7f8 >]
+	[< 0021bcc8 >]
+	[< 0021bb84 >]
+	[< 0021bb84 >]
+	[< 0021bb84 >]
+	[< 0021bb84 >]
+	[< 0021bb84 >]
+	[< 0021c0ac >]
+	[< 0021b7b0 >]
+	[< 002338f4 >]
+	[< 00209e08 >]
+	[< 00209f10 >]
+	[< 002343f0 >]
+	[< 0021bf0c >]
+	[< 0021c0ac >]
+	[< 0021b7f8 >]
+	[< 0021bcc8 >]
+	[< 0021bb84 >]
+	[< 0021bb84 >]
+	[< 0021bb84 >]
+	[< 0021c0ac >]
+	[< 0021b7b0 >]
+	[< 002339a4 >]
+	[< 002343f0 >]
+	[< 0021bf0c >]
+	[< 0021c0ac >]
+	[< 0021b7b0 >]
+	[< 002339a4 >]
+	[< 002343f0 >]
+	[< 0021bf0c >]
+	[< 0021bb84 >]
+	[< 0021c0ac >]
+	[< 0021b7b0 >]
+	[< 002339a4 >]
+	[< 002343f0 >]
+	[< 0021bf0c >]
+	[< 0021c0ac >]
+	[< 0021c5f0 >]
+	[< 00233a9c >]
+	[< 0021a210 >]
+	[< 0021cdbc >]
+	[< 002c2b8c >]
+	[< 0021d138 >]
+	[< 00201dd0 >]
+
+Copy info from "Call trace..." to a file(eg. dump.txt), and run
+command in your U-Boot project: ./scripts/stacktrace.sh dump.txt 
+
+Resetting CPU ...
+
+### ERROR ### Please RESET the board ###
+```
+
+解析堆栈后如下：
+
+```shell
+# ./scripts/stacktrace.sh dump.txt 
+
+dos2unix: converting file dump.txt to Unix format...
+
+SYMBOL File: ./u-boot.sym
+
+Call trace:
+ PC:	[< 0028bf10 >]  nanddev_isbad+0x4/0xb4      
+ LR:	[< 0028bd48 >]  add_mtd_partitions+0x3c4/0x588      
+
+Stack:
+       [< 0028bf10 >]  nanddev_isbad+0x4/0xb4
+       [< 00237168 >]  write_gpt_table+0x354/0x510
+       [< 0023779c >]  gpt_fill_header+0xc4/0x2a4
+       [< 00235c10 >]  is_gpt_valid+0x100/0x2b0
+       [< 0022d5e8 >]  android_bootloader_message_load+0x28/0x88
+       [< 00202e4c >]  get_bcb_recovery_msg+0x18/0x30
+       [< 00204ab4 >]  bootm_board_start+0x74/0xdc
+       [< 0021d720 >]  do_bootm_states+0x8ec/0x970
+       [< 0020ac8c >]  dtimg_get_fdt+0xc8/0x12c
+       [< 002343f0 >]  write_id_attestation+0x28/0x40
+       [< 0021bf0c >]  bootdelay_process+0x10/0xc8
+       [< 0021c0ac >]  autoboot_command+0xe8/0x110
+       [< 0021b7f8 >]  parse_stream_outer+0x14/0x67c
+       [< 0021bcc8 >]  parse_stream_outer+0x4e4/0x67c
+       [< 0021bb84 >]  parse_stream_outer+0x3a0/0x67c
+       [< 0021bb84 >]  parse_stream_outer+0x3a0/0x67c
+       [< 0021bb84 >]  parse_stream_outer+0x3a0/0x67c
+       [< 0021bb84 >]  parse_stream_outer+0x3a0/0x67c
+       [< 0021bb84 >]  parse_stream_outer+0x3a0/0x67c
+       [< 0021c0ac >]  autoboot_command+0xe8/0x110
+       [< 0021b7b0 >]  run_list_real+0x6f8/0x72c
+       [< 002338f4 >]  write_to_keymaster+0x154/0x170
+       [< 00209e08 >]  source+0x17c/0x1c8
+       [< 00209f10 >]  do_bdinfo+0x2c/0x134
+       [< 002343f0 >]  write_id_attestation+0x28/0x40
+       [< 0021bf0c >]  bootdelay_process+0x10/0xc8
+       [< 0021c0ac >]  autoboot_command+0xe8/0x110
+       [< 0021b7f8 >]  parse_stream_outer+0x14/0x67c
+       [< 0021bcc8 >]  parse_stream_outer+0x4e4/0x67c
+       [< 0021bb84 >]  parse_stream_outer+0x3a0/0x67c
+       [< 0021bb84 >]  parse_stream_outer+0x3a0/0x67c
+       [< 0021bb84 >]  parse_stream_outer+0x3a0/0x67c
+       [< 0021c0ac >]  autoboot_command+0xe8/0x110
+       [< 0021b7b0 >]  run_list_real+0x6f8/0x72c
+       [< 002339a4 >]  write_key+0x34/0xb0
+       [< 002343f0 >]  write_id_attestation+0x28/0x40
+       [< 0021bf0c >]  bootdelay_process+0x10/0xc8
+       [< 0021c0ac >]  autoboot_command+0xe8/0x110
+       [< 0021b7b0 >]  run_list_real+0x6f8/0x72c
+       [< 002339a4 >]  write_key+0x34/0xb0
+       [< 002343f0 >]  write_id_attestation+0x28/0x40
+       [< 0021bf0c >]  bootdelay_process+0x10/0xc8
+       [< 0021bb84 >]  parse_stream_outer+0x3a0/0x67c
+       [< 0021c0ac >]  autoboot_command+0xe8/0x110
+       [< 0021b7b0 >]  run_list_real+0x6f8/0x72c
+       [< 002339a4 >]  write_key+0x34/0xb0
+       [< 002343f0 >]  write_id_attestation+0x28/0x40
+       [< 0021bf0c >]  bootdelay_process+0x10/0xc8
+       [< 0021c0ac >]  autoboot_command+0xe8/0x110
+       [< 0021c5f0 >]  board_init_f+0x20/0x2c
+       [< 00233a9c >]  copy_blob_from_buf+0x44/0x84
+       [< 0021a210 >]  free_pipe_list+0x74/0xf4
+       [< 0021cdbc >]  bootm_decomp_image+0x218/0x244
+       [< 002c2b8c >]  bidram_dump+0x60/0x1c8
+       [< 0021d138 >]  do_bootm_states+0x304/0x970
+       [< 00201dd0 >]  relocation_return+0x4/0x0
+
+PC Surrounding Instructions:
+  28bf04:	8b0002b5 	add	x21, x21, x0
+  28bf08:	17fffeaf 	b	28b9c4 <add_mtd_partitions+0x40>
+
+000000000028bf0c <nanddev_isbad>:
+  28bf0c:	a9bd7bfd 	stp	x29, x30, [sp,#-48]!
+  28bf10:	910003fd 	mov	x29, sp
+  28bf14:	f9401c02 	ldr	x2, [x0,#56]
+  28bf18:	a90153f3 	stp	x19, x20, [sp,#16]
+  28bf1c:	aa0003f3 	mov	x19, x0
+  28bf20:	a9025bf5 	stp	x21, x22, [sp,#32]
+  28bf24:	b4000422 	cbz	x2, 28bfa8 <nanddev_isbad+0x9c>
+
+
+```
+
+```shell
+# git diff
+diff --git a/configs/rk3588_defconfig b/configs/rk3588_defconfig
+index a1f39f8f63..d0b7bfbd9f 100644
+--- a/configs/rk3588_defconfig
++++ b/configs/rk3588_defconfig
+@@ -265,3 +265,6 @@ CONFIG_CMD_IMI=y
+ CONFIG_CMD_SETEXPR=y
+ CONFIG_IMAGE_FORMAT_LEGACY=y
+ # CONFIG_EMBED_KERNEL_DTB is not set
++CONFIG_ENV_IS_IN_SPI_FLASH=y
++CONFIG_ENV_OFFSET=0x1300000
++CONFIG_ENV_SIZE=0x1000
+diff --git a/env/sf.c b/env/sf.c
+index e51b1ae189..e9f8521342 100644
+--- a/env/sf.c
++++ b/env/sf.c
+@@ -251,6 +251,8 @@ out:
+ }
+ #else
+ #ifdef CMD_SAVEENV
++
++//#define CONFIG_ENV_SECT_SIZE 0x1000
+ static int env_sf_save(void)
+ {
+        u32     saved_size, saved_offset, sector;```
+```
+
+
+spi的设备树配置如下：
+```shell
+&sfc {
+	status = "okay";
+	u-boot,dm-pre-reloc;
+	flash@0 {
+		status = "disabled";
+	};
+
+	flash@1 {
+		u-boot,dm-spl;
+		compatible = "jedec,spi-nor";
+		label = "sfc_nor";
+		reg = <0x00>;
+		spi-tx-bus-width = <0x01>;
+		spi-rx-bus-width = <0x04>;
+		spi-max-frequency = <0x5f5e100>;
+		spi-4byte-addressing;
+		broken-flash-reset;
+		u-boot,dm-pre-reloc;
+	};
+};```
+
+```shell
+=> sf probe
+JEDEC id bytes: ef, 60, 19
+SF: Detected sfc_nor with page size 256 Bytes, erase size 4 KiB, total 32 MiB
+=> 
+```
+
+
+将启动参数的bootargs去掉就解决了。
+
+```shell
+=> printenv bootargs
+bootargs=storagemedia=mtd androidboot.storagemedia=mtd androidboot.mode=normal 
+=> 
+=> setenv bootargs
+=> run bootcmd
+```
+
+
+
+
+
+
+
+
+
 
 
 

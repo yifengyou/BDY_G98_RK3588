@@ -1649,7 +1649,21 @@ Environment size: 4443/32764 bytes
 
 
 
+## uboot加载内核dtb
 
+CONFIG_EMBED_KERNEL_DTB=y
+
+```shell
+********boot_merger ver 1.35********
+Info:Pack loader ok.
+pack loader okay! Input: /rockchip/BDY_G98_RK3588.git/rockchip-linux-u-boot.git/rkbin/RKBOOT/RK3588MINIALL.ini
+/rockchip/BDY_G98_RK3588.git/rockchip-linux-u-boot.git
+
+Image(no-signed, version=0): uboot.img (FIT with uboot, trust...) is ready
+Image(no-signed): rk3588_spl_loader_v1.21.114.bin (with spl, ddr...) is ready
+pack uboot.img okay! Input: /rockchip/BDY_G98_RK3588.git/rockchip-linux-u-boot.git/rkbin/RKTRUST/RK3588TRUST.ini
+ERROR: 'dts/kern.dtb' was not found assigned by CONFIG_EMBED_KERNEL_DTB_PATH.
+```
 
 
 

@@ -160,11 +160,216 @@ root@G98:/#
 
 
 
+## 命令行修复
+
+```shell
+setenv preboot 'pci enum; pci write.w 1.0.0 0x04 0x0000; pci write.w 0.0.0 0x04 0x0000; pci write.w 0.0.0 0x1a 0x0101; pci write.l 0.0.0 0x20 0xf02ff020; pci write.l 0.0.0 0x24 0xf02ff020; pci write.w 0.0.0 0x04 0x0007; pci write.l 1.0.0 0x10 0xf0200000; pci write.w 1.0.0 0x04 0x0006'
+run preboot
+
+nvme scan
+nvme info
+```
 
 
 
 
 
+## nvme单盘crash缺陷分析
+
+问题描述：
+
+1. uboot启动时候扫描pcie顺序是固定的， 先扫fe150000,再扫fe160000
+2. 如果fe150000有设备并正常初始化，但fe160000没有接设备，pci数据会被毒化，nvme scan读到的数据有问题，就crash
+3. 如果fe150000未接设备，fe160000接了设备，pci数据毒化后又被修改，反而正常
+4. 如果都没有设备，没有毒化过程，都正常
+
+针对描述2中，毒化的具体表现为: pci 能读取到fe150000的pci头信息，但是信息是异常的。也就是说因为fe160000扫描破坏了正常fe150000内容
+
+```shell
+=> pci enum 
+pcie@fe150000: PCIe Linking... LTSSM is 0x0
+pcie@fe150000: PCIe Linking... LTSSM is 0x0
+pcie@fe150000: PCIe Linking... LTSSM is 0x2
+pcie@fe150000: PCIe Linking... LTSSM is 0x210022
+pcie@fe150000: PCIe Link up, LTSSM is 0x230011
+pcie@fe150000: PCIE-0: Link up (Gen3-x2, Bus0)
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x1
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x1
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x1
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe-2 Link Fail
+pcie@fe160000: PCIe Linking... LTSSM is 0x5
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x1
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x1
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x1
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe Linking... LTSSM is 0x0
+pcie@fe160000: PCIe-2 Link Fail
+=> pci         
+BusDevFun  VendorId   DeviceId   Device Class       Sub-Class
+_____________________________________________________________
+00.00.00   0x1d87     0x3588     Bridge device           0x04
+01.00.00   0x1e4b     0x1202     Mass storage controller 0x08
+=> pci header 00.00.00
+  vendor ID =                   0x1d87
+  device ID =                   0x3588
+  command register ID =         0x0000
+  status register =             0x0010
+  revision ID =                 0x01
+  class code =                  0x06 (Bridge device)
+  sub class code =              0x04
+  programming interface =       0x00
+  cache line =                  0x00
+  latency time =                0x00
+  header type =                 0x01
+  BIST =                        0x00
+  base address 0 =              0x00000000
+  base address 1 =              0x00000000
+  primary bus number =          0x00
+  secondary bus number =        0x00
+  subordinate bus number =      0x00
+  secondary latency timer =     0x00
+  IO base =                     0x00
+  IO limit =                    0x00
+  secondary status =            0x0000
+  memory base =                 0x0000
+  memory limit =                0x0000
+  prefetch memory base =        0x0001
+  prefetch memory limit =       0x0001
+  prefetch memory base upper =  0x00000000
+  prefetch memory limit upper = 0x00000000
+  IO base upper 16 bits =       0x0000
+  IO limit upper 16 bits =      0x0000
+  expansion ROM base address =  0x00000000
+  interrupt line =              0xff
+  interrupt pin =               0x01
+  bridge control =              0x0000
+=> pci header 01.00.00
+  vendor ID =                   0x1e4b
+  device ID =                   0x1202
+  command register ID =         0x0000
+  status register =             0x0010
+  revision ID =                 0x01
+  class code =                  0x01 (Mass storage controller)
+  sub class code =              0x08
+  programming interface =       0x02
+  cache line =                  0x00
+  latency time =                0x00
+  header type =                 0x00
+  BIST =                        0x00
+  base address 0 =              0x00000004
+  base address 1 =              0x00000000
+  base address 2 =              0x00000000
+  base address 3 =              0x00000000
+  base address 4 =              0x00000000
+  base address 5 =              0x00000000
+  cardBus CIS pointer =         0x00000000
+  sub system vendor ID =        0x1e4b
+  sub system ID =               0x1202
+  expansion ROM base address =  0x00000000
+  interrupt line =              0xff
+  interrupt pin =               0x01
+  min Grant =                   0x00
+  max Latency =                 0x00
+=> 
+```
+
+```shell
+setenv preboot 'pci enum; pci write.w 1.0.0 0x04 0x0000; pci write.w 0.0.0 0x04 0x0000; pci write.w 0.0.0 0x1a 0x0101; pci write.l 0.0.0 0x20 0xf02ff020; pci write.l 0.0.0 0x24 0xf02ff020; pci write.w 0.0.0 0x04 0x0007; pci write.l 1.0.0 0x10 0xf0200000; pci write.w 1.0.0 0x04 0x0006'
+run preboot
+```
+
+执行这个uboot命令可以临时解决。但终归是驱动代码上的问题
 
 
 

@@ -27,6 +27,7 @@
     * [rockusb](docs/适配/uboot/rockusb.md)
     * [led](docs/适配/uboot/led.md)
   * [kernel](docs/适配/kernel.md)
+    * [firmware](docs/适配/kernel/firmware.md)
     * [usb](docs/适配/kernel/usb.md)
     * [nvme](docs/适配/kernel/nvme.md)
     * [spi nor flash](docs/适配/kernel/spi_nor_flash.md)

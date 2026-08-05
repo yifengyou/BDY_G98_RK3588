@@ -1,0 +1,15 @@
+{
+  "model": {
+    "id": "bdy-g98",
+    "name": "BDY-G98"
+  },
+  "gpio": [],
+  "led": [
+    {
+      "name": "system",
+      "sysfs": "system-led",
+      "trigger": "default-on",
+      "default": 1
+    }
+  ]
+}
