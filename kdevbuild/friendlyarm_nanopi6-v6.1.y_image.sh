@@ -4,7 +4,7 @@ set -euxo pipefail
 
 WORKDIR=$(pwd)
 export DEBIAN_FRONTEND=noninteractive
-export BUILD_TAG="G98_nanopi6-v6.1.y_${set_rootfs}"
+export BUILD_TAG="BDY_G98_nanopi6-v6.1.y_${set_rootfs}"
 
 #==========================================================================#
 #                        init build env                                    #
@@ -201,63 +201,7 @@ cp -a boot.img ${WORKDIR}/rockdev/boot.img
 ls -alh ${WORKDIR}/rockdev/boot.img
 md5sum ${WORKDIR}/rockdev/boot.img
 
-#==========================================================================#
-# Script Name: Generate Rockchip Updatable Image                           #
-# Description: This script is used to generate an updatable image package  #
-#              for Rockchip devices, including uboot, boot, and rootfs     #
-#              images. The generated images will be placed in the release  #
-#              directory for further use or distribution.                  #
-#                                                                          #
-# Output Directories and Files:                                            #
-#   - ${WORKDIR}/rockdev/uboot.img      : U-Boot bootloader image          #
-#   - ${WORKDIR}/rockdev/boot.img       : Boot partition image             #
-#   - ${WORKDIR}/rockdev/rootfs.img     : Root filesystem image            #
-#   - ${WORKDIR}/release                : Directory containing the final   #
-#                                         packaged update image            #
-#                                                                          #
-# Note: Ensure that all necessary source files are present in the          #
-#       specified directories before running this script.                  #
-#==========================================================================#
 
-# rootfs.img   : ${WORKDIR}/rockdev/rootfs.img
-# uboot.img    : ${WORKDIR}/rockdev/uboot.img
-# boot.img     : ${WORKDIR}/rockdev/boot.img
-# RKDevTool    : ${WORKDIR}/rockchip-tools.git/RKDevTool-v3.19-G98-RK3588/
-# afptool      : ${WORKDIR}/rockchip-tools.git/afptool
-# rkImageMaker : ${WORKDIR}/rockchip-tools.git/rkImageMaker
-# template     : ${WORKDIR}/update_img_tmp/
-# output       : ${WORKDIR}/release/
-
-#cd ${WORKDIR}
-#git clone https://github.com/yifengyou/rockchip-tools.git rockchip-tools.git
-#ls -alh ${WORKDIR}/rockchip-tools.git
-#chmod +x ${WORKDIR}/rockchip-tools.git/afptool
-#chmod +x ${WORKDIR}/rockchip-tools.git/rkImageMaker
-
-#mkdir -p ${WORKDIR}/release
-#mkdir -p ${WORKDIR}/update_img_tmp
-#cp -a ${WORKDIR}/rockchip-tools.git/RKDevTool-v3.19-G98-RK3588 \
-#  ${WORKDIR}/update_img_tmp/RKDevTool
-#mkdir -p ${WORKDIR}/update_img_tmp/RKDevTool/rockdev/image/
-#
-#cp -a ${WORKDIR}/rockdev/uboot.img ${WORKDIR}/update_img_tmp/RKDevTool/rockdev/image/
-#cp -a ${WORKDIR}/rockdev/boot.img ${WORKDIR}/update_img_tmp/RKDevTool/rockdev/image/
-#cp -a ${WORKDIR}/rockdev/rootfs.img ${WORKDIR}/update_img_tmp/RKDevTool/rockdev/image/
-#
-#cd ${WORKDIR}/update_img_tmp/RKDevTool/rockdev/image/
-#${WORKDIR}/rockchip-tools.git/afptool -pack . temp.img
-#${WORKDIR}/rockchip-tools.git/rkImageMaker \
-#  -RK3588 MiniLoaderAll.bin \
-#  temp.img \
-#  update.img \
-#  -os_type:androidos
-#find . -type f ! -name "update.img" -exec rm -f {} \;
-#
-## generate update.img
-#cd ${WORKDIR}/update_img_tmp/
-#rar a ${WORKDIR}/release/${BUILD_TAG}_update.rar RKDevTool
-#cd ${WORKDIR}/release/
-#sha256sum ${BUILD_TAG}_update.rar
 
 #==========================================================================#
 # Script Purpose: Generate Rockchip Firmware Image with RKDevTool          #
@@ -278,24 +222,19 @@ md5sum ${WORKDIR}/rockdev/boot.img
 #       the ${WORKDIR}/rockdev/ directory prior to running this script.    #
 #==========================================================================#
 
-# rootfs.img   : ${WORKDIR}/rockdev/rootfs.img
-# uboot.img    : ${WORKDIR}/rockdev/uboot.img
-# boot.img     : ${WORKDIR}/rockdev/boot.img
-# output       : ${WORKDIR}/release/
-
 cd ${WORKDIR}
 git clone https://github.com/yifengyou/rockchip-tools.git rockchip-tools.git
 ls -alh ${WORKDIR}/rockchip-tools.git
 
 mkdir -p ${WORKDIR}/release
 mkdir -p ${WORKDIR}/rockdev_img_tmp
-cp -a ${WORKDIR}/rockchip-tools.git/RKDevTool-v3.19-G98-RK3588 \
+cp -a ${WORKDIR}/rockchip-tools.git/RKDevTool-v3.37-G98-RK3588 \
   ${WORKDIR}/rockdev_img_tmp/RKDevTool
-mkdir -p ${WORKDIR}/rockdev_img_tmp/RKDevTool/rockdev/image/
+mkdir -p ${WORKDIR}/rockdev_img_tmp/RKDevTool/Image/
 
-cp -a ${WORKDIR}/rockdev/uboot.img ${WORKDIR}/rockdev_img_tmp/RKDevTool/rockdev/image/
-cp -a ${WORKDIR}/rockdev/boot.img ${WORKDIR}/rockdev_img_tmp/RKDevTool/rockdev/image/
-cp -a ${WORKDIR}/rockdev/rootfs.img ${WORKDIR}/rockdev_img_tmp/RKDevTool/rockdev/image/
+cp -a ${WORKDIR}/rockdev/uboot.img ${WORKDIR}/rockdev_img_tmp/RKDevTool/Image/
+cp -a ${WORKDIR}/rockdev/boot.img ${WORKDIR}/rockdev_img_tmp/RKDevTool/Image/
+cp -a ${WORKDIR}/rockdev/rootfs.img ${WORKDIR}/rockdev_img_tmp/RKDevTool/Image/
 
 cd ${WORKDIR}/rockdev_img_tmp/
 rar a ${WORKDIR}/release/${BUILD_TAG} RKDevTool
@@ -306,3 +245,4 @@ ls -alh ${WORKDIR}/release/
 
 echo "Build completed successfully!"
 exit 0
+

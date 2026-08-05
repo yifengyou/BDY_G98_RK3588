@@ -39,26 +39,10 @@ mkdir -p ${WORKDIR}/release
 #                        build uboot                                       #
 #==========================================================================#
 cd ${WORKDIR}/
-git clone -b stable-5.10-rock5 https://github.com/radxa/u-boot.git u-boot.git
-cd u-boot.git
-ls -alh
 
-# apply patch
-if ls ${WORKDIR}/radxa-uboot/*.patch >/dev/null 2>&1; then
-  git config --global user.name yifengyou
-  git config --global user.email 842056007@qq.com
-  git am ${WORKDIR}/radxa-uboot/*.patch
-fi
-
-tool=$(which aarch64-linux-gnu-gcc)
-export CROSS_COMPILE_ARM64="${tool%gcc}"
-echo "using gcc: [${CROSS_COMPILE_ARM64}]"
-
-rm -rf spl/u-boot-spl*
-make CROSS_COMPILE=${CROSS_COMPILE_ARM64} rockchip-rk3588_defconfig
-make CROSS_COMPILE=${CROSS_COMPILE_ARM64} -j$(nproc)
-./make.sh rk3588
-mv uboot.img ${WORKDIR}/release/uboot.img
+wget -C https://github.com/yifengyou/BDY_G98_RK3588-uboot/releases/download/bdy-g98-uboot/BYD_G98_UBOOT.zip
+unzip BYD_G98_UBOOT.zip
+mv RKDevTool_Release_v3.37/uboot.img ${WORKDIR}/release/uboot.img
 
 ls -alh ${WORKDIR}/release/uboot.img
 md5sum ${WORKDIR}/release/uboot.img
@@ -90,7 +74,7 @@ make ARCH=arm64 \
   KBUILD_BUILD_USER="builder" \
   KBUILD_BUILD_HOST="kdevbuilder" \
   LOCALVERSION=-kdev \
-  owl_rk3588_defconfig
+  bdy_g98_rk3588_defconfig
 
 make ARCH=arm64 \
   CROSS_COMPILE=aarch64-linux-gnu- \
