@@ -149,10 +149,18 @@ md5sum ${WORKDIR}/release/System.map-6.1.y-kdev
 
 # release kernel modules
 if [ -d kos/lib/modules ]; then
-  find kos -name "*.ko"
-  ls -alh kos/lib/modules/
-  tar -zcvf ${WORKDIR}/release/kos.tar.gz kos
+  dir_size=$(du -sb kos/lib/modules | awk '{print $1}')
+  if [ "$dir_size" -gt 512 ]; then
+    cp -a kos kos-debug
+    find kos -name "*.ko" -print0 | xargs -0 -r aarch64-linux-gnu-strip --strip-debug
+    find kos -name "*.ko"
+    ls -alh kos/lib/modules/
+    mkdir -p "${WORKDIR}/release"
+    tar -zcvf "${WORKDIR}/release/kos.tar.gz" kos
+    tar -zcvf "${WORKDIR}/release/kos-debug.tar.gz" kos-debug
+  fi
 fi
+
 
 ls -alh ${WORKDIR}/release/
 echo "Build completed successfully!"
