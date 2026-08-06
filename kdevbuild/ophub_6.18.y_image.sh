@@ -112,7 +112,7 @@ tar -xf kos.tar.gz
 
 # update rootfs with ko
 if [ -d kos/lib/modules ]; then
-  mount "${WORKDIR}/rockdev/rootfs.img" /mnt || exit 1
+  mount "${WORKDIR}/rockdev/rootfs.img" /mnt
   REQ=$(du -sk kos/lib/modules | awk '{print $1}')
   AVAIL=$(df -k /mnt | tail -1 | awk '{print $4}')
   if [ "$AVAIL" -ge "$REQ" ]; then
@@ -130,7 +130,7 @@ fi
 # update rootfs with firmware
 if [ -d ${WORKDIR}/firmware ]; then
   find ${WORKDIR}/firmware
-  mount ${WORKDIR}/rockdev/rootfs.img /mnt
+  mount "${WORKDIR}/rockdev/rootfs.img" /mnt
   mkdir -p /mnt/lib/firmware
   cp -a ${WORKDIR}/firmware/* /mnt/lib/firmware/
   ls -alh /mnt/lib/firmware/
@@ -165,19 +165,19 @@ prompt 1
 timeout 90
 
 
-label l0
+label normal
 	menu label Linux kernel 6.18.y-kdev
 	linux vmlinuz-6.18.y-kdev
 	initrd initrd.img-6.18.y-kdev
 	fdt /dtb/rk3588-bdy-g98.dtb
-	append root=/dev/sda2 rootwait rw console=ttyS2,1500000 console=tty1 cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory net.ifnames=0 biosdevname=0 level=10 loglevel=10 selinux=0 crashkernel=384M-:128M systemd.mask=systemd-growfs@-.service rockchip.dmc_freq=528000 video=HDMI-A-1:1920x1080@60
+	append root=/dev/sda2 rw console=ttyS2,1500000 console=tty1 cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory net.ifnames=0 biosdevname=0 level=10 loglevel=10 selinux=0 crashkernel=384M-:128M systemd.mask=systemd-growfs@-.service rockchip.dmc_freq=528000 video=HDMI-A-1:1920x1080@60 /sbin/init
 
-label l0r
+label single
 	menu label Linux kernel 6.18.y-kdev (rescue target)
 	linux vmlinuz-6.18.y-kdev
 	initrd initrd.img-6.18.y-kdev
 	fdt /dtb/rk3588-bdy-g98.dtb
-	append root=/dev/sda2 rootwait rw console=ttyS2,1500000 console=tty1 cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory net.ifnames=0 biosdevname=0 level=10 loglevel=10 selinux=0 crashkernel=384M-:128M single
+	append root=/dev/sda2 rw console=ttyS2,1500000 console=tty1 cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory net.ifnames=0 biosdevname=0 level=10 loglevel=10 selinux=0 crashkernel=384M-:128M single
 
 EOF
 

@@ -1533,7 +1533,7 @@ load scsi 0:1 ${ramdisk_addr_r} /fnos-universal-initramfs-v3.cpio.gz
 load scsi 0:1 ${fdt_addr_r} /dtb/rockchip/rk3588-bdy-g98.dtb
 
 # 4. 设置启动参数
-setenv bootargs "storagemedia=mtd androidboot.storagemedia=mtd androidboot.mode=normal androidboot.verifiedbootstate=orange root=/dev/sda2 rw rootwait console=ttyS2,1500000 earlycon"
+setenv bootargs "storagemedia=mtd androidboot.storagemedia=mtd androidboot.mode=normal androidboot.verifiedbootstate=orange root=/dev/sda2 rw console=ttyS2,1500000 earlycon"
 
 # 5. 启动内核
 booti ${kernel_addr_r} ${ramdisk_addr_r}:${filesize} ${fdt_addr_r}
@@ -1653,6 +1653,8 @@ Environment size: 4443/32764 bytes
 
 CONFIG_EMBED_KERNEL_DTB=y
 
+打开这个配置后，需要提供kern.dtb
+
 ```shell
 ********boot_merger ver 1.35********
 Info:Pack loader ok.
@@ -1664,6 +1666,145 @@ Image(no-signed): rk3588_spl_loader_v1.21.114.bin (with spl, ddr...) is ready
 pack uboot.img okay! Input: /rockchip/BDY_G98_RK3588.git/rockchip-linux-u-boot.git/rkbin/RKTRUST/RK3588TRUST.ini
 ERROR: 'dts/kern.dtb' was not found assigned by CONFIG_EMBED_KERNEL_DTB_PATH.
 ```
+
+会自动加载到uboot.img中
+
+```shell# dumpimage -l uboot.img 
+FIT description: FIT Image with ATF/OP-TEE/U-Boot/MCU
+Created:         Tue Aug  4 14:56:41 2026
+ Image 0 (uboot)
+  Description:  U-Boot
+  Created:      Tue Aug  4 14:56:41 2026
+  Type:         Standalone Program
+  Compression:  gzip compressed
+  Data Size:    658386 Bytes = 642.96 KiB = 0.63 MiB
+  Architecture: AArch64
+  Load Address: 0x00200000
+  Entry Point:  unavailable
+  Hash algo:    sha256
+  Hash value:   12fd242aef4bf8d3ad811e2077380b7039426cbfdae0ac6f61ce08898a4e42e7
+ Image 1 (atf-1)
+  Description:  ARM Trusted Firmware
+  Created:      Tue Aug  4 14:56:41 2026
+  Type:         Firmware
+  Compression:  gzip compressed
+  Data Size:    73136 Bytes = 71.42 KiB = 0.07 MiB
+  Architecture: AArch64
+  OS:           ARM Trusted Firmware
+  Load Address: 0x00060000
+  Hash algo:    sha256
+  Hash value:   5988115109e479d87fcac59b45a838676e688d4b89a750f25d82627fce36aa52
+ Image 2 (atf-2)
+  Description:  ARM Trusted Firmware
+  Created:      Tue Aug  4 14:56:41 2026
+  Type:         Firmware
+  Compression:  uncompressed
+  Data Size:    36864 Bytes = 36.00 KiB = 0.04 MiB
+  Architecture: AArch64
+  OS:           ARM Trusted Firmware
+  Load Address: 0xff100000
+  Hash algo:    sha256
+  Hash value:   74bbc58e207167988365509cf71e87fa5366388d5b646085960d13ef684396a1
+ Image 3 (atf-3)
+  Description:  ARM Trusted Firmware
+  Created:      Tue Aug  4 14:56:41 2026
+  Type:         Firmware
+  Compression:  uncompressed
+  Data Size:    24576 Bytes = 24.00 KiB = 0.02 MiB
+  Architecture: AArch64
+  OS:           ARM Trusted Firmware
+  Load Address: 0x000f0000
+  Hash algo:    sha256
+  Hash value:   13b94d9d5ab7976f8bb4581be0bd5326a8d242a120de087efce835e7dc7f6f02
+ Image 4 (optee)
+  Description:  OP-TEE
+  Created:      Tue Aug  4 14:56:41 2026
+  Type:         Firmware
+  Compression:  gzip compressed
+  Data Size:    233795 Bytes = 228.32 KiB = 0.22 MiB
+  Architecture: AArch64
+  OS:           Unknown OS
+  Load Address: 0x08400000
+  Hash algo:    sha256
+  Hash value:   a10897c75f75a2057c30d9c3e5dc67e4132c11cabff4ea3be8bc2181b5014ca9
+ Image 5 (kern-fdt)
+  Description:  dts/kern.dtb
+  Created:      Tue Aug  4 14:56:41 2026
+  Type:         Flat Device Tree
+  Compression:  uncompressed
+  Data Size:    173722 Bytes = 169.65 KiB = 0.17 MiB
+  Architecture: AArch64
+  Hash algo:    sha256
+  Hash value:   b8cb4610017382c57e40f667ae63e833394cbbcef317e7786efd5146581b2a8c
+ Image 6 (fdt)
+  Description:  U-Boot dtb
+  Created:      Tue Aug  4 14:56:41 2026
+  Type:         Flat Device Tree
+  Compression:  uncompressed
+  Data Size:    23665 Bytes = 23.11 KiB = 0.02 MiB
+  Architecture: AArch64
+  Hash algo:    sha256
+  Hash value:   8693bb0fb97e467ff3fad2d9860d92761f7202ca25d578c852e32c620d082cca
+ Default Configuration: 'conf'
+ Configuration 0 (conf)
+  Description:  rk3588-evb
+  Kernel:       unavailable
+  Firmware:     atf-1
+  FDT:          fdt
+                kern-fdt
+  Loadables:    uboot
+                atf-2
+                atf-3
+                optee
+  Sign algo:    sha256,rsa2048:dev
+  Sign value:   unavailable
+  Timestamp:    unavailable
+
+```
+
+
+
+
+默认加载路径，通过CONFIG配置
+
+```shell# grep -rn CONFIG_EMBED_KERNEL_DTB_PATH
+arch/arm/dts/Makefile:462:EMBED_KERN_DTB_PATH := $(CONFIG_EMBED_KERNEL_DTB_PATH:"%"=%)
+arch/arm/mach-rockchip/fit_nodes.sh:102:	KERN_DTB=`sed -n "/CONFIG_EMBED_KERNEL_DTB_PATH=/s/CONFIG_EMBED_KERNEL_DTB_PATH=//p" .config | tr -d '"'`
+arch/arm/mach-rockchip/kernel_dtb.c:282:	printf("Embed: %s\n", CONFIG_EMBED_KERNEL_DTB_PATH);
+scripts/check-rkconfig.sh:18:	KDTB=`sed -n "/CONFIG_EMBED_KERNEL_DTB_PATH=/s/CONFIG_EMBED_KERNEL_DTB_PATH=//p" .config | tr -d '\r' | tr -d '"'`
+scripts/check-rkconfig.sh:20:		echo "ERROR: '${KDTB}' was not found assigned by CONFIG_EMBED_KERNEL_DTB_PATH."
+include/config/auto.conf:497:CONFIG_EMBED_KERNEL_DTB_PATH="dts/kern.dtb"
+include/generated/autoconf.h:499:#define CONFIG_EMBED_KERNEL_DTB_PATH "dts/kern.dtb"
+Makefile:919:EMBED_KERN_DTB := $(CONFIG_EMBED_KERNEL_DTB_PATH:"%"=%)
+.config:199:CONFIG_EMBED_KERNEL_DTB_PATH="dts/kern.dtb"
+.config.old:199:CONFIG_EMBED_KERNEL_DTB_PATH="dts/kern.dtb"
+tpl/u-boot.cfg:122:#define CONFIG_EMBED_KERNEL_DTB_PATH "dts/kern.dtb"
+spl/u-boot.cfg:123:#define CONFIG_EMBED_KERNEL_DTB_PATH "dts/kern.dtb"
+u-boot.cfg:130:#define CONFIG_EMBED_KERNEL_DTB_PATH "dts/kern.dtb"
+u-boot.cfg.configs:192:CONFIG_EMBED_KERNEL_DTB_PATH
+
+```
+
+
+
+
+
+## uboot rbrom
+
+
+* rbrom进入maskrom之后，最好在刷一下miniloader，刷了之后会再次进入maskrom，这时候功能齐全一点。
+* 因为rbrom进去的是固化在cpu内部的bootrom代码，缺少组件。
+再刷一次miniloader，它是功能完整的第二阶段引导程序，它初始化了 DDR、USB PHY、存储控制器等外设。，所以功能齐全一些。
+
+
+
+
+
+## 
+
+
+
+
 
 
 
