@@ -1533,7 +1533,7 @@ load scsi 0:1 ${ramdisk_addr_r} /fnos-universal-initramfs-v3.cpio.gz
 load scsi 0:1 ${fdt_addr_r} /dtb/rockchip/rk3588-bdy-g98.dtb
 
 # 4. 设置启动参数
-setenv bootargs "storagemedia=mtd androidboot.storagemedia=mtd androidboot.mode=normal androidboot.verifiedbootstate=orange root=/dev/sda2 rw console=ttyS2,1500000 earlycon"
+setenv bootargs "storagemedia=mtd androidboot.storagemedia=mtd androidboot.mode=normal androidboot.verifiedbootstate=orange root=PARTUUID=614e0000-0000-4b53-8000-1d28000054a9 rw console=ttyS2,1500000 earlycon"
 
 # 5. 启动内核
 booti ${kernel_addr_r} ${ramdisk_addr_r}:${filesize} ${fdt_addr_r}
@@ -1559,7 +1559,7 @@ nvme1n1     259:1    0 238.5G  0 disk
 ├─nvme1n1p1 259:2    0   330M  0 part /vol00/KINGBANK KP230
 └─nvme1n1p2 259:3    0    32G  0 part /vol00/KINGBANK KP230_1
 root@G98:/# blkid
-/dev/sda2: LABEL="rootfs" UUID="0f053ba0-e232-4915-8247-236cf7c3b617" UUID_SUB="689a4c12-2380-411d-92d5-df6f8bb17845" BLOCK_SIZE="4096" TYPE="btrfs" PARTUUID="56e010cc-c18b-2e4f-9bd2-6429b2b82310"
+PARTUUID=614e0000-0000-4b53-8000-1d28000054a9: LABEL="rootfs" UUID="0f053ba0-e232-4915-8247-236cf7c3b617" UUID_SUB="689a4c12-2380-411d-92d5-df6f8bb17845" BLOCK_SIZE="4096" TYPE="btrfs" PARTUUID="56e010cc-c18b-2e4f-9bd2-6429b2b82310"
 /dev/sda1: LABEL="BOOT" UUID="03474b05-9e83-4d2e-99c1-17d31f507f0d" BLOCK_SIZE="1024" TYPE="ext4" PARTLABEL="BOOT" PARTUUID="48e10c2e-81bd-4c7d-8a57-afbb70a8012a"
 /dev/nvme0n1: UUID="c9fe79ef-411f-4d35-9ff2-8c471132b7b0" BLOCK_SIZE="4096" TYPE="ext4"
 /dev/sdb2: SEC_TYPE="msdos" LABEL_FATBOOT="VTOYEFI" LABEL="VTOYEFI" UUID="29A9-B74C" BLOCK_SIZE="512" TYPE="vfat" PARTUUID="3c79ab87-02"
