@@ -190,6 +190,11 @@ if [ -f vmlinux ]; then
 fi
 
 
+if [ -f "${LOG_FILE}" ] ; then
+  ls -alh ${LOG_FILE}
+  cp -a ${LOG_FILE} ${WORKDIR}/release/
+fi
 ls -alh ${WORKDIR}/release/
 echo "Build completed successfully!"
 exit 0
+

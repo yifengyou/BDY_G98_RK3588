@@ -4,6 +4,9 @@ set -euxo pipefail
 
 WORKDIR=$(pwd)
 export DEBIAN_FRONTEND=noninteractive
+
+LOG_FILE="${WORKDIR}/build.log"
+exec > >(tee -a "$LOG_FILE") 2>&1
 export BUILD_TAG="BDY_G98_nanopi6-v6.1.y_${set_rootfs}"
 
 #==========================================================================#
