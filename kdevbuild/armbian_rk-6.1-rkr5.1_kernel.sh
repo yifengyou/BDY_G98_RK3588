@@ -163,6 +163,23 @@ if [ -d kos/lib/modules ]; then
   fi
 fi
 
+# archive kernel debuginfo
+if [ -f vmlinux ]; then
+    mkdir -p "${WORKDIR}/release"
+
+    DEBUGINFO_FILES=()
+    for f in vmlinux vmlinux.unstripped System.map Module.symvers .config; do
+        [ -f "$f" ] && DEBUGINFO_FILES+=("$f")
+    done
+
+    if [ ${#DEBUGINFO_FILES[@]} -gt 0 ]; then
+        tar -zcvf "${WORKDIR}/release/kernel-debuginfo.tar.gz" "${DEBUGINFO_FILES[@]}"
+        echo "Kernel debuginfo archived: ${DEBUGINFO_FILES[*]}"
+    else
+        echo "No debuginfo files found to archive"
+    fi
+fi
+
 
 ls -alh ${WORKDIR}/release/
 echo "Build completed successfully!"
