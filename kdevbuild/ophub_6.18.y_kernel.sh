@@ -10,7 +10,7 @@ set -euxo pipefail
 WORKDIR=$(pwd)
 export DEBIAN_FRONTEND=noninteractive
 
-LOG_FILE="${WORKDIR}/build.log"
+LOG_FILE="${WORKDIR}/build-6.18.y.log"
 # 将标准输出和错误输出同时重定向到日志文件和终端
 exec > >(tee -a "$LOG_FILE") 2>&1
 
@@ -177,7 +177,7 @@ echo ">>> [6/7] 收集构建产物到 release/ ..."
 # --- 内核镜像 ---
 ls -alh arch/arm64/boot/Image
 md5sum arch/arm64/boot/Image
-cp -a arch/arm64/boot/Image "${WORKDIR}/release/"
+cp -a arch/arm64/boot/Image "${WORKDIR}/release/Image-6.18.y"
 
 # --- 设备树 ---
 DTB_PATH="./arch/arm64/boot/dts/rockchip/rk3588-bdy-g98.dtb"
@@ -206,8 +206,7 @@ if [ -d kos/lib/modules ]; then
     find kos -name "*.ko"
     ls -alh kos/lib/modules/
     mkdir -p "${WORKDIR}/release"
-    tar -zcvf "${WORKDIR}/release/kos.tar.gz" kos
-    tar -zcvf "${WORKDIR}/release/kos-debug.tar.gz" kos-debug
+    tar -zcvf "${WORKDIR}/release/kos-6.18.y.tar.gz" kos
   fi
 fi
 
@@ -215,12 +214,12 @@ fi
 if [ -f vmlinux ]; then
   mkdir -p "${WORKDIR}/release"
   DEBUGINFO_FILES=()
-  for f in vmlinux vmlinux.unstripped System.map Module.symvers .config; do
+  for f in vmlinux vmlinux.unstripped System.map Module.symvers .config kos-debug; do
     [ -f "$f" ] && DEBUGINFO_FILES+=("$f")
   done
 
   if [ ${#DEBUGINFO_FILES[@]} -gt 0 ]; then
-    tar -zcvf "${WORKDIR}/release/kernel-debuginfo.tar.gz" "${DEBUGINFO_FILES[@]}"
+    tar -zcvf "${WORKDIR}/release/kernel-debuginfo-6.18.y.tar.gz" "${DEBUGINFO_FILES[@]}"
     echo "Kernel debuginfo archived: ${DEBUGINFO_FILES[*]}"
   else
     echo "No debuginfo files found to archive"
@@ -230,7 +229,7 @@ fi
 # --- 内核头文件打包 ---
 if [ -d kernel-headers ]; then
   mkdir -p "${WORKDIR}/release"
-  tar -zcvf "${WORKDIR}/release/kernel-headers.tar.gz" kernel-headers
+  tar -zcvf "${WORKDIR}/release/kernel-headers-6.18.y.tar.gz" kernel-headers
 fi
 
 #==========================================================================#
@@ -243,7 +242,6 @@ cd "${WORKDIR}/${KERNEL_SRC_DIR}"
 ARCH="arm64"
 KVER=$(cat include/config/kernel.release)
 DEVEL_DIR="${WORKDIR}/kernel-devel"
-OUTPUT_TAR="kernel-devel-${KVER}.tar.gz"
 
 # 重新交叉编译 fixdep 和 modpost，确保它们是 arm64 二进制
 # （这两个工具在外部模块编译时会被调用）
@@ -370,7 +368,7 @@ fi
 
 # 打包 kernel-devel
 cd "${WORKDIR}"
-tar -czf "${WORKDIR}/release/${OUTPUT_TAR}" kernel-devel
+tar -czf "${WORKDIR}/release/kernel-devel-6.18.y.tar.gz" kernel-devel
 
 #==========================================================================#
 #                        收尾工作                                           #
