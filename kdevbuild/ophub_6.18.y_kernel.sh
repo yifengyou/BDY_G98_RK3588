@@ -130,6 +130,14 @@ make ARCH=arm64 \
   INSTALL_MOD_PATH=$(pwd)/kos \
   modules_install
 
+make ARCH=arm64 \
+  CROSS_COMPILE=aarch64-linux-gnu- \
+  KBUILD_BUILD_USER="builder" \
+  KBUILD_BUILD_HOST="kdevbuilder" \
+  LOCALVERSION=-kdev \
+  INSTALL_HDR_PATH=$(pwd)/kernel-headers \
+  headers_install
+
 # release kernel image
 ls -alh arch/arm64/boot/Image
 md5sum arch/arm64/boot/Image
@@ -179,6 +187,11 @@ if [ -f vmlinux ]; then
     else
         echo "No debuginfo files found to archive"
     fi
+fi
+
+if [ -d kernel-headers ]; then
+    mkdir -p "${WORKDIR}/release"
+    tar -zcvf "${WORKDIR}/release/kernel-headers.tar.gz" kernel-headers
 fi
 
 if [ -f "${LOG_FILE}" ] ; then
