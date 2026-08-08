@@ -120,7 +120,6 @@ if [[ "$KVER" != *kdev ]]; then
   echo "ERROR: KVER does not end with 'kdev', got: ${KVER}"
   exit 1
 fi
-KVER=$(cat include/config/kernel.release)
 echo "KVER: ${KVER}"
 
 echo ">>> [5/7] 编译内核镜像、设备树和模块..."
@@ -170,6 +169,7 @@ make ARCH=arm64 \
   INSTALL_HDR_PATH="$(pwd)/kernel-headers/${KVER}" \
   headers_install
 
+KVER=$(cat include/config/kernel.release)
 #==========================================================================#
 #                        5. 收集构建产物                                    #
 #==========================================================================#
