@@ -120,6 +120,7 @@ if [[ "$KVER" != *kdev ]]; then
   echo "ERROR: KVER does not end with 'kdev', got: ${KVER}"
   exit 1
 fi
+KVER=$(cat include/config/kernel.release)
 echo "KVER: ${KVER}"
 
 echo ">>> [5/7] 编译内核镜像、设备树和模块..."
@@ -166,7 +167,7 @@ make ARCH=arm64 \
   KBUILD_BUILD_USER="builder" \
   KBUILD_BUILD_HOST="kdevbuilder" \
   LOCALVERSION=-kdev \
-  INSTALL_HDR_PATH="$(pwd)/kernel-headers" \
+  INSTALL_HDR_PATH="$(pwd)/kernel-headers/${KVER}" \
   headers_install
 
 #==========================================================================#
@@ -240,8 +241,7 @@ echo ">>> [7/7] 生成 kernel-devel 包..."
 cd "${WORKDIR}/${KERNEL_SRC_DIR}"
 
 ARCH="arm64"
-KVER=$(cat include/config/kernel.release)
-DEVEL_DIR="${WORKDIR}/kernel-devel"
+DEVEL_DIR="${WORKDIR}/kernel-devel/${KVER}"
 
 # 重新交叉编译 fixdep 和 modpost，确保它们是 arm64 二进制
 # （这两个工具在外部模块编译时会被调用）

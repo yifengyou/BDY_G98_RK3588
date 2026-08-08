@@ -92,9 +92,9 @@ cd ${WORKDIR}
 mkdir -p ophub_6.18.y
 cd ophub_6.18.y
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/ophub_6.18.y_kernel/Image
-ls -alh Image
-md5sum Image
+wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/ophub_6.18.y_kernel/Image-6.18.y-kdev
+ls -alh Image-6.18.y-kdev
+md5sum Image-6.18.y-kdev
 
 wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/ophub_6.18.y_kernel/config-6.18.y-kdev
 ls -alh config-6.18.y-kdev
@@ -108,14 +108,22 @@ wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/ophub_6.18
 ls -alh rk3588-bdy-g98.dtb
 md5sum rk3588-bdy-g98.dtb
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/ophub_6.18.y_kernel/kos.tar.gz
-ls -alh kos.tar.gz
-md5sum kos.tar.gz
-tar -xf kos.tar.gz
+wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/ophub_6.18.y_kernel/kos-6.18.y.tar.gz
+ls -alh kos-6.18.y.tar.gz
+md5sum kos-6.18.y.tar.gz
+tar -xf kos-6.18.y.tar.gz
 
-# update rootfs with ko
+wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/ophub_6.18.y_kernel/kernel-devel-6.18.y.tar.gz
+ls -alh kernel-devel-6.18.y.tar.gz
+md5sum kernel-devel-6.18.y.tar.gz
+tar -xf kernel-devel-6.18.y.tar.gz
+
+# ============================================================
+# 更新rootfs
+# ============================================================
+mount "${WORKDIR}/rockdev/rootfs.img" /mnt
+# update rootfs with kernel modules
 if [ -d kos/lib/modules ]; then
-  mount "${WORKDIR}/rockdev/rootfs.img" /mnt
   REQ=$(du -sk kos/lib/modules | awk '{print $1}')
   AVAIL=$(df -k /mnt | tail -1 | awk '{print $4}')
   if [ "$AVAIL" -ge "$REQ" ]; then
@@ -124,32 +132,53 @@ if [ -d kos/lib/modules ]; then
     cp -a kos/lib/modules/* /mnt/lib/modules
     sync
   else
-    echo "Warning: Insufficient space on /mnt (Need: ${REQ}KB, Have: ${AVAIL}KB)"
+    echo "Warning: Insufficient space on /mnt (Need: ${REQ}KB, Have: ${AVAIL}KB), skip add modules"
   fi
-  umount /mnt
   sync
 fi
 
 # update rootfs with firmware
 if [ -d ${WORKDIR}/firmware ]; then
-  find ${WORKDIR}/firmware
-  mount "${WORKDIR}/rockdev/rootfs.img" /mnt
-  mkdir -p /mnt/lib/firmware
-  cp -a ${WORKDIR}/firmware/* /mnt/lib/firmware/
-  ls -alh /mnt/lib/firmware/
-  sync
-  umount /mnt
+  REQ=$(du -sk ${WORKDIR}/firmware | awk '{print $1}')
+  AVAIL=$(df -k /mnt | tail -1 | awk '{print $4}')
+  if [ "$AVAIL" -ge "$REQ" ]; then
+    mkdir -p /mnt/lib/firmware
+    cp -a ${WORKDIR}/firmware/* /mnt/lib/firmware/
+    ls -alh /mnt/lib/firmware/
+    sync
+  else
+    echo "Warning: Insufficient space on /mnt (Need: ${REQ}KB, Have: ${AVAIL}KB), skip add firmware"
+  fi
   sync
 fi
 
-# generate boot.img
+# update kernel-devel (without /lib/modules/xxx/build soft link creatation)
+# /usr/src/kernels/<version>/ 或 /lib/modules/<version>/build/
+if [ -d ${WORKDIR}/kernel-devel ]; then
+  REQ=$(du -sk ${WORKDIR}/kernel-devel | awk '{print $1}')
+  AVAIL=$(df -k /mnt | tail -1 | awk '{print $4}')
+  if [ "$AVAIL" -ge "$REQ" ]; then
+    mkdir -p /mnt/usr/src/kernels/
+    cp -a ${WORKDIR}/kernel-devel/* /mnt/usr/src/kernels/
+    ls -alh /mnt/usr/src/kernels/
+    sync
+  else
+    echo "Warning: Insufficient space on /mnt (Need: ${REQ}KB, Have: ${AVAIL}KB), skip add kernel devel"
+  fi
+  sync
+fi
+mount "${WORKDIR}/rockdev/rootfs.img" /mnt
+
+# ============================================================
+# 生成boot.img
+# ============================================================
 dd if=/dev/zero of=boot.img bs=1M count=256
 mkfs.ext2 -U 7A3F0000-0000-446A-8000-702F00006273 -L kdevboot boot.img
 mount boot.img /mnt
 
 mkdir -p /mnt/dtb
 cp -a rk3588-bdy-g98.dtb /mnt/dtb/
-cp -f Image /mnt/vmlinuz-6.18.y-kdev
+cp -f Image-6.18.y-kdev /mnt/vmlinuz-6.18.y-kdev
 cp -f config-6.18.y-kdev /mnt/config-6.18.y-kdev
 cp -f System.map-6.18.y-kdev /mnt/System.map-6.18.y-kdev
 touch /mnt/initrd.img-6.18.y-kdev
@@ -204,8 +233,6 @@ cp -a boot.img ${WORKDIR}/rockdev/boot.img
 ls -alh ${WORKDIR}/rockdev/boot.img
 md5sum ${WORKDIR}/rockdev/boot.img
 
-
-
 #==========================================================================#
 # Script Purpose: Generate Rockchip Firmware Image with RKDevTool          #
 #                                                                          #
@@ -248,4 +275,3 @@ ls -alh ${WORKDIR}/release/
 
 echo "Build completed successfully!"
 exit 0
-
