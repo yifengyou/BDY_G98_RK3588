@@ -112,19 +112,19 @@ wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/ophub_6.18
 ls -alh kos-6.18.y.tar.gz
 md5sum kos-6.18.y.tar.gz
 tar -xf kos-6.18.y.tar.gz
-find kos | xargs -i ls -alh {}
+du -sh kos
 
 wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/ophub_6.18.y_kernel/kernel-devel-6.18.y.tar.gz
 ls -alh kernel-devel-6.18.y.tar.gz
 md5sum kernel-devel-6.18.y.tar.gz
 tar -xf kernel-devel-6.18.y.tar.gz
-find kernel-devel | xargs -i ls -alh {}
+du -sh kernel-devel
 
 wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/ophub_6.18.y_kernel/kernel-headers-6.18.y.tar.gz
 ls -alh kernel-headers-6.18.y.tar.gz
 md5sum kernel-headers-6.18.y.tar.gz
 tar -xf kernel-headers-6.18.y.tar.gz
-find kernel-headers | xargs -i ls -alh {}
+du -sh kernel-headers
 
 # ============================================================
 # 更新rootfs
@@ -137,6 +137,7 @@ if [ -d kos/lib/modules ]; then
   if [ "$AVAIL" -ge "$REQ" ]; then
     rm -rf /mnt/lib/modules/*
     mkdir -p /mnt/lib/modules
+    # current in ${WORKDIR}/ophub_6.18.y
     cp -a kos/lib/modules/* /mnt/lib/modules
     sync
   else
@@ -162,13 +163,29 @@ fi
 
 # update kernel-devel (without /lib/modules/xxx/build soft link creatation)
 # /usr/src/kernels/<version>/ 或 /lib/modules/<version>/build/
-if [ -d ${WORKDIR}/kernel-devel ]; then
-  REQ=$(du -sk ${WORKDIR}/kernel-devel | awk '{print $1}')
+if [ -d kernel-devel ]; then
+  REQ=$(du -sk kernel-devel | awk '{print $1}')
   AVAIL=$(df -k /mnt | tail -1 | awk '{print $4}')
   if [ "$AVAIL" -ge "$REQ" ]; then
     mkdir -p /mnt/usr/src/kernels/
-    cp -a ${WORKDIR}/kernel-devel/* /mnt/usr/src/kernels/
+    # current in ${WORKDIR}/ophub_6.18.y
+    cp -a kernel-devel/* /mnt/usr/src/kernels/
     ls -alh /mnt/usr/src/kernels/
+    sync
+  else
+    echo "Warning: Insufficient space on /mnt (Need: ${REQ}KB, Have: ${AVAIL}KB), skip add kernel devel"
+  fi
+  sync
+fi
+
+if [ -d kernel-headers ]; then
+  REQ=$(du -sk kernel-headers | awk '{print $1}')
+  AVAIL=$(df -k /mnt | tail -1 | awk '{print $4}')
+  if [ "$AVAIL" -ge "$REQ" ]; then
+    mkdir -p /mnt/usr/include/
+    # current in ${WORKDIR}/ophub_6.18.y
+    cp -a kernel-headers/* /mnt/usr/include/
+    ls -alh /mnt/usr/include/
     sync
   else
     echo "Warning: Insufficient space on /mnt (Need: ${REQ}KB, Have: ${AVAIL}KB), skip add kernel devel"
