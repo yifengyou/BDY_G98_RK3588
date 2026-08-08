@@ -112,11 +112,19 @@ wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/ophub_6.18
 ls -alh kos-6.18.y.tar.gz
 md5sum kos-6.18.y.tar.gz
 tar -xf kos-6.18.y.tar.gz
+find kos | xargs -i ls -alh {}
 
 wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/ophub_6.18.y_kernel/kernel-devel-6.18.y.tar.gz
 ls -alh kernel-devel-6.18.y.tar.gz
 md5sum kernel-devel-6.18.y.tar.gz
 tar -xf kernel-devel-6.18.y.tar.gz
+find kernel-devel | xargs -i ls -alh {}
+
+wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/ophub_6.18.y_kernel/kernel-headers-6.18.y.tar.gz
+ls -alh kernel-headers-6.18.y.tar.gz
+md5sum kernel-headers-6.18.y.tar.gz
+tar -xf kernel-headers-6.18.y.tar.gz
+find kernel-headers | xargs -i ls -alh {}
 
 # ============================================================
 # 更新rootfs
