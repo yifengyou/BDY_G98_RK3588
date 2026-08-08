@@ -167,7 +167,8 @@ if [ -d ${WORKDIR}/kernel-devel ]; then
   fi
   sync
 fi
-mount "${WORKDIR}/rockdev/rootfs.img" /mnt
+# lazy umount
+umount -l /mnt
 
 # ============================================================
 # 生成boot.img
