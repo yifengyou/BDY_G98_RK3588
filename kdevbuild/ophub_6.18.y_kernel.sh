@@ -178,7 +178,7 @@ echo ">>> [6/7] 收集构建产物到 release/ ..."
 # --- 内核镜像 ---
 ls -alh arch/arm64/boot/Image
 md5sum arch/arm64/boot/Image
-cp -a arch/arm64/boot/Image "${WORKDIR}/release/Image-6.18.y"
+cp -a arch/arm64/boot/Image "${WORKDIR}/release/Image-6.18.y-kdev"
 
 # --- 设备树 ---
 DTB_PATH="./arch/arm64/boot/dts/rockchip/rk3588-bdy-g98.dtb"
