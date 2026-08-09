@@ -17,10 +17,10 @@
         * [2.5G网卡](docs/适配/uboot/2_5G网卡.md)
         * [rockusb](docs/适配/uboot/rockusb.md)
         * [led](docs/适配/uboot/led.md)
+        * [emmc](docs/适配/uboot/emmc.md)
     * [kernel](docs/适配/kernel.md)
         * [firmware](docs/适配/kernel/firmware.md)
         * [usb](docs/适配/kernel/usb.md)
         * [nvme](docs/适配/kernel/nvme.md)
         * [spi nor flash](docs/适配/kernel/spi_nor_flash.md)
         * [RTL8125 2.5G](docs/适配/kernel/RTL8125.md)
-
