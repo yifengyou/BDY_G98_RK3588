@@ -24,3 +24,6 @@
         * [nvme](docs/适配/kernel/nvme.md)
         * [spi nor flash](docs/适配/kernel/spi_nor_flash.md)
         * [RTL8125 2.5G](docs/适配/kernel/RTL8125.md)
+    * [android14](docs/适配/android14.md)
+        * [firmware](docs/适配/android14/firmware.md)
+

@@ -33,6 +33,8 @@
     * [nvme](docs/适配/kernel/nvme.md)
     * [spi nor flash](docs/适配/kernel/spi_nor_flash.md)
     * [RTL8125 2.5G](docs/适配/kernel/RTL8125.md)
+  * [android14](docs/适配/android14.md)
+    * [firmware](docs/适配/android14/firmware.md)
 
   
 ## 参数规格
@@ -72,6 +74,10 @@
 
 ![](./images/46824639323900.png)
 
+
+## 刷机指引
+
+* 请参看：<https://github.com/yifengyou/BDY_G98_RK3588-uboot/blob/kdev/README.md>
 
 ## 免责申明
 
