@@ -1,0 +1,69 @@
+From 28df60972caa5cda7564d465093dfa8063a1795a Mon Sep 17 00:00:00 2001
+From: ophub <68696949+ophub@users.noreply.github.com>
+Date: Wed, 12 Aug 2026 20:38:50 +0800
+Subject: [PATCH 1/4] net: dsa: yt921x: support bdy-g98 RJ45 LED profile
+
+Add support for the vendor property "motorcomm,bdy-g98-led-profile".
+When present, program the parallel LED controller of each user port
+after chip reset: LED0 shows solid link at any speed, LED1 blinks on
+RX/TX activity, replacing the factory default of both LEDs solid.
+
+Register map and action bits follow the Motorcomm YT9215 SDK(fal_tiger_led.c).
+---
+ .../bindings/net/dsa/motorcomm,yt921x.yaml      |  7 +++----
+ drivers/net/dsa/yt921x.c                        | 17 +++++------------
+ 2 files changed, 8 insertions(+), 16 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/net/dsa/motorcomm,yt921x.yaml b/Documentation/devicetree/bindings/net/dsa/motorcomm,yt921x.yaml
+index 9612fbc80..12d68853f 100644
+--- a/Documentation/devicetree/bindings/net/dsa/motorcomm,yt921x.yaml
++++ b/Documentation/devicetree/bindings/net/dsa/motorcomm,yt921x.yaml
+@@ -35,10 +35,9 @@ properties:
+     type: boolean
+     description:
+       Apply the bdy-g98 board RJ45 LED profile to all user ports after chip
+-      reset. Both LEDs of each jack are tied to one electrical net on this
+-      board, so they always show the same thing: solid on link at any
+-      speed, blinking on RX/TX activity, dark while unlinked.
+-      Vendor-specific, only meaningful on bdy-g98 hardware.
++      reset. LED0 of each port shows solid link at any speed, LED1 blinks
++      on RX/TX activity, replacing the factory default of both LEDs solid
++      on link. Vendor-specific, only meaningful on bdy-g98 hardware.
+ 
+   mdio:
+     $ref: /schemas/net/mdio.yaml#
+diff --git a/drivers/net/dsa/yt921x.c b/drivers/net/dsa/yt921x.c
+index 2cced6b79..b67584651 100644
+--- a/drivers/net/dsa/yt921x.c
++++ b/drivers/net/dsa/yt921x.c
+@@ -4798,22 +4798,15 @@ static int yt921x_chip_setup(struct yt921x_priv *priv)
+ 	return 0;
+ }
+ 
+-/* bdy-g98 ties both RJ45 LEDs of each gigabit jack to one electrical
+- * net driven by the port's two parallel LED pins, so the two LEDs
+- * always show the same thing: a pin driving the net low wins over a
+- * released pin, and blink wins over solid.  The board profile is
+- * therefore a joint one: LED1 holds the net lit on link at any speed
+- * and blinks it on RX/TX activity, LED0 keeps the net low while the
+- * port is trying to link.  Net effect: both LEDs solid on link, both
+- * blink on traffic, both dark while unlinked.  YT921X_RST_HW reverts
+- * the LED controller, so apply this after reset.
++/* bdy-g98 wires two LEDs per RJ45 jack to the parallel LED controller.
++ * Factory defaults keep both LEDs solid on link; the board profile is
++ * LED0 solid on link at any speed, LED1 blinking on RX/TX activity.
++ * YT921X_RST_HW reverts the LED controller, so apply this after reset.
+  */
+ #define YT921X_LED_PROFILE_LINK	(YT921X_LED_10M_ON | YT921X_LED_100M_ON | \
+ 				 YT921X_LED_1000M_ON | \
+ 				 YT921X_LED_DISABLE_LINK_TRY)
+-#define YT921X_LED_PROFILE_ACT	(YT921X_LED_10M_ON | YT921X_LED_100M_ON | \
+-				 YT921X_LED_1000M_ON | \
+-				 YT921X_LED_RXACT_BLINK | \
++#define YT921X_LED_PROFILE_ACT	(YT921X_LED_RXACT_BLINK | \
+ 				 YT921X_LED_TXACT_BLINK | YT921X_LED_ACT_BLINK_IND)
+ 
+ /* Caller must hold priv->reg_lock */
+-- 
+2.43.0
+

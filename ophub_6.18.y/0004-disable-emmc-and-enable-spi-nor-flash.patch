@@ -1,7 +1,7 @@
-From e17f6e77cc736f53e21ef53886e0ebbf9a7c28a2 Mon Sep 17 00:00:00 2001
+From 41613dc9a459c9f649f2184c6bab2131d4002f30 Mon Sep 17 00:00:00 2001
 From: yifengyou <842056007@qq.com>
 Date: Sun, 9 Aug 2026 10:47:51 +0800
-Subject: [PATCH 2/2] disable emmc and enable spi nor flash
+Subject: [PATCH 4/4] disable emmc and enable spi nor flash
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -10,10 +10,22 @@ Content-Transfer-Encoding: 8bit
 
 Signed-off-by: yifengyou <842056007@qq.com>
 ---
+ .gitignore                                    |  3 +++
  .../boot/dts/rockchip/rk3588-bdy-g98.dts      | 20 ++++++++++++++++++-
  kdev-build.sh                                 |  8 ++++++++
- 2 files changed, 27 insertions(+), 1 deletion(-)
+ 3 files changed, 30 insertions(+), 1 deletion(-)
 
+diff --git a/.gitignore b/.gitignore
+index c535add06..ce0f36b25 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -185,3 +185,6 @@ sphinx_*/
+ # Rust analyzer configuration
+ /rust-project.json
+ /kos
++/kernel-headers/
++/rk3588-bdy-g98.dts
++
 diff --git a/arch/arm64/boot/dts/rockchip/rk3588-bdy-g98.dts b/arch/arm64/boot/dts/rockchip/rk3588-bdy-g98.dts
 index c5d9fe6c6..b795fa5fe 100644
 --- a/arch/arm64/boot/dts/rockchip/rk3588-bdy-g98.dts
