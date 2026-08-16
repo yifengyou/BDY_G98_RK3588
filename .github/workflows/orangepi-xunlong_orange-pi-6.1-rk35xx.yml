@@ -15,7 +15,6 @@ on:
 
 env:
   TZ: Asia/Shanghai
-  ACTIONS_STEP_DEBUG: true
 
 jobs:
   build-kernel:
