@@ -425,7 +425,8 @@ jobs:
           removeArtifacts: false
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          body: | # ophub_6.18.y_image
+          body: |
+            # ophub_6.18.y_image
 
             ## 系统密码
 
