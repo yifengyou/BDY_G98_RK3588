@@ -68,9 +68,9 @@ md5sum "${WORKDIR}/release/uboot.img"
 echo ">>> [3/7] 克隆内核源码..."
 cd "${WORKDIR}"
 
-# 【注意】目录名含 .git 后缀可能导致部分工具误判，建议改为 linux-develop-6.1
-KERNEL_SRC_DIR="linux-develop-6.1"
-git clone https://github.com/rockchip-linux/kernel.git "${KERNEL_SRC_DIR}"
+# 【注意】目录名含 .git 后缀可能导致部分工具误判，建议改为 develop-6.1
+KERNEL_SRC_DIR="kernel_develop-6.1"
+git clone https://github.com/rockchip-linux/kernel.git -b develop-6.1 "${KERNEL_SRC_DIR}"
 cd "${KERNEL_SRC_DIR}"
 ls -alh
 
