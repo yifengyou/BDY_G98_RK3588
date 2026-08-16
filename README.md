@@ -54,6 +54,28 @@
 | USB口数 | USB3.0*2 |
 | AC/DC接口 | 220V交流输入 + DC-IN直流输入（双供电冗余设计） |
 
+## 适配进度
+
+
+| 配置文件名 | 仓库地址 | 分支 | 适配进度 | 备注 |
+| :--- | :--- | :--- | :--- | :--- |
+| `ophub_6.18.y.yml` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
+| `armbian_rk-6.1-rkr5.1.yml` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
+| `friendlyarm_nanopi6-v6.1.y.yml` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
+| `linux-stable.yml` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
+| `lubancat_lbc-develop-6.1.yml` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
+| `official_5.10.66.yml` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
+| `openeuler_OLK6.6.yml` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
+| `ophub_6.1.y.yml` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
+| `ophub_6.6.y.yml` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
+| `ophub_6.12.y.yml` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
+| `orangepi-xunlong_orange-pi-6.1-rk35xx.yml` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
+| `radxa_linux-6.1-stan-rkr5.1.yml` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
+| `rockchip-linux_develop-6.1.yml` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
+| `rockchip-linux_develop-6.6.yml` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
+| `torvalds_linux.yml` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | | 
+
+
 ## maskrom短接点、TTL、硬盘电源
 
 - maskrom短接点：
