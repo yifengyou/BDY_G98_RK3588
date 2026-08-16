@@ -88,23 +88,30 @@ jobs:
           removeArtifacts: false
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          body: | # rockchip-linux_develop-6.6_kernel
+          body: |
+            # rockchip-linux_develop-6.6_kernel
 
-            ## 发布内容
-            - **Image** - Linux 内核镜像
-            - **dtb/** - 设备树文件
-            - **kos.tar.gz** - 内核模块压缩包
-            - **uboot.img** - uboot 镜像
+            ## 📦 发布内容
 
-            ## 重要提示
-            > **此发布为中间构建产物，非完整固件！**
-            >
-            > **非专业开发人员请勿下载使用**
+            | 文件 / 目录 | 说明 |
+            | :--- | :--- |
+            | **Image** | Linux 内核镜像 |
+            | **rk3588-bdy-g98.dtb** | 设备树文件（Device Tree Blob） |
+            | **kos.tar.gz** | 内核模块压缩包 |
+            | **kernel-debuginfo** | 内核调试符号包 |
+            | **kernel-devel** | 内核开发头文件及构建依赖 |
+            | **uboot.img** | U-Boot 引导加载程序镜像 |
 
-            ## 免责声明
-            - **按原样提供**：镜像不作任何保证，使用风险自负
-            - **无官方关联**：主板厂家和瑞星微无任何关联、无任何商业关联
-            - **安全提示**：请及时更新补丁、修改默认密码、配置防火墙
+            ## ⚠️ 重要提示
+
+            > **此发布为中间构建产物，并非完整可启动固件！**
+            > 本仓库仅面向具备嵌入式 Linux 开发经验的专业人员，**非专业开发者请勿下载或使用**。
+
+            ## 🛡️ 免责声明
+
+            -   **按原样提供**：所有文件均不作任何明示或暗示的保证，使用风险由用户自行承担。
+            -   **无官方关联**：本项目与主板厂商及瑞芯微（Rockchip）无任何隶属、授权或商业合作关系。
+            -   **安全建议**：如用于生产环境，请务必及时更新安全补丁、修改默认密码并正确配置防火墙策略。
 
   build-image:
     if: ${{ github.event.inputs.build_type == 'image' }}
@@ -418,7 +425,8 @@ jobs:
           removeArtifacts: false
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          body: | # rockchip-linux_develop-6.6_image
+          body: |
+            # rockchip-linux_develop-6.6_image
 
             ## 系统密码
 
