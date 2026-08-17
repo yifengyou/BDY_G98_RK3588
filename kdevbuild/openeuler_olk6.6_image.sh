@@ -7,7 +7,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 LOG_FILE="${WORKDIR}/build.log"
 exec > >(tee -a "$LOG_FILE") 2>&1
-export BUILD_TAG="BDY_G98_OLK6.6_${set_rootfs}"
+export BUILD_TAG="BDY_G98_OLK-6.6.y_${set_rootfs}"
 
 #==========================================================================#
 #                        init build env                                    #
@@ -75,10 +75,10 @@ ls -alh ${WORKDIR}/rockdev/rootfs.img
 #==========================================================================#
 cd ${WORKDIR}
 
-mkdir -p rockchip-linux_develop-6.6
-cd rockchip-linux_develop-6.6
+mkdir -p openeuler_OLK-6.6
+cd openeuler_OLK-6.6
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_olk6.6_kernel/uboot.img
+wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/uboot.img
 ls -alh uboot.img
 mv uboot.img ${WORKDIR}/rockdev/uboot.img
 ls -alh ${WORKDIR}/rockdev/uboot.img
@@ -89,70 +89,125 @@ md5sum ${WORKDIR}/rockdev/uboot.img
 #==========================================================================#
 cd ${WORKDIR}
 
-mkdir -p rockchip-linux_develop-6.6
-cd rockchip-linux_develop-6.6
+mkdir -p openeuler_OLK-6.6
+cd openeuler_OLK-6.6
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_olk6.6_kernel/Image
-ls -alh Image
-md5sum Image
+wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/Image-OLK-6.6.y-kdev
+ls -alh Image-OLK-6.6.y-kdev
+md5sum Image-OLK-6.6.y-kdev
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_olk6.6_kernel/config-6.6-kdev
-ls -alh config-6.6-kdev
-md5sum config-6.6-kdev
+wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/config-OLK-6.6.y-kdev
+ls -alh config-OLK-6.6.y-kdev
+md5sum config-OLK-6.6.y-kdev
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_olk6.6_kernel/System.map-6.6-kdev
-ls -alh System.map-6.6-kdev
-md5sum System.map-6.6-kdev
+wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/System.map-OLK-6.6.y-kdev
+ls -alh System.map-OLK-6.6.y-kdev
+md5sum System.map-OLK-6.6.y-kdev
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_olk6.6_kernel/rk3588-bdy-g98.dtb
+wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/rk3588-bdy-g98.dtb
 ls -alh rk3588-bdy-g98.dtb
 md5sum rk3588-bdy-g98.dtb
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_olk6.6_kernel/kos.tar.gz
-ls -alh kos.tar.gz
-md5sum kos.tar.gz
-tar -xf kos.tar.gz
+wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/kos-OLK-6.6.y.tar.gz
+ls -alh kos-OLK-6.6.y.tar.gz
+md5sum kos-OLK-6.6.y.tar.gz
+tar -xf kos-OLK-6.6.y.tar.gz
+du -sh kos
 
-# update rootfs with ko
+wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/kernel-devel-OLK-6.6.y.tar.gz
+ls -alh kernel-devel-OLK-6.6.y.tar.gz
+md5sum kernel-devel-OLK-6.6.y.tar.gz
+tar -xf kernel-devel-OLK-6.6.y.tar.gz
+du -sh kernel-devel
+
+wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/kernel-headers-OLK-6.6.y.tar.gz
+ls -alh kernel-headers-OLK-6.6.y.tar.gz
+md5sum kernel-headers-OLK-6.6.y.tar.gz
+tar -xf kernel-headers-OLK-6.6.y.tar.gz
+du -sh kernel-headers
+
+# ============================================================
+# 更新rootfs
+# ============================================================
+mount "${WORKDIR}/rockdev/rootfs.img" /mnt
+# update rootfs with kernel modules
 if [ -d kos/lib/modules ]; then
-  mount "${WORKDIR}/rockdev/rootfs.img" /mnt || exit 1
   REQ=$(du -sk kos/lib/modules | awk '{print $1}')
   AVAIL=$(df -k /mnt | tail -1 | awk '{print $4}')
   if [ "$AVAIL" -ge "$REQ" ]; then
     rm -rf /mnt/lib/modules/*
     mkdir -p /mnt/lib/modules
+    # current in ${WORKDIR}/openeuler_OLK-6.6
     cp -a kos/lib/modules/* /mnt/lib/modules
     sync
   else
-    echo "Warning: Insufficient space on /mnt (Need: ${REQ}KB, Have: ${AVAIL}KB)"
+    echo "Warning: Insufficient space on /mnt (Need: ${REQ}KB, Have: ${AVAIL}KB), skip add modules"
   fi
-  umount /mnt
   sync
 fi
 
 # update rootfs with firmware
 if [ -d ${WORKDIR}/firmware ]; then
-  find ${WORKDIR}/firmware
-  mount ${WORKDIR}/rockdev/rootfs.img /mnt
-  mkdir -p /mnt/lib/firmware
-  cp -a ${WORKDIR}/firmware/* /mnt/lib/firmware/
-  ls -alh /mnt/lib/firmware/
-  sync
-  umount /mnt
+  REQ=$(du -sk ${WORKDIR}/firmware | awk '{print $1}')
+  AVAIL=$(df -k /mnt | tail -1 | awk '{print $4}')
+  if [ "$AVAIL" -ge "$REQ" ]; then
+    mkdir -p /mnt/lib/firmware
+    cp -a ${WORKDIR}/firmware/* /mnt/lib/firmware/
+    ls -alh /mnt/lib/firmware/
+    sync
+  else
+    echo "Warning: Insufficient space on /mnt (Need: ${REQ}KB, Have: ${AVAIL}KB), skip add firmware"
+  fi
   sync
 fi
 
-# generate boot.img
+# update kernel-devel (without /lib/modules/xxx/build soft link creatation)
+# /usr/src/kernels/<version>/ 或 /lib/modules/<version>/build/
+if [ -d kernel-devel ]; then
+  REQ=$(du -sk kernel-devel | awk '{print $1}')
+  AVAIL=$(df -k /mnt | tail -1 | awk '{print $4}')
+  if [ "$AVAIL" -ge "$REQ" ]; then
+    mkdir -p /mnt/usr/src/kernels/
+    # current in ${WORKDIR}/openeuler_OLK-6.6
+    cp -a kernel-devel/* /mnt/usr/src/kernels/
+    ls -alh /mnt/usr/src/kernels/
+    sync
+  else
+    echo "Warning: Insufficient space on /mnt (Need: ${REQ}KB, Have: ${AVAIL}KB), skip add kernel devel"
+  fi
+  sync
+fi
+
+if [ -d kernel-headers ]; then
+  REQ=$(du -sk kernel-headers | awk '{print $1}')
+  AVAIL=$(df -k /mnt | tail -1 | awk '{print $4}')
+  if [ "$AVAIL" -ge "$REQ" ]; then
+    mkdir -p /mnt/usr/include/
+    # current in ${WORKDIR}/openeuler_OLK-6.6
+    cp -a kernel-headers/* /mnt/usr/include/
+    ls -alh /mnt/usr/include/
+    sync
+  else
+    echo "Warning: Insufficient space on /mnt (Need: ${REQ}KB, Have: ${AVAIL}KB), skip add kernel devel"
+  fi
+  sync
+fi
+# lazy umount
+umount -l /mnt
+
+# ============================================================
+# 生成boot.img
+# ============================================================
 dd if=/dev/zero of=boot.img bs=1M count=256
 mkfs.ext2 -U 7A3F0000-0000-446A-8000-702F00006273 -L kdevboot boot.img
 mount boot.img /mnt
 
 mkdir -p /mnt/dtb
 cp -a rk3588-bdy-g98.dtb /mnt/dtb/
-cp -f Image /mnt/vmlinuz-6.6-kdev
-cp -f config-6.6-kdev /mnt/config-6.6-kdev
-cp -f System.map-6.6-kdev /mnt/System.map-6.6-kdev
-touch /mnt/initrd.img-6.6-kdev
+cp -f Image-OLK-6.6.y-kdev /mnt/vmlinuz-OLK-6.6.y-kdev
+cp -f config-OLK-6.6.y-kdev /mnt/config-OLK-6.6.y-kdev
+cp -f System.map-OLK-6.6.y-kdev /mnt/System.map-OLK-6.6.y-kdev
+touch /mnt/initrd.img-OLK-6.6.y-kdev
 
 cat >/mnt/extlinux.conf <<EOF
 ## /extlinux/extlinux.conf
@@ -168,17 +223,17 @@ prompt 1
 timeout 90
 
 
-label l0
-	menu label Linux kernel 6.6-kdev
-	linux vmlinuz-6.6-kdev
-	initrd initrd.img-6.6-kdev
+label normal
+	menu label Linux kernel OLK-6.6.y-kdev
+	linux vmlinuz-OLK-6.6.y-kdev
+	initrd initrd.img-OLK-6.6.y-kdev
 	fdt /dtb/rk3588-bdy-g98.dtb
 	append root=PARTUUID=614e0000-0000-4b53-8000-1d28000054a9 rw console=ttyS2,1500000 console=tty1 cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory net.ifnames=0 biosdevname=0 level=10 loglevel=10 selinux=0 crashkernel=384M-:128M systemd.mask=systemd-growfs@-.service rockchip.dmc_freq=528000 video=HDMI-A-1:1920x1080@60
 
-label l0r
-	menu label Linux kernel 6.6-kdev (rescue target)
-	linux vmlinuz-6.6-kdev
-	initrd initrd.img-6.6-kdev
+label single
+	menu label Linux kernel OLK-6.6.y-kdev (rescue target)
+	linux vmlinuz-OLK-6.6.y-kdev
+	initrd initrd.img-OLK-6.6.y-kdev
 	fdt /dtb/rk3588-bdy-g98.dtb
 	append root=PARTUUID=614e0000-0000-4b53-8000-1d28000054a9 rw console=ttyS2,1500000 console=tty1 cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory net.ifnames=0 biosdevname=0 level=10 loglevel=10 selinux=0 crashkernel=384M-:128M single
 
@@ -203,8 +258,6 @@ md5sum boot.img
 cp -a boot.img ${WORKDIR}/rockdev/boot.img
 ls -alh ${WORKDIR}/rockdev/boot.img
 md5sum ${WORKDIR}/rockdev/boot.img
-
-
 
 #==========================================================================#
 # Script Purpose: Generate Rockchip Firmware Image with RKDevTool          #
@@ -248,4 +301,3 @@ ls -alh ${WORKDIR}/release/
 
 echo "Build completed successfully!"
 exit 0
-
