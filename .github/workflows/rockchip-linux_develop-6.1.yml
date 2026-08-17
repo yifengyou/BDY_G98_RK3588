@@ -88,8 +88,6 @@ jobs:
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
           body: |
-            # rockchip-linux_develop-6.1_kernel
-
             ## 📦 发布内容
 
             | 文件 / 目录 | 说明 |
@@ -425,8 +423,6 @@ jobs:
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
           body: |
-            # rockchip-linux_develop-6.1_image
-
             ## 系统密码
 
             - 用户名: root   密码: admin

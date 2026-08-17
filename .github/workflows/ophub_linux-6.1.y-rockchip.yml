@@ -1,4 +1,4 @@
-name: ophub kernel 6.18.y
+name: ophub kernel linux-6.1.y-rockchip
 
 on:
   repository_dispatch:
@@ -69,8 +69,8 @@ jobs:
             -w /workspace \
             ubuntu:22.04 \
             bash -c "
-              chmod +x /workspace/kdevbuild/ophub_6.18.y_kernel.sh ;
-              /workspace/kdevbuild/ophub_6.18.y_kernel.sh
+              chmod +x /workspace/kdevbuild/ophub_linux-6.1.y-rockchip_kernel.sh ;
+              /workspace/kdevbuild/ophub_linux-6.1.y-rockchip_kernel.sh
             "
 
       - name: List build output
@@ -81,13 +81,15 @@ jobs:
       - name: Upload Kernel to Release
         uses: ncipollo/release-action@main
         with:
-          tag: ophub_6.18.y_kernel
+          tag: ophub_linux-6.1.y-rockchip_kernel
           artifacts: /builder/release/*
           allowUpdates: true
           removeArtifacts: false
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
           body: |
+            # ophub_linux-6.1.y-rockchip_kernel
+
             ## 📦 发布内容
 
             | 文件 / 目录 | 说明 |
@@ -404,8 +406,8 @@ jobs:
             -e set_rootfs=${{ matrix.set_rootfs }} \
             ubuntu:22.04 \
             bash -c "
-              chmod +x /workspace/kdevbuild/ophub_6.18.y_image.sh ;
-              /workspace/kdevbuild/ophub_6.18.y_image.sh
+              chmod +x /workspace/kdevbuild/ophub_linux-6.1.y-rockchip_image.sh ;
+              /workspace/kdevbuild/ophub_linux-6.1.y-rockchip_image.sh
             "
 
       - name: List build output
@@ -416,7 +418,7 @@ jobs:
       - name: Upload Image to Release
         uses: ncipollo/release-action@main
         with:
-          tag: ophub_6.18.y_image
+          tag: ophub_linux-6.1.y-rockchip_image
           artifacts: /builder/release/*
           allowUpdates: true
           removeArtifacts: false
