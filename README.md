@@ -63,18 +63,19 @@
 | `rockchip-linux_develop-6.1` | `https://github.com/rockchip-linux/kernel.git` | `develop-6.1` | ✅ 已完成 | 初步完成 |
 | `rockchip-linux_develop-6.6` | `https://github.com/rockchip-linux/kernel.git` | `develop-6.6` | ✅ 已完成 | 初步完成 |
 | `ophub_linux-6.1.y-rockchip` | `https://github.com/ophub/linux-6.1.y-rockchip` | `linux-6.1.y-rockchip` | 🔄 进行中 | 适配中 |
-| `ophub_6.1.y` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
-| `ophub_6.6.y` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
-| `ophub_6.12.y` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
-| `armbian_rk-6.1-rkr5.1` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
-| `friendlyarm_nanopi6-v6.1.y` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
-| `linux-stable` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
-| `lubancat_lbc-develop-6.1` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
-| `official_5.10.66` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
-| `openeuler_OLK6.6` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
-| `orangepi-xunlong_orange-pi-6.1-rk35xx` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
-| `radxa_linux-6.1-stan-rkr5.1` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
-| `torvalds_linux` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | | 
+| `openeuler_OLK6.6` | | | 🔄 进行中 | 适配中 |
+| `ophub_6.1.y` | | | ⬜ 未开始  | |
+| `ophub_6.6.y` | | | ⬜ 未开始  | |
+| `ophub_6.12.y` | | | ⬜ 未开始  | |
+| `armbian_rk-6.1-rkr5.1` | | | ⬜ 未开始  | |
+| `friendlyarm_nanopi6-v6.1.y` | | | ⬜ 未开始  | |
+| `linux-stable` | | | ⬜ 未开始  | |
+| `lubancat_lbc-develop-6.1` | | | ⬜ 未开始  | |
+| `official_5.10.66` | | | ⬜ 未开始  | |
+| `openeuler_OLK6.6` | | | ⬜ 未开始  | |
+| `orangepi-xunlong_orange-pi-6.1-rk35xx` | | | ⬜ 未开始  | |
+| `radxa_linux-6.1-stan-rkr5.1` | | | ⬜ 未开始  | |
+| `torvalds_linux` | | | ⬜ 未开始  | | 
 
 
 ## maskrom短接点、TTL、硬盘电源
