@@ -7,7 +7,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 LOG_FILE="${WORKDIR}/build.log"
 exec > >(tee -a "$LOG_FILE") 2>&1
-export BUILD_TAG="BDY_G98_OLK-6.6.y_${set_rootfs}"
+export BUILD_TAG="BDY_G98_OLK-6.6_${set_rootfs}"
 
 #==========================================================================#
 #                        init build env                                    #
@@ -92,38 +92,38 @@ cd ${WORKDIR}
 mkdir -p openeuler_OLK-6.6
 cd openeuler_OLK-6.6
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/Image-OLK-6.6.y-kdev
-ls -alh Image-OLK-6.6.y-kdev
-md5sum Image-OLK-6.6.y-kdev
+wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/Image-OLK-6.6-kdev
+ls -alh Image-OLK-6.6-kdev
+md5sum Image-OLK-6.6-kdev
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/config-OLK-6.6.y-kdev
-ls -alh config-OLK-6.6.y-kdev
-md5sum config-OLK-6.6.y-kdev
+wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/config-OLK-6.6-kdev
+ls -alh config-OLK-6.6-kdev
+md5sum config-OLK-6.6-kdev
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/System.map-OLK-6.6.y-kdev
-ls -alh System.map-OLK-6.6.y-kdev
-md5sum System.map-OLK-6.6.y-kdev
+wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/System.map-OLK-6.6-kdev
+ls -alh System.map-OLK-6.6-kdev
+md5sum System.map-OLK-6.6-kdev
 
 wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/rk3588-bdy-g98.dtb
 ls -alh rk3588-bdy-g98.dtb
 md5sum rk3588-bdy-g98.dtb
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/kos-OLK-6.6.y.tar.gz
-ls -alh kos-OLK-6.6.y.tar.gz
-md5sum kos-OLK-6.6.y.tar.gz
-tar -xf kos-OLK-6.6.y.tar.gz
+wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/kos-OLK-6.6.tar.gz
+ls -alh kos-OLK-6.6.tar.gz
+md5sum kos-OLK-6.6.tar.gz
+tar -xf kos-OLK-6.6.tar.gz
 du -sh kos
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/kernel-devel-OLK-6.6.y.tar.gz
-ls -alh kernel-devel-OLK-6.6.y.tar.gz
-md5sum kernel-devel-OLK-6.6.y.tar.gz
-tar -xf kernel-devel-OLK-6.6.y.tar.gz
+wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/kernel-devel-OLK-6.6.tar.gz
+ls -alh kernel-devel-OLK-6.6.tar.gz
+md5sum kernel-devel-OLK-6.6.tar.gz
+tar -xf kernel-devel-OLK-6.6.tar.gz
 du -sh kernel-devel
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/kernel-headers-OLK-6.6.y.tar.gz
-ls -alh kernel-headers-OLK-6.6.y.tar.gz
-md5sum kernel-headers-OLK-6.6.y.tar.gz
-tar -xf kernel-headers-OLK-6.6.y.tar.gz
+wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/kernel-headers-OLK-6.6.tar.gz
+ls -alh kernel-headers-OLK-6.6.tar.gz
+md5sum kernel-headers-OLK-6.6.tar.gz
+tar -xf kernel-headers-OLK-6.6.tar.gz
 du -sh kernel-headers
 
 # ============================================================
@@ -204,10 +204,10 @@ mount boot.img /mnt
 
 mkdir -p /mnt/dtb
 cp -a rk3588-bdy-g98.dtb /mnt/dtb/
-cp -f Image-OLK-6.6.y-kdev /mnt/vmlinuz-OLK-6.6.y-kdev
-cp -f config-OLK-6.6.y-kdev /mnt/config-OLK-6.6.y-kdev
-cp -f System.map-OLK-6.6.y-kdev /mnt/System.map-OLK-6.6.y-kdev
-touch /mnt/initrd.img-OLK-6.6.y-kdev
+cp -f Image-OLK-6.6-kdev /mnt/vmlinuz-OLK-6.6-kdev
+cp -f config-OLK-6.6-kdev /mnt/config-OLK-6.6-kdev
+cp -f System.map-OLK-6.6-kdev /mnt/System.map-OLK-6.6-kdev
+touch /mnt/initrd.img-OLK-6.6-kdev
 
 cat >/mnt/extlinux.conf <<EOF
 ## /extlinux/extlinux.conf
@@ -224,16 +224,16 @@ timeout 90
 
 
 label normal
-	menu label Linux kernel OLK-6.6.y-kdev
-	linux vmlinuz-OLK-6.6.y-kdev
-	initrd initrd.img-OLK-6.6.y-kdev
+	menu label Linux kernel OLK-6.6-kdev
+	linux vmlinuz-OLK-6.6-kdev
+	initrd initrd.img-OLK-6.6-kdev
 	fdt /dtb/rk3588-bdy-g98.dtb
 	append root=PARTUUID=614e0000-0000-4b53-8000-1d28000054a9 rw console=ttyS2,1500000 console=tty1 cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory net.ifnames=0 biosdevname=0 level=10 loglevel=10 selinux=0 crashkernel=384M-:128M systemd.mask=systemd-growfs@-.service rockchip.dmc_freq=528000 video=HDMI-A-1:1920x1080@60
 
 label single
-	menu label Linux kernel OLK-6.6.y-kdev (rescue target)
-	linux vmlinuz-OLK-6.6.y-kdev
-	initrd initrd.img-OLK-6.6.y-kdev
+	menu label Linux kernel OLK-6.6-kdev (rescue target)
+	linux vmlinuz-OLK-6.6-kdev
+	initrd initrd.img-OLK-6.6-kdev
 	fdt /dtb/rk3588-bdy-g98.dtb
 	append root=PARTUUID=614e0000-0000-4b53-8000-1d28000054a9 rw console=ttyS2,1500000 console=tty1 cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory net.ifnames=0 biosdevname=0 level=10 loglevel=10 selinux=0 crashkernel=384M-:128M single
 
