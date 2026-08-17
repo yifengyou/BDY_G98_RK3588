@@ -259,8 +259,7 @@ aarch64-linux-gnu-gcc -Wall \
   -o scripts/mod/modpost \
   scripts/mod/modpost.c \
   scripts/mod/sumversion.c \
-  scripts/mod/file2alias.c \
-  scripts/mod/symsearch.c
+  scripts/mod/file2alias.c
 
 # 清理旧的 devel 目录并重建结构
 rm -rf "${DEVEL_DIR}"

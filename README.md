@@ -62,7 +62,7 @@
 | `ophub_6.18.y` | `https://github.com/ophub/linux-6.18.y.git` | `ophub_6.18.y` | ✅ 已完成 | 初步完成 |
 | `rockchip-linux_develop-6.1` | `https://github.com/rockchip-linux/kernel.git` | `develop-6.1` | ✅ 已完成 | 初步完成 |
 | `rockchip-linux_develop-6.6` | `https://github.com/rockchip-linux/kernel.git` | `develop-6.6` | ✅ 已完成 | 初步完成 |
-| `linux-6.1.y-rockchip` | `https://github.com/ophub/linux-6.1.y-rockchip` | `linux-6.1.y-rockchip` | 🔄 进行中 | |
+| `ophub_linux-6.1.y-rockchip` | `https://github.com/ophub/linux-6.1.y-rockchip` | `linux-6.1.y-rockchip` | 🔄 进行中 | 适配中 |
 | `ophub_6.1.y` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
 | `ophub_6.6.y` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
 | `ophub_6.12.y` | | | ⬜ 未开始 / 🔄 进行中 / ✅ 已完成 | |
