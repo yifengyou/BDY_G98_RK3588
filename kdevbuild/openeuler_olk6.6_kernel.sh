@@ -70,8 +70,9 @@ md5sum ${WORKDIR}/release/uboot.img
 echo ">>> [3/7] 克隆内核源码..."
 cd "${WORKDIR}"
 
-git clone -b OLK-6.6 https://atomgit.com/openeuler/kernel openeuler_kernel.git
-cd openeuler_kernel.git
+KERNEL_SRC_DIR="OLK-6.6"
+git clone -b OLK-6.6 https://atomgit.com/openeuler/kernel "${KERNEL_SRC_DIR}"
+cd "${KERNEL_SRC_DIR}"
 ls -alh
 
 # apply patch
