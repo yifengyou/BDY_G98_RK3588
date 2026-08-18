@@ -1,4 +1,4 @@
-From 41613dc9a459c9f649f2184c6bab2131d4002f30 Mon Sep 17 00:00:00 2001
+From 376d37f7feb6e8f6d6c80dd9fd51baa82c1882f8 Mon Sep 17 00:00:00 2001
 From: yifengyou <842056007@qq.com>
 Date: Sun, 9 Aug 2026 10:47:51 +0800
 Subject: [PATCH 4/4] disable emmc and enable spi nor flash
@@ -10,10 +10,9 @@ Content-Transfer-Encoding: 8bit
 
 Signed-off-by: yifengyou <842056007@qq.com>
 ---
- .gitignore                                    |  3 +++
- .../boot/dts/rockchip/rk3588-bdy-g98.dts      | 20 ++++++++++++++++++-
- kdev-build.sh                                 |  8 ++++++++
- 3 files changed, 30 insertions(+), 1 deletion(-)
+ .gitignore    | 3 +++
+ kdev-build.sh | 8 ++++++++
+ 2 files changed, 11 insertions(+)
 
 diff --git a/.gitignore b/.gitignore
 index c535add06..ce0f36b25 100644
@@ -26,44 +25,6 @@ index c535add06..ce0f36b25 100644
 +/kernel-headers/
 +/rk3588-bdy-g98.dts
 +
-diff --git a/arch/arm64/boot/dts/rockchip/rk3588-bdy-g98.dts b/arch/arm64/boot/dts/rockchip/rk3588-bdy-g98.dts
-index c5d9fe6c6..b795fa5fe 100644
---- a/arch/arm64/boot/dts/rockchip/rk3588-bdy-g98.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3588-bdy-g98.dts
-@@ -432,6 +432,7 @@ sata0_pm_reset: sata0-pm-reset {
- /* ===== Storage ===== */
- 
- // sdhci: mmc@fe2e0000
-+// 暂时不考虑支持EMMC。因EMMC与SPI冲突，此处关闭EMMC，仅开启SPI即可
- &sdhci {
- 	bus-width = <8>;
- 	no-sdio;
-@@ -441,7 +442,24 @@ &sdhci {
- 	mmc-hs200-1_8v;
- 	mmc-hs400-1_8v;
- 	mmc-hs400-enhanced-strobe;
--	status = "okay";
-+	status = "disabled";
-+};
-+
-+// sfc: spi@fe2b0000
-+// 开启SPI支持
-+&sfc {
-+	status = "okay";
-+	/delete-node/ flash@1;
-+	spi_nor: flash@0 {
-+		compatible = "jedec,spi-nor";
-+		label = "sfc_nor";
-+		reg = <0x00>;
-+		spi-tx-bus-width = <0x01>;
-+		spi-rx-bus-width = <0x04>;
-+		spi-max-frequency = <0x5f5e100>;
-+		spi-4byte-addressing;
-+		broken-flash-reset;
-+	};
- };
- 
- // sdmmc: mmc@fe2c0000
 diff --git a/kdev-build.sh b/kdev-build.sh
 index 264d2a4c5..05d69ad26 100755
 --- a/kdev-build.sh

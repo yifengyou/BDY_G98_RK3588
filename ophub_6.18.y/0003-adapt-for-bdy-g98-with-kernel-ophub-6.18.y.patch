@@ -1,4 +1,4 @@
-From ebce5daabc342cd9bb20fbd1894dd1a266aca342 Mon Sep 17 00:00:00 2001
+From 05d3df5778ec88411dcf840b24edcac518885fb3 Mon Sep 17 00:00:00 2001
 From: yifengyou <842056007@qq.com>
 Date: Thu, 6 Aug 2026 13:13:29 +0800
 Subject: [PATCH 3/4] adapt for bdy g98 with kernel ophub 6.18.y

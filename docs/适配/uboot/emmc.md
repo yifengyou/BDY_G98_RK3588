@@ -1,6 +1,43 @@
 # emmc
 
-** 无EMMC测试环境，暂时挂起 **
+## rk3588中的EMMC
+
+```shell
+MMC:   mmc@fe2c0000: 1, mmc@fe2e0000: 0
+```
+在 Rockchip RK3588 平台中，设备树（Device Tree）里的 `mmc@fe2c0000` 和 `mmc@fe2e0000` 分别对应芯片内部不同的 SD/MMC 控制器实例。根据 RK3588 的技术参考手册（TRM）和通用 BSP 定义，它们的对应关系如下：
+
+1. mmc@fe2c0000 → SDMMC (通常标记为 sdmmc / sdhci)
+-   **控制器：** SD/MMC Host Controller
+-   **基地址：** `0xFE2C0000`
+-   **典型用途：** 这个控制器通常用于连接 **SD 卡槽**、**TF 卡** 或 **SDIO WiFi/蓝牙模块**。
+-   **特点：** 支持标准 SD/SDIO 协议，一般不支持 eMMC 的 HS400 等高速模式。在 Linux 设备树节点中，它常被命名为 `sdmmc` 或 `sdio`。
+
+2. mmc@fe2e0000 → EMMC (通常标记为 emmc / sdhci)
+-   **控制器：** Enhanced MMC Host Controller (eMMC PHY)
+-   **基地址：** `0xFE2E0000`
+-   **典型用途：** 这个控制器专门用于连接板载 **eMMC 存储芯片**。
+-   **特点：** 集成了专用的 eMMC PHY，支持 HS400/HS400ES 等高速传输模式。在 Linux 设备树节点中，它常被命名为 `emmc`。
+
+---
+
+这两个缩写分别代表：
+
+**S**ecure **D**igital **M**ulti**M**edia **C**ard / **C**ontroller
+
+-   这是一个组合术语，涵盖了 **SD**（Secure Digital）和 **MMC**（MultiMediaCard）两种存储卡标准。
+-   在 RK3588 等设备树中，`sdmmc` 节点表示该控制器**同时兼容** SD 卡和 MMC 卡协议，是一个通用的存储卡接口控制器。
+
+**S**ecure **D**igital **I**nput/**O**utput
+
+-   它是 SD 协议的扩展，允许通过 SD 卡接口连接**非存储类外设**。
+-   最常见的用途是连接 **WiFi 模块**、**蓝牙模块**、GPS 模块等。
+-   虽然物理接口与 SD 卡相同，但传输的是 I/O 数据而非单纯的块存储数据。
+
+| 缩写 | 全称 | 主要用途 |
+| :--- | :--- | :--- |
+| **SDMMC** | Secure Digital MultiMedia Card/Controller | 存储设备（SD卡、TF卡、MMC卡） |
+| **SDIO** | Secure Digital Input/Output | I/O 外设（WiFi、蓝牙、传感器等） |
 
 ## 引脚冲突的精确分析
 
@@ -20,9 +57,206 @@
 
 ---
 
-## 三、核心原理：分时复用 + 限制 SPI 为单线/双线模式
+## g98中的EMMC
+
+```shell
+root@iStoreOS:~# lsblk
+NAME         MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
+nbd0          43:0    0     0B  0 disk 
+nbd1          43:32   0     0B  0 disk 
+nbd2          43:64   0     0B  0 disk 
+nbd3          43:96   0     0B  0 disk 
+nbd4          43:128  0     0B  0 disk 
+nbd5          43:160  0     0B  0 disk 
+nbd6          43:192  0     0B  0 disk 
+nbd7          43:224  0     0B  0 disk 
+mmcblk0      179:0    0 116.6G  0 disk 
+├─mmcblk0p1  179:1    0    64M  0 part /boot
+├─mmcblk0p2  179:2    0   256M  0 part /rom
+└─mmcblk0p3  179:3    0     2G  0 part /overlay/upper/opt/docker
+                                       /overlay
+mmcblk0boot0 179:32   0     4M  1 disk 
+mmcblk0boot1 179:64   0     4M  1 disk 
+zram0        252:0    0     0B  0 disk 
+nbd8          43:256  0     0B  0 disk 
+nbd9          43:288  0     0B  0 disk 
+nbd10         43:320  0     0B  0 disk 
+nbd11         43:352  0     0B  0 disk 
+nbd12         43:384  0     0B  0 disk 
+nbd13         43:416  0     0B  0 disk 
+nbd14         43:448  0     0B  0 disk 
+nbd15         43:480  0     0B  0 disk 
+root@iStoreOS:~# find /sys -name mmcblk0boot0
+/sys/kernel/debug/block/mmcblk0boot0
+/sys/class/block/mmcblk0boot0
+/sys/devices/platform/fe2e0000.mmc/mmc_host/mmc0/mmc0:0001/block/mmcblk0/mmcblk0boot0
+/sys/block/mmcblk0boot0
+root@iStoreOS:~# find /sys -name mmcblk0p1
+/sys/class/block/mmcblk0p1
+/sys/devices/platform/fe2e0000.mmc/mmc_host/mmc0/mmc0:0001/block/mmcblk0/mmcblk0p1
+/sys/fs/ext4/mmcblk0p1
+root@iStoreOS:~# 
+```
+
+
+
+```shell
+[    3.634444] mmc0: SDHCI controller on fe2e0000.mmc [fe2e0000.mmc] using ADMA
+[    3.644160] NET: Registered PF_INET6 protocol family
+[    3.645808] Segment Routing with IPv6
+[    3.646150] In-situ OAM (IOAM) with IPv6
+[    3.646529] NET: Registered PF_PACKET protocol family
+[    3.646995] bridge: filtering via arp/ip/ip6tables is no longer available by default. Update your scripts to load br_netfilter if you need this.
+[    3.648543] 8021q: 802.1Q VLAN Support v1.8
+[    3.668538] sdhci-dwcmshc fe2e0000.mmc: Can't reduce the clock below 52MHz in HS200/HS400 mode
+[    3.669772] mmc0: new HS400 Enhanced strobe MMC card at address 0001
+[    3.671326] mmcblk0: mmc0:0001 Y29128 117 GiB
+[    3.673645]  mmcblk0: p1 p2 p3
+[    3.674618] mmcblk0boot0: mmc0:0001 Y29128 4.00 MiB
+[    3.676232] mmcblk0boot1: mmc0:0001 Y29128 4.00 MiB
+[    3.677553] mmcblk0rpmb: mmc0:0001 Y29128 4.00 MiB, chardev (243:0)
+```
+
+
+
+```shell
+U-Boot next-dev-ga7159c6b5c-250929-dirty #root (Aug 08 2026 - 11:15:44 +0800)
+
+Model: BYD G98 Compiled By yifengyou
+MPIDR: 0x0
+PreSerial: 2, raw, 0xfeb50000
+DRAM:  16 GiB
+Sysmem: init
+Relocation Offset: ed8e6000
+Relocation fdt: eb7f67d0 - eb7fecb8, kfdt: 0037c000 - 10037bfff
+CR: M/C/I
+Using default environment
+
+optee api revision: 2.0
+mmc@fe2e0000: 0   <- emmc
+Bootdev(atags): mmc 0
+MMC0: HS200, 200Mhz
+PartType: EFI
+TEEC: Waring: Could not find security partition
+DM: v2
+No misc partition
+boot mode: None
+FIT: No boot partition
+```
+
+
+
+
+
+
+## SPI与EMMC复用问题
+
+![](./images/49696800188000.png)
+
+
+RK3588 的 **eMMC 控制器**和 **FSPI（Flexible Serial Peripheral Interface）控制器**在 **FSPI_M0** 这组复用引脚上是**物理共享**的，即同一组 GPIO 引脚通过 IOMUX 寄存器只能二选一：
+
+| 复用组 | 功能 A | 功能 B | 能否同时使用 |
+|:---|:---|:---|:---|
+| **FSPI_M0** | eMMC（CLK/CMD/DATA[0:7]/RSTn） | FSPI SPI NOR Flash（CLK/CS/D0~D3） | ❌ 互斥 |
+| **FSPI_M1** | — | FSPI SPI NOR Flash（CLK/CS/D0~D3） | ✅ 独立引脚 |
+
+> 这意味着：**eMMC 和 FSPI_M0 的 SPI NOR Flash 不能同时使用**，它们争夺的是同一组物理焊盘。
+
+---
+
+方案 1：使用 FSPI_M1 引出 SPI NOR Flash（推荐）
+
+如果你的设计**同时需要 eMMC + SPI NOR Flash**，将 SPI NOR Flash 连接到 **FSPI_M1** 对应的另一组物理引脚上，彻底避开 eMMC 占用的 FSPI_M0 引脚。
+
+**硬件改动：**
+- SPI NOR Flash（如 W25Q128）的 CLK / CS / D0~D3 走线改接到 FSPI_M1 对应的 GPIO 引脚
+- 参考 RK3588 TRM 中 FSPI_M1 的引脚定义（通常位于 GPIO2_C / GPIO2_D 区域，具体以你的芯片版本数据手册为准）
+
+**设备树配置示例：**
+```dts
+/* 使用 FSPI_M1 引脚组 */
+&fspi {
+    status = "okay";
+    pinctrl-names = "default";
+    pinctrl-0 = <&fspim1_pins>;   /* 关键：选择 M1 而非 M0 */
+
+    flash@0 {
+        compatible = "jedec,spi-nor";
+        reg = <0>;
+        spi-max-frequency = <100000000>;
+    };
+};
+
+/* eMMC 正常使用，不受影响 */
+&emmc {
+    status = "okay";
+    /* ... 标准 eMMC 配置 ... */
+};
+```
+
+2：二选一设计（只用 eMMC 或只用 SPI NOR）
+
+如果产品只需要一种启动/存储介质：
+
+- **只用 eMMC**：引导代码（Loader + U-Boot + Kernel）全部放在 eMMC 中，FSPI_M0 引脚全部留给 eMMC，不贴 SPI NOR Flash。
+- **只用 SPI NOR Flash**：不贴 eMMC，FSPI_M0 引脚用于 SPI NOR Flash 启动。
+
+
+
+---
+
+启动引导（Boot）注意事项
+
+| 启动介质 | BootROM 行为 | 引导代码位置 |
+|:---|:---|:---|
+| eMMC | BootROM 从 eMMC 的 User/Boot 分区加载 IDB → U-Boot → Kernel | eMMC 内部 |
+| SPI NOR (FSPI) | BootROM 从 SPI NOR Flash 偏移 0 处加载 | SPI NOR Flash 内部 |
+
+**使用 eMMC 启动时：**
+- `BOOT_SEL` 引脚配置为 eMMC 启动模式
+- 引导代码（idbloader.img / uboot.img / boot.img）烧写到 eMMC
+- 无需 SPI NOR Flash 参与启动
+
+**使用 SPI NOR 启动时：**
+- `BOOT_SEL` 引脚配置为 SPI 启动模式
+- 引导代码烧写到 SPI NOR Flash
+- 此时 eMMC 不可用（引脚被 FSPI 占用）
+
+---
+
+> **核心原则：** eMMC 和 FSPI_M0 是硬件级互斥，无法通过软件切换同时使用。要两者共存，**唯一出路是让 SPI NOR Flash 走 FSPI_M1 引脚组**。设计 PCB 时务必提前规划好 FSPI_M1 的走线。
+
+## 分时复用 + 限制 SPI 为单线/双线模式
+
+RK3588 eMMC接口和FSPI Flash（一个复用口FSPI_M0）接口复用，在eMMC接口设计时，eMMC信号接法请按参考原理图，包含各路电源去耦电容。
+
+使用eMMC时，引导代码放置在eMMC里。
 
 **在 U-Boot 中通过时序控制，让 eMMC 和 SPI NOR 分时使用冲突引脚，并将 SPI NOR 限制在不使用冲突引脚的工作模式下。**
+
+
+```shell
+上电 → BootROM 从介质A加载 U-Boot → DDR 中运行
+                                         ↓
+                              此时介质A"使命完成"
+                                         ↓
+                         软件切换 IOMUX → 引脚改接介质B
+                                         ↓
+                              访问介质B（读配置/固件等）
+                                         ↓
+                         软件切换 IOMUX → 引脚切回介质A
+```
+
+
+
+
+
+
+
+
+
+
 
 ### 方案架构
 
