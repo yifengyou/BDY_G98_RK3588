@@ -8,6 +8,7 @@
     * [飞牛fnos](docs/固件/fnos.md)
     * [istoreos](docs/固件/istoreos.md)
     * [原厂wayos](docs/固件/原厂wayos.md)
+    * [吊炸天刷机工具](docs/固件/吊炸天刷机工具.md)
 * [适配](docs/适配.md)
     * [uboot](docs/适配/uboot.md)
         * [启动顺序](docs/适配/uboot/启动顺序.md)
