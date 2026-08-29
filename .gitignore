@@ -2,7 +2,6 @@ secret
 *.tmp
 *.o
 rockchip-linux-u-boot.git
-images/1350178069500.png
 /rockchip-linux-u-boot-emmc.git/
 /rockchip-linux-u-boot-spi.git/
 /rockchip-linux-u-boot.git-01.tar.gz
