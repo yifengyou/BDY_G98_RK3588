@@ -6,12 +6,6 @@
 
 ![](./images/1350178069500.png)
 
-## 相关链接
-
-* 官方介绍: <https://aibidu.com/?m=home&c=View&a=index&aid=579>
-* ophub适配申请：<https://github.com/ophub/fnnas/issues/606>
-* g18交流贴：<https://github.com/ophub/amlogic-s9xxx-openwrt/issues/845>
-
 ## 目录
 
 * [硬件规格](docs/硬件规格.md)
@@ -31,7 +25,7 @@
   * [android14适配](docs/适配记录/android/android14.md)
   * [android14适配](docs/适配记录/android/android13.md)
   * [android14适配](docs/适配记录/android/android12.md)
-  
+
 ## 参数规格
 
 | 项目 | 参数说明 |
@@ -47,6 +41,14 @@
 | RJ45电口数 | 10个：<br>• 2.5G网口 ×2<br>• 千兆网口 ×8 |
 | USB口数 | USB3.0*2 |
 | AC/DC接口 | 220V交流输入 + DC-IN直流输入（双供电冗余设计） |
+
+
+
+## 相关链接
+
+* 官方介绍: <https://aibidu.com/?m=home&c=View&a=index&aid=579>
+* ophub适配申请：<https://github.com/ophub/fnnas/issues/606>
+* g18交流贴：<https://github.com/ophub/amlogic-s9xxx-openwrt/issues/845>
 
 ## 适配进度
 
@@ -78,25 +80,23 @@
 
 主板背面位置
 
-![](./images/35728912383700.png)
+![](./images/4911583855300.png)
+
 
 - debug调试口
 
 主板正面，有丝印
 
-![](./images/46726942170100.png)
+![](./images/4918530057200.png)
+
 
 - 硬盘电源连接线
 
 **务必注意线序！颜色顺序基本是正确的，严格按照颜色对应连接。**
 **已有一个三星 2.5 寸 SSD 因线序接反被 12V 击穿烧毁，此为实测血泪教训**
 
-![](./images/46824639323900.png)
+![](./images/4930994372300.png)
 
-
-## 刷机指引
-
-* 请参看：<https://github.com/yifengyou/BDY_G98_RK3588-uboot/blob/kdev/README.md>
 
 ## 免责申明
 
