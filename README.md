@@ -25,6 +25,7 @@
   * [android14适配](docs/适配记录/android/android14.md)
   * [android14适配](docs/适配记录/android/android13.md)
   * [android14适配](docs/适配记录/android/android12.md)
+* [机箱](docs/机箱.md)
 
 ## 参数规格
 
