@@ -6,5 +6,7 @@ images/1350178069500.png
 /rockchip-linux-u-boot-emmc.git/
 /rockchip-linux-u-boot-spi.git/
 /rockchip-linux-u-boot.git-01.tar.gz
-
-
+/BDY_G98_RK3588-kernel.git
+/kernel.git
+/uboot.git
+/backup

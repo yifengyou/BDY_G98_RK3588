@@ -20,6 +20,7 @@
         * [rockusb](docs/适配/uboot/rockusb.md)
         * [led](docs/适配/uboot/led.md)
         * [emmc](docs/适配/uboot/emmc.md)
+    * [recovery](docs/适配/recovery.md)
     * [kernel](docs/适配/kernel.md)
         * [firmware](docs/适配/kernel/firmware.md)
         * [usb](docs/适配/kernel/usb.md)
