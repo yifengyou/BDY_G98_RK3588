@@ -22,10 +22,11 @@
   * [uboot](docs/适配记录/uboot.md)
   * [recovery](docs/适配记录/recovery.md)
   * [kernel](docs/适配记录/kernel.md)
+  * [android12适配](docs/适配记录/android/android12.md)
+  * [android13适配](docs/适配记录/android/android13.md)
   * [android14适配](docs/适配记录/android/android14.md)
-  * [android14适配](docs/适配记录/android/android13.md)
-  * [android14适配](docs/适配记录/android/android12.md)
-* [机箱](docs/机箱.md)
+* [外壳机箱](docs/外壳机箱.md)
+
 
 ## 参数规格
 
@@ -37,12 +38,10 @@
 | 双核GPU | 算力6T（指 Mali-G610 MP4 GPU，标称AI算力约6 TOPS INT8） |
 | 内存 | **DDR4 16GB**（板载，不可扩展） |
 | 无线规格 | —（无内置Wi-Fi模块） |
-| 存储 | 选配固态（需用户自行安装，支持NVMe×2 + SATA×1） |
-| 硬盘接口 | NVMe×2 + SATA×1（共10个存储接口，可组RAID或分布式存储） |
-| RJ45电口数 | 10个：<br>• 2.5G网口 ×2<br>• 千兆网口 ×8 |
+| 硬盘接口 | NVMe×2（PCIE3.0*2） + SATA×1 |
+| RJ45电口数 | 10个网口：<br>• 2.5G网口 ×2<br>• 千兆网口 ×8 |
 | USB口数 | USB3.0*2 |
 | AC/DC接口 | 220V交流输入 + DC-IN直流输入（双供电冗余设计） |
-
 
 
 ## 相关链接
@@ -51,8 +50,30 @@
 * ophub适配申请：<https://github.com/ophub/fnnas/issues/606>
 * g18交流贴：<https://github.com/ophub/amlogic-s9xxx-openwrt/issues/845>
 
-## 适配进度
 
+## maskrom短接点、TTL、硬盘电源
+
+- maskrom短接点：
+
+主板背面位置
+
+![](./images/4911583855300.png)
+
+- debug调试口
+
+主板正面，有丝印
+
+![](./images/4918530057200.png)
+
+- 硬盘电源连接线
+
+**务必注意线序！颜色顺序基本是正确的，严格按照颜色对应连接。**
+**已有一个三星 2.5 寸 SSD 因线序接反被 12V 击穿烧毁，此为实测血泪教训**
+
+![](./images/4930994372300.png)
+
+
+## 内核适配进度
 
 | 配置文件名 | 仓库地址 | 分支 | 适配进度 | 备注 |
 | :--- | :--- | :--- | :--- | :--- |
@@ -60,7 +81,7 @@
 | `rockchip-linux_develop-6.1` | `https://github.com/rockchip-linux/kernel.git` | `develop-6.1` | ✅ 已完成 | 初步完成 |
 | `rockchip-linux_develop-6.6` | `https://github.com/rockchip-linux/kernel.git` | `develop-6.6` | ✅ 已完成 | 初步完成 |
 | `ophub_linux-6.1.y-rockchip` | `https://github.com/ophub/linux-6.1.y-rockchip` | `linux-6.1.y-rockchip` | 🔄 进行中 | 适配中 |
-| `openeuler_OLK6.6` | | | 🔄 进行中 | 适配中 |
+| `openeuler_OLK6.6` | `https://atomgit.com/openeuler/kernel` | `OLK-6.6` | 🔄 进行中 | 适配中 |
 | `ophub_6.1.y` | | | ⬜ 未开始  | |
 | `ophub_6.6.y` | | | ⬜ 未开始  | |
 | `ophub_6.12.y` | | | ⬜ 未开始  | |
@@ -74,30 +95,7 @@
 | `radxa_linux-6.1-stan-rkr5.1` | | | ⬜ 未开始  | |
 | `torvalds_linux` | | | ⬜ 未开始  | | 
 
-
-## maskrom短接点、TTL、硬盘电源
-
-- maskrom短接点：
-
-主板背面位置
-
-![](./images/4911583855300.png)
-
-
-- debug调试口
-
-主板正面，有丝印
-
-![](./images/4918530057200.png)
-
-
-- 硬盘电源连接线
-
-**务必注意线序！颜色顺序基本是正确的，严格按照颜色对应连接。**
-**已有一个三星 2.5 寸 SSD 因线序接反被 12V 击穿烧毁，此为实测血泪教训**
-
-![](./images/4930994372300.png)
-
+---
 
 ## 免责申明
 
@@ -106,9 +104,5 @@
 - 如您认为相关内容涉及您的隐私、版权或其他合法权益，请及时联系，将依法核实并在必要时予以删除或下架。
 - 对于因使用或无法使用本网站/平台内容所引发的任何直接或间接损失，不承担任何法律责任。
 - 用户在使用过程中应自行判断信息的适用性，并承担相应风险。
-
-
-
-
 
 
