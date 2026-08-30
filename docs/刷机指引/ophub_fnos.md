@@ -4,11 +4,11 @@
 
 ### 下载地址
 
-* https://ghpxy.hwinzniej.top/https://github.com/ophub/fnnas/releases/download/fnnas_rockchip_1253/fnnas_rockchip_bdy-g98_k6.18.18_2026.07.23.img.gz
-* https://ghpxy.hwinzniej.top/https://github.com/ophub/fnnas/releases/download/fnnas_rockchip_1253/fnnas_rockchip_bdy-g98_k6.18.18_2026.07.26.img.gz
-* https://ghpxy.hwinzniej.top/https://github.com/ophub/fnnas/releases/download/fnnas_rockchip_1253/fnnas_rockchip_bdy-g98_k6.18.18_2026.08.18.img.gz
-* https://ghpxy.hwinzniej.top/https://github.com/ophub/fnnas/releases/download/fnnas_rockchip_1253/fnnas_rockchip_bdy-g98_k6.18.18_2026.08.19.img.gz
-* https://ghpxy.hwinzniej.top/https://github.com/ophub/fnnas/releases/download/fnnas_rockchip_1253/fnnas_rockchip_bdy-g98_k6.18.18_2026.08.20.img.gz
+* https://github.com/ophub/fnnas/releases/download/fnnas_rockchip_1253/fnnas_rockchip_bdy-g98_k6.18.18_2026.07.23.img.gz
+* https://github.com/ophub/fnnas/releases/download/fnnas_rockchip_1253/fnnas_rockchip_bdy-g98_k6.18.18_2026.07.26.img.gz
+* https://github.com/ophub/fnnas/releases/download/fnnas_rockchip_1253/fnnas_rockchip_bdy-g98_k6.18.18_2026.08.18.img.gz
+* https://github.com/ophub/fnnas/releases/download/fnnas_rockchip_1253/fnnas_rockchip_bdy-g98_k6.18.18_2026.08.19.img.gz
+* https://github.com/ophub/fnnas/releases/download/fnnas_rockchip_1253/fnnas_rockchip_bdy-g98_k6.18.18_2026.08.20.img.gz
 
 ### fnnas_rockchip_bdy-g98_k6.18.18_2026.07.23.img.gz
 

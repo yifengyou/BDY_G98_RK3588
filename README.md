@@ -10,8 +10,9 @@
 
 * [硬件规格](docs/硬件规格.md)
 * [刷机指引](docs/刷机指引.md)
-  * [ophub armbian](docs/刷机指引/armbian.md)
-  * [ophub 飞牛](docs/刷机指引/fnos.md)
+  * [ophub armbian](docs/刷机指引/ophub_armbian.md)
+  * [ophub 飞牛](docs/刷机指引/ophub_fnos.md)
+  * [ophub openwrt](docs/刷机指引/ophub_openwrt.md)
   * [原厂wayos](docs/刷机指引/原厂wayos.md)
   * [SPI recovery固件刷写](docs/刷机指引/spi_recovery.md)
   * [EMMC recovery固件刷写](docs/刷机指引/emmc_recovery.md)
