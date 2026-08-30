@@ -5,8 +5,8 @@ import time
 import os
 
 # ================= 配置区域 =================
-REPO = "ophub/amlogic-s9xxx-armbian"
-OUTPUT_FILE = "ophub_armbian.json"
+REPO = "ophub/amlogic-s9xxx-openwrt"
+OUTPUT_FILE = "ophub_openwrt.json"
 FILTER_KEYWORD = "g98"  # 过滤关键词（不区分大小写）
 # 强烈建议填写 GitHub Personal Access Token
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
