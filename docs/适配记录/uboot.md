@@ -123,7 +123,50 @@ Part	Start LBA	End LBA		Name
 * uboot获取的partuuid正确，无错误
 * mbr信息优先被内核采用，所以导致找不到分区
 * is不支持sata盘，即使改成gpt也会应为没有sda而无法引导。
-* 无需修复，bug抛给is
+* uboot 2017版本默认优先识别efi、然后才是dos
+
+
+
+/* Declare a new U-Boot partition 'driver' */
+#define U_BOOT_PART_TYPE(__name)                                        \
+        ll_entry_declare(struct part_driver, __name, part_driver)
+
+```c
+commit ed196f71ce099892a4a4513f05c1bab174fb0b1d (HEAD -> kdev, origin/kdev)
+Author: yifengyou <842056007@qq.com>
+Date:   Mon Aug 31 15:07:20 2026 +0800
+
+    修改分区识别顺序
+    
+    默认按照字符编码顺序
+    
+    System.map:5879:00000000003512a0 D _u_boot_list_2_part_driver_2_a_a_rkram_part
+    System.map:5885:00000000003512c8 D _u_boot_list_2_part_driver_2_a_efi
+    System.map:5886:00000000003512f0 D _u_boot_list_2_part_driver_2_dos
+    
+    对dos修改为a_dos，调整到efi之前
+    
+    0000000000351190 D _u_boot_list_2_part_driver_2_a_a_rkram_part
+    00000000003511b8 D _u_boot_list_2_part_driver_2_a_dos
+    00000000003511e0 D _u_boot_list_2_part_driver_2_a_efi
+    
+    Signed-off-by: yifengyou <842056007@qq.com>
+
+diff --git a/disk/part_dos.c b/disk/part_dos.c
+index 850a538e83..528b762164 100644
+--- a/disk/part_dos.c
++++ b/disk/part_dos.c
+@@ -297,7 +297,7 @@ int write_mbr_partition(struct blk_desc *dev_desc, void *buf)
+        return 0;
+ }
+ 
+-U_BOOT_PART_TYPE(dos) = {
++U_BOOT_PART_TYPE(a_dos) = {
+        .name           = "DOS",
+        .part_type      = PART_TYPE_DOS,
+        .max_entries    = DOS_ENTRY_NUMBERS,
+
+```
 
 
 ## uboot v2017 - 启动顺序配置
