@@ -1,4 +1,4 @@
-From af7cc4d749b087f4429a0ed1333b69b1fa409319 Mon Sep 17 00:00:00 2001
+From 2bce9ba02009354fab2e052467e91d64008aac60 Mon Sep 17 00:00:00 2001
 From: ophub <68696949+ophub@users.noreply.github.com>
 Date: Wed, 12 Aug 2026 20:38:50 +0800
 Subject: [PATCH 1/4] net: dsa: yt921x: support bdy-g98 RJ45 LED profile

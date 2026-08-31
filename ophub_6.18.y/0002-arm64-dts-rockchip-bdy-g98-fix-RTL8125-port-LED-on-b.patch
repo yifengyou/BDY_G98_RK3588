@@ -1,81 +1,125 @@
-From e2ba57fd7ecec3bc89e4797f22c5bda9b574d319 Mon Sep 17 00:00:00 2001
+From fade0157adff0037069bb706f333b0c2ff357dad Mon Sep 17 00:00:00 2001
 From: ophub <68696949+ophub@users.noreply.github.com>
 Date: Wed, 12 Aug 2026 10:41:24 +0800
 Subject: [PATCH 2/4] arm64: dts: rockchip: bdy-g98: fix RTL8125 port LED on
  blank-EEPROM units
 
 ---
- .../boot/dts/rockchip/rk3588-bdy-g98.dts      | 45 ++++---------------
- 1 file changed, 8 insertions(+), 37 deletions(-)
+ .../boot/dts/rockchip/rk3588-bdy-g98.dts      | 68 +++++--------------
+ 1 file changed, 18 insertions(+), 50 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/rockchip/rk3588-bdy-g98.dts b/arch/arm64/boot/dts/rockchip/rk3588-bdy-g98.dts
-index 93fade8a2..3338a9109 100644
+index 4dc7d3564..3338a9109 100644
 --- a/arch/arm64/boot/dts/rockchip/rk3588-bdy-g98.dts
 +++ b/arch/arm64/boot/dts/rockchip/rk3588-bdy-g98.dts
-@@ -326,34 +326,16 @@ &pcie2x1l0 {
+@@ -29,20 +29,6 @@ chosen {
+ 		stdout-path = "serial2:1500000n8";
+ 	};
+ 
+-	reserved-memory {
+-		#address-cells = <2>;
+-		#size-cells = <2>;
+-		ranges;
+-
+-		cma {
+-			compatible = "shared-dma-pool";
+-			reusable;
+-			alloc-ranges = <0x1 0x00000000 0x3 0x00000000>;
+-			size = <0x0 0x20000000>;
+-			linux,cma-default;
+-		};
+-	};
+-
+ 	adc-keys {
+ 		compatible = "adc-keys";
+ 		io-channel-names = "buttons";
+@@ -335,26 +321,21 @@ &pcie2x1l0 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pcie2_0_rst>;
+ 	supports-clkreq;
+-	/* Some board revisions wire PERST# to GPIO4_PB4 instead of GPIO1_PB4 */
+-	reset-gpios = <&gpio4 RK_PB4 GPIO_ACTIVE_HIGH>;
++	reset-gpios = <&gpio1 RK_PB4 GPIO_ACTIVE_HIGH>;
+ 	vpcie3v3-supply = <&vcc3v3_nvme>;
  	status = "okay";
  
- 	/*
--	 * Workaround for units shipped with a blank RTL8125 config EEPROM.
--	 * The chip's default LEDSEL then assigns each LED pin a single link
--	 * speed (LED1=100M, LED2=1000M, LED3=2.5G), but this board wires
--	 * its RJ45 LEDs to LED1/LED2, so they stay dark at 2.5G. Program
--	 * all four pins identically: LED on at any link speed, blink on activity.
--	 *
--	 * LEDSEL bits: 0=Link10M 1=Link100M 3=Link1000M 5=Link2.5G 9=ACT
--	 * 12=active-low (unused, this board is active-high).
--	 *
--	 * The node hierarchy must mirror the PCI topology: pcie@0,0 below
--	 * is the root port (0002:20:00.0) and ethernet@0,0 under it is the
--	 * RTL8125 endpoint (0002:21:00.0). A flat pcie@0,0 carrying the
--	 * properties directly here would be claimed by the root port
--	 * instead, because of_pci_find_child_device() matches by devfn only.
++	/*
 +	 * Units with a blank config EEPROM fall back to the chip's default
 +	 * LEDSEL, which lacks the Link2.5G bit: the port LED only flashes
 +	 * once while autoneg trains at low speed, then stays dark at 2.5G.
 +	 * LEDSEL0 bits: 0=Link10M 1=Link100M 3=Link1000M 5=Link2.5G 9=ACT
 +	 * 12=active-low. 0x22b = link at any speed + activity, active-high;
 +	 * if the LED behaves inverted on this board use 0x122b instead.
- 	 */
++	 */
  	pcie@0,0 {
- 		reg = <0x0000 0 0 0 0>;
+-		reg = <0x00200000 0 0 0 0>;
 -		#address-cells = <3>;
 -		#size-cells = <2>;
+-		bus-range = <0x20 0x2f>;
+-		device_type = "pci";
 -		ranges;
 -
 -		ethernet@0,0 {
--			reg = <0x0000 0 0 0 0>;
+-			reg = <0x00210000 0 0 0 0>;
 -			r8125,led0 = <0x22b>;
 -			r8125,led1 = <0x22b>;
 -			r8125,led2 = <0x22b>;
 -			r8125,led3 = <0x22b>;
 -		};
++		reg = <0x0000 0 0 0 0>;
 +		r8125,led0 = <0x22b>;
  	};
  };
  
-@@ -366,20 +348,9 @@ &pcie2x1l1 {
+@@ -367,22 +348,9 @@ &pcie2x1l1 {
  	vpcie3v3-supply = <&vcc3v3_nvme>;
  	status = "okay";
  
 -	/* Same blank-EEPROM LED fix as pcie2x1l0 (endpoint 0003:31:00.0) */
  	pcie@0,0 {
- 		reg = <0x0000 0 0 0 0>;
+-		reg = <0x00300000 0 0 0 0>;
 -		#address-cells = <3>;
 -		#size-cells = <2>;
+-		bus-range = <0x30 0x3f>;
+-		device_type = "pci";
 -		ranges;
 -
 -		ethernet@0,0 {
--			reg = <0x0000 0 0 0 0>;
+-			reg = <0x00310000 0 0 0 0>;
 -			r8125,led0 = <0x22b>;
 -			r8125,led1 = <0x22b>;
 -			r8125,led2 = <0x22b>;
 -			r8125,led3 = <0x22b>;
 -		};
++		reg = <0x0000 0 0 0 0>;
 +		r8125,led0 = <0x22b>;
  	};
  };
  
+@@ -422,7 +390,7 @@ hym8563_int: hym8563-int {
+ 
+ 	pcie {
+ 		pcie2_0_rst: pcie2-0-rst {
+-			rockchip,pins = <4 RK_PB4 RK_FUNC_GPIO &pcfg_pull_none>;
++			rockchip,pins = <1 RK_PB4 RK_FUNC_GPIO &pcfg_pull_none>;
+ 		};
+ 
+ 		pcie2_1_rst: pcie2-1-rst {
+@@ -540,10 +508,10 @@ &uart2 {
+ 	status = "okay";
+ };
+ 
+-/* uart7m2 (feba0000) muxes to GPIO1_PB4/PB5. Historically pcie2_0_rst
+- * was on GPIO1_PB4 and uart7 probing would steal the pinctrl, taking
+- * the first 2.5G NIC down. Keep uart7 disabled: some board revisions
+- * still use that pinout.
++/* uart7m2 (feba0000) muxes to GPIO1_PB4/PB5, which conflicts with
++ * pcie2x1l0 PERST# (pcie2_0_rst = GPIO1_PB4). If uart7 probes, the
++ * pcie2x1l0 host bridge loses the pinctrl request and fails to probe,
++ * taking the first 2.5G NIC down with it. Keep it disabled.
+  */
+ &uart7 {
+ 	status = "disabled";
 -- 
 2.43.0
 

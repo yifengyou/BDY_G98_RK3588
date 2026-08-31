@@ -1,4 +1,4 @@
-From 376d37f7feb6e8f6d6c80dd9fd51baa82c1882f8 Mon Sep 17 00:00:00 2001
+From bfe2d63f3fa68f2d2881aa73b2b077bd4beed5f8 Mon Sep 17 00:00:00 2001
 From: yifengyou <842056007@qq.com>
 Date: Sun, 9 Aug 2026 10:47:51 +0800
 Subject: [PATCH 4/4] disable emmc and enable spi nor flash
