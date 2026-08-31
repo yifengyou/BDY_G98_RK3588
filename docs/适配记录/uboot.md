@@ -1,6 +1,130 @@
 # uboot 适配
 
 
+## uboot v2017 - istoreos partuuid问题
+
+```shell
+=> scsi scan 
+scanning bus for devices...
+Target spinup took 0 ms.
+AHCI 0001.0300 32 slots 1 ports 6 Gbps 0x1 impl SATA mode
+flags: ncq stag pm led clo only pmp fbss pio slum part ccc apst 
+Repair the Primary gpt table OK!
+  Device 0: (0:0) Vendor: ATA Prod.: ADATA SP920SS Rev: 1.08
+            Type: Hard Disk
+            Capacity: 122104.3 MB = 119.2 GB (250069679 x 512)
+=> part list scsi 0
+
+Partition Map for SCSI device 0  --   Partition Type: EFI
+
+Part	Start LBA	End LBA		Name
+	Attributes
+	Type GUID
+	Partition GUID
+  1	0x00008000	0x001077ff	"primary"
+	attrs:	0x0000000000000000
+	type:	0fc63daf-8483-4772-8e79-3d69d8477de4
+	guid:	b175691c-c9fe-45e5-b456-6ac6be956aa8
+  2	0x00108000	0x0ee7c28d	"primary"
+	attrs:	0x0000000000000000
+	type:	0fc63daf-8483-4772-8e79-3d69d8477de4
+	guid:	d2ec8bc5-cf41-43f5-bd10-c4e28774339c
+=>
+```
+
+```shell
+/dev/loop2p2: BLOCK_SIZE="262144" TYPE="squashfs" PARTUUID="a41d59eb-02"
+/dev/loop2p1: LABEL="kernel" UUID="84173db5-fa99-e35a-95c6-28613cc79ea9" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="a41d59eb-01"
+
+[root@bdy-g98 ~]# blkid /dev/sda1
+/dev/sda1: LABEL="kernel" UUID="84173db5-fa99-e35a-95c6-28613cc79ea9" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="a41d59eb-01"
+[root@bdy-g98 ~]# blkid /dev/sda2
+/dev/sda2: BLOCK_SIZE="262144" TYPE="squashfs" PARTUUID="a41d59eb-02"
+
+```
+
+
+```shell
+[root@bdy-g98 ~]# hexdump -C /dev/sda | head -n 100
+00000000  50 52 45 56 45 4e 54 20  22 53 4d 41 52 54 22 20  |PREVENT "SMART" |
+00000010  50 41 52 54 45 44 20 46  52 4f 4d 20 4d 4f 44 49  |PARTED FROM MODI|
+00000020  46 59 49 4e 47 20 4d 42  52 20 44 49 53 4b 49 44  |FYING MBR DISKID|
+00000030  0a 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+00000040  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+*
+000001b0  00 00 00 00 00 00 00 00  eb 59 1d a4 00 00 80 08  |.........Y......|
+000001c0  09 20 83 08 28 a2 00 80  00 00 00 00 02 00 00 09  |. ..(...........|
+000001d0  0a a4 83 0b 8b ac 00 88  02 00 00 00 08 00 00 0b  |................|
+000001e0  ac ae 83 0b bb ef 00 90  0a 00 00 00 40 00 00 00  |............@...|
+000001f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 55 aa  |..............U.|
+00000200  45 46 49 20 50 41 52 54  00 00 01 00 5c 00 00 00  |EFI PART....\...|
+00000210  74 33 c4 14 00 00 00 00  01 00 00 00 00 00 00 00  |t3..............|
+00000220  ae c2 e7 0e 00 00 00 00  22 00 00 00 00 00 00 00  |........".......|
+00000230  8d c2 e7 0e 00 00 00 00  be 6c 45 11 a0 63 71 46  |.........lE..cqF|
+00000240  9b d5 d8 58 5c 07 41 ae  02 00 00 00 00 00 00 00  |...X\.A.........|
+00000250  80 00 00 00 80 00 00 00  1b cf 52 c3 00 00 00 00  |..........R.....|
+00000260  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+*
+00000400  af 3d c6 0f 83 84 72 47  8e 79 3d 69 d8 47 7d e4  |.=....rG.y=i.G}.|
+00000410  1c 69 75 b1 fe c9 e5 45  b4 56 6a c6 be 95 6a a8  |.iu....E.Vj...j.|
+00000420  00 80 00 00 00 00 00 00  ff 77 10 00 00 00 00 00  |.........w......|
+00000430  00 00 00 00 00 00 00 00  70 00 72 00 69 00 6d 00  |........p.r.i.m.|
+00000440  61 00 72 00 79 00 00 00  00 00 00 00 00 00 00 00  |a.r.y...........|
+00000450  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+```
+
+eb 59 1d a4，小端序读取为 a41d59eb
+
+```shell
+# file istoreos2410-rockchip-armv8-bdy_g98-nas-squashfs-sysupgrade-2026083018.img 
+istoreos2410-rockchip-armv8-bdy_g98-nas-squashfs-sysupgrade-2026083018.img: DOS/MBR boot sector; partition 1 : ID=0x83, active, start-CHS (0x20,8,9), end-CHS (0xa2,8,40), startsector 32768, 131072 sectors; partition 2 : ID=0x83, start-CHS (0xa4,9,10), end-CHS (0x2ac,11,11), startsector 165888, 524288 sectors; partition 3 : ID=0x83, start-CHS (0x2ae,11,44), end-CHS (0x2ef,11,59), startsector 692224, 4194304 sectors
+```
+
+```shell
+# blkid istoreos2410-rockchip-armv8-bdy_g98-nas-squashfs-sysupgrade-2026083018.img 
+istoreos2410-rockchip-armv8-bdy_g98-nas-squashfs-sysupgrade-2026083018.img: PTUUID="a41d59eb" PTTYPE="dos"
+```
+
+blkid 输出的 a41d59eb-01 是 Linux 用 MBR 磁盘签名 + 分区号 拼凑出来的，MBR 规范本身没有 PARTUUID
+
+```shell
+[root@armbian ~]# blkid /dev/sda1
+/dev/sda1: LABEL="kernel" UUID="84173db5-fa99-e35a-95c6-28613cc79ea9" BLOCK_SIZE="4096" TYPE="ext4" PARTLABEL="primary" PARTUUID="b175691c-c9fe-45e5-b456-6ac6be956aa8"
+[root@armbian ~]# blkid /dev/sda2
+/dev/sda2: PARTLABEL="primary" PARTUUID="d2ec8bc5-cf41-43f5-bd10-c4e28774339c"
+
+```
+
+
+
+```shell
+=> part list scsi 0
+
+Partition Map for SCSI device 0  --   Partition Type: EFI
+
+Part	Start LBA	End LBA		Name
+	Attributes
+	Type GUID
+	Partition GUID
+  1	0x00008000	0x001077ff	"primary"
+	attrs:	0x0000000000000000
+	type:	0fc63daf-8483-4772-8e79-3d69d8477de4
+	guid:	b175691c-c9fe-45e5-b456-6ac6be956aa8
+  2	0x00108000	0x0ee7c28d	"primary"
+	attrs:	0x0000000000000000
+	type:	0fc63daf-8483-4772-8e79-3d69d8477de4
+	guid:	d2ec8bc5-cf41-43f5-bd10-c4e28774339c
+=>
+```
+
+
+结论：
+
+* uboot获取的partuuid正确，无错误
+* mbr信息优先被内核采用，所以导致找不到分区
+* is不支持sata盘，即使改成gpt也会应为没有sda而无法引导。
+* 无需修复，bug抛给is
+
 
 ## uboot v2017 - 启动顺序配置
 

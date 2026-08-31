@@ -9,6 +9,7 @@
 ## 目录
 
 * [硬件规格](docs/硬件规格.md)
+* [固件列表](docs/固件列表.md)
 * [刷机指引](docs/刷机指引.md)
   * [ophub armbian](docs/刷机指引/ophub_armbian.md)
   * [ophub 飞牛](docs/刷机指引/ophub_fnos.md)
@@ -27,6 +28,7 @@
   * [android13适配](docs/适配记录/android/android13.md)
   * [android14适配](docs/适配记录/android/android14.md)
 * [外壳机箱](docs/外壳机箱.md)
+
 
 ## 参数规格
 
