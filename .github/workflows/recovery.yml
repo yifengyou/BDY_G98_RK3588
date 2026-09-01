@@ -1,0 +1,126 @@
+name: BDY G98 Recovery
+
+on:
+  push:
+    branches:
+      - master
+  repository_dispatch:
+  workflow_dispatch:
+
+env:
+  TZ: Asia/Shanghai
+  ACTIONS_STEP_DEBUG: true
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show environment
+        id: basic_info
+        run: |
+          nproc
+          uname -a
+          cat /etc/*release
+          free -h
+          mount
+          df -h
+          cat /proc/cpuinfo
+          cat /proc/meminfo
+
+      - name: Create simulated physical disk
+        run: |
+          mnt_size=$(expr $(df -h /mnt | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 1)
+          root_size=$(expr $(df -h / | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 4)
+          sudo truncate -s "${mnt_size}"G /mnt/mnt.img
+          sudo truncate -s "${root_size}"G /root.img
+          sudo losetup /dev/loop6 /mnt/mnt.img
+          sudo losetup /dev/loop7 /root.img
+          sudo pvcreate /dev/loop6
+          sudo pvcreate /dev/loop7
+          sudo vgcreate github /dev/loop6 /dev/loop7
+          sudo lvcreate -n runner -l 100%FREE github
+          sudo mkfs.xfs /dev/github/runner
+          sudo mkdir -p /builder
+          sudo mount /dev/github/runner /builder
+          sudo chown -R runner.runner /builder
+          sudo apt-get update
+          sudo apt-get install -y device-tree-compiler zip u-boot-tools
+          df -Th
+
+      - name: Run Build in Ubuntu 22.04 container
+        working-directory: /builder
+        run: |
+          sudo mkdir -p /builder/emmc_release/
+          sudo mkdir -p /builder/spi_release/
+          sudo /bin/cp -a ${{ github.workspace }}/* .
+          ls -alh
+          cd recovery
+          ./kdev-build.sh
+          ls -alh output
+          sudo cp output/emmc_full_disk.img output/G98-Recovery_ONLY-EMMC.zip /builder/emmc_release/
+          sudo cp output/spi_full_disk.img  output/G98-Recovery_ONLY-SPI.zip  /builder/spi_release/
+
+      - name: List build output
+        run: |
+          ls -alh  /builder/emmc_release/*
+          md5sum /builder/emmc_release/*
+          ls -alh  /builder/spi_release/*
+          md5sum /builder/spi_release/*
+
+      - name: Upload to Release
+        uses: ncipollo/release-action@main
+        with:
+          tag: emmc_recovery
+          artifacts: /builder/emmc_release/*
+          allowUpdates: true
+          removeArtifacts: false
+          replacesArtifacts: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: |
+            # 彼度云 G98 EMMC Recovery 镜像
+
+            - 出厂设备默认仅配备 SPI Nor Flash，未焊接 eMMC。由于 SPI Flash 与 eMMC 共用硬件引脚，二者物理上互斥，设备只能选择其中一种作为启动介质，请根据实际硬件配置选择对应的固件。
+
+            ## 固件下载与刷写指引
+
+
+            若您的设备已自行焊接 eMMC，并希望以 eMMC 作为启动介质：
+
+            * [EMMC recovery固件下载](https://github.com/yifengyou/BDY_G98_RK3588/releases/tag/emmc_recovery)
+            * [EMMC recovery固件刷写指引](https://github.com/yifengyou/BDY_G98_RK3588/blob/master/docs/%E5%88%B7%E6%9C%BA%E6%8C%87%E5%BC%95/emmc_recovery.md)
+
+            ## 免责声明
+
+            - **按原样提供**：本镜像不作任何明示或暗示的保证，使用风险由用户自行承担。
+            - **无官方关联**：本项目与 Rockchip、彼度云 任何商业实体无关，为非盈利自由分享。
+            - **安全提示**：部署后请及时更新安全补丁、修改默认密码、配置防火墙及访问控制策略。
+
+      - name: Upload to Release
+        uses: ncipollo/release-action@main
+        with:
+          tag: spi_recovery
+          artifacts: /builder/spi_release/*
+          allowUpdates: true
+          removeArtifacts: false
+          replacesArtifacts: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: |
+            # 彼度云 G98 SPI Recovery 镜像
+
+            ## 固件下载与刷写指引
+
+            若您的设备使用 SPI Nor Flash 作为启动介质（出厂标配）：
+
+            * [SPI recovery固件下载](https://github.com/yifengyou/BDY_G98_RK3588/releases/tag/spi_recovery)
+            * [SPI recovery固件刷写指引](https://github.com/yifengyou/BDY_G98_RK3588/blob/master/docs/%E5%88%B7%E6%9C%BA%E6%8C%87%E5%BC%95/spi_recovery.md)
+
+            ## 免责声明
+
+            - **按原样提供**：本镜像不作任何明示或暗示的保证，使用风险由用户自行承担。
+            - **无官方关联**：本项目与 Rockchip、彼度云 任何商业实体无关，为非盈利自由分享。
+            - **安全提示**：部署后请及时更新安全补丁、修改默认密码、配置防火墙及访问控制策略。
+
