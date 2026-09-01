@@ -1,4 +1,4 @@
-name: BDY G98 Recovery
+name: recovery build
 
 on:
   push:
@@ -71,7 +71,7 @@ jobs:
           ls -alh  /builder/spi_release/*
           md5sum /builder/spi_release/*
 
-      - name: Upload to Release
+      - name: Upload EMMC Recovery to Release
         uses: ncipollo/release-action@main
         with:
           tag: emmc_recovery
@@ -83,14 +83,14 @@ jobs:
           body: |
             # 彼度云 G98 EMMC Recovery 镜像
 
+            **测试中，无法引导，不要下载**
+
             - 出厂设备默认仅配备 SPI Nor Flash，未焊接 eMMC。由于 SPI Flash 与 eMMC 共用硬件引脚，二者物理上互斥，设备只能选择其中一种作为启动介质，请根据实际硬件配置选择对应的固件。
 
             ## 固件下载与刷写指引
 
-
             若您的设备已自行焊接 eMMC，并希望以 eMMC 作为启动介质：
 
-            * [EMMC recovery固件下载](https://github.com/yifengyou/BDY_G98_RK3588/releases/tag/emmc_recovery)
             * [EMMC recovery固件刷写指引](https://github.com/yifengyou/BDY_G98_RK3588/blob/master/docs/%E5%88%B7%E6%9C%BA%E6%8C%87%E5%BC%95/emmc_recovery.md)
 
             ## 免责声明
@@ -99,7 +99,7 @@ jobs:
             - **无官方关联**：本项目与 Rockchip、彼度云 任何商业实体无关，为非盈利自由分享。
             - **安全提示**：部署后请及时更新安全补丁、修改默认密码、配置防火墙及访问控制策略。
 
-      - name: Upload to Release
+      - name: Upload SPI Recovery to Release
         uses: ncipollo/release-action@main
         with:
           tag: spi_recovery
@@ -115,8 +115,12 @@ jobs:
 
             若您的设备使用 SPI Nor Flash 作为启动介质（出厂标配）：
 
-            * [SPI recovery固件下载](https://github.com/yifengyou/BDY_G98_RK3588/releases/tag/spi_recovery)
             * [SPI recovery固件刷写指引](https://github.com/yifengyou/BDY_G98_RK3588/blob/master/docs/%E5%88%B7%E6%9C%BA%E6%8C%87%E5%BC%95/spi_recovery.md)
+
+            ## 文件介绍
+
+            * **G98-Recovery_ONLY-SPI.zip** : 带`RKDevTool_Release_v3.37`， 进入maskrom模式，打开【下载镜像】页，点击【执行】
+            * **spi_full_disk.img** : 全盘备份，从`0x00000000`下载
 
             ## 免责声明
 
