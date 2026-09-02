@@ -45,8 +45,18 @@ USB → NVMe → SATA(SCSI)
 请下载最新发布的 U-Boot 固件包并解压至本地目录（建议路径不含中文或空格）：
 > 🔗 [G98-Recovery_ONLY-SPI.zip](https://github.com/yifengyou/BDY_G98_RK3588/releases/download/spi_recovery/G98-Recovery_ONLY-SPI.zip)
 
+驱动安装（只需要安装一次，如果已安装可忽略）：
 
-#### 2. **启动工具**：运行解压目录中的 `RKDevTool.exe`。
+[瑞星微驱动助手](https://github.com/yifengyou/BDY_G98_RK3588/blob/master/recovery/Rockchip_DriverAssitant_v5.12.zip)
+
+驱动工具解压出来，双击打开【DriverInstall】应用程序。
+
+![](./images/21005366068900.png)
+
+
+#### 2. **启动工具**
+
+下载并解压 G98-Recovery_ONLY-SPI.zip ，运行解压目录中的 `RKDevTool.exe`。
 
 ![](./images/14127566375000.png)
 
