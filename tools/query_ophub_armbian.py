@@ -105,7 +105,7 @@ def fetch_and_filter():
     if matched_files:
         print("\n📋 所有匹配文件URL汇总:")
         for i, item in enumerate(matched_files, 1):
-            print(f" {item['download_url']}")
+            print(f"* {item['download_url']}")
 
     return matched_files
 
