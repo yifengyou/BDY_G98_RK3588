@@ -13,3 +13,4 @@ rockchip-linux-u-boot.git
 /recovery/only-emmc/uboot-g98_only-emmc.img
 /recovery/only-spi/uboot-g98_only-spi.img
 /recovery/only-spi/recovery-g98_only-spi.img
+/uboot-upstream.git
