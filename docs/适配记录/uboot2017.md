@@ -1,4 +1,4 @@
-# uboot 适配
+# uboot v2017 适配
 
 
 ## uboot v2017 - istoreos partuuid问题
