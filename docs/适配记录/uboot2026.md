@@ -1,5 +1,12 @@
 # uboot v2026适配
 
+
+## 参考
+
+* <https://docs.u-boot-project.org/en/stable/board/theobroma-systems/jaguar_rk3588.html>
+
+
+
 ## u-boot-rockchip.bin是什么，怎么生成的？
 
 u-boot-rockchip.bin 是一个面向 Rockchip 平台的完整启动固件容器（All-in-One Binary）。它包含了芯片从 BootROM 启动到加载 Linux 内核所需的所有前置固件，具体包括：
@@ -287,4 +294,94 @@ u-boot-rockchip-spi.bin：专为 SPI Flash 启动生成，其主镜像偏移量�
     };
     #endif /* CONFIG_SPL */
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
