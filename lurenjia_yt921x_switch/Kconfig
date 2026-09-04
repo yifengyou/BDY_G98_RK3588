@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: GPL-2.0
+#
+# Motorcomm YT921x unmanaged Ethernet switch driver
+
+config YT9215_SWITCH
+	tristate "Motorcomm YT921x unmanaged Ethernet switch support"
+	depends on OF
+	select SWCONFIG
+	help
+	  This driver supports the Motorcomm YT9215 / YT9218 series of
+	  unmanaged Gigabit Ethernet switch chips (e.g. YT9215S, a 5-port
+	  GE switch with internal PHYs and a RGMII CPU port).
+
+	  The switch is accessed over the SoC's MDIO bus (via the
+	  "motorcomm,mdio" Device Tree property) and exposes per-port
+	  VLAN, link status, and statistics through the swconfig framework
+	  (CONFIG_SWCONFIG).
+
+	  To compile this driver as a module, choose M here: the module
+	  will be called yt9215.
