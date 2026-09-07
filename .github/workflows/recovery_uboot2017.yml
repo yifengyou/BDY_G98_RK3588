@@ -58,7 +58,7 @@ jobs:
           sudo mkdir -p /builder/spi_release/
           sudo /bin/cp -a ${{ github.workspace }}/* .
           ls -alh
-          cd recovery_2017
+          cd recovery_uboot2017
           ./kdev-build.sh
           ls -alh output
           sudo cp output/emmc_full_disk.img output/G98-Recovery_ONLY-EMMC.zip /builder/emmc_release/
