@@ -958,22 +958,102 @@ u-boot-rockchip-spi.bin：专为 SPI Flash 启动生成，其主镜像偏移量�
 
 
 
+## 加载web刷机
+
+
+加载单一分区：
+
+```shell
+sf probe
+sf read 0x40000000 0x400000 0x1B00000
+blkmap create ext4part
+blkmap map ext4part 0 0x10000 mem 0x40000000
+sysboot blkmap 0:0 any ${scriptaddr} /recovery.conf
+```
+
+加载完整SPI分区
+
+```shell
+sf probe
+sf read 0x40000000 0x0 0x2000000
+blkmap create spi
+blkmap map spi 0 0x10000 mem 0x40000000
+part list blkmap 0
+gpt verify blkmap 0
+sysboot blkmap 0:2 any ${scriptaddr} /recovery.conf
+```
 
 
 
 
+## 环境变量保存
+
+
+8KB预留方案：
+
+```text
+CONFIG_ENV_OFFSET     = 0x3fe000 // 4MB-8kb的位置
+CONFIG_ENV_SIZE       = 0x2000   // 环境变量占用的总存储空间大小8KB
+CONFIG_ENV_SECT_SIZE  = 0x1000   // 底层存储介质的物理擦除扇区（Sector）大小 4KB
+```
+
+
+测试方法：
+
+```shell
+sf probe
+sf read 0x40000000 0x3fe000 0x1000
+md.b 0x40000000 0x1000
+```
+
+
+
+256KB预留方案：
+
+```text
+CONFIG_ENV_OFFSET     = 0x3C0000  // 4MB-256kb的位置
+CONFIG_ENV_SIZE       = 0x40000   // 环境变量占用的总存储空间大小256KB
+CONFIG_ENV_SECT_SIZE  = 0x1000    // 底层存储介质的物理擦除扇区（Sector）大小 4KB
+```
+
+
+
+32KB预留方案：
+
+```text
+CONFIG_ENV_OFFSET     = 0x3F8000  // 4MB-32kb的位置
+CONFIG_ENV_SIZE       = 0x8000    // 环境变量占用的总存储空间大小32KB
+CONFIG_ENV_SECT_SIZE  = 0x1000    // 底层存储介质的物理擦除扇区（Sector）大小 4KB
+```
+
+
+
+测试方法：
+
+```shell
+sf probe
+sf read 0x40000000 0x3C0000 0x1000
+md.b 0x40000000 0x1000
+```
+
+擦除方法：
+```shell
+sf probe
+sf erase 0x3f8000 0x8000
+```
+
+```shell
+setenv boot_targets "nvme scsi"
+saveenv
+```
+
+
+## 传统方式引导
 
 
 
 
-
-
-
-
-
-
-
-
+## bootflow方式引导
 
 
 
