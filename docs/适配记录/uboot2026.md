@@ -1061,21 +1061,141 @@ saveenv
 
 
 
+## bootmenu和按键逻辑
+
+
+```c
+common/main.c:71:	s = bootdelay_process();
+void main_loop(void)
+{
+        const char *s;
+
+        bootstage_mark_name(BOOTSTAGE_ID_MAIN_LOOP, "main_loop");
+
+        if (IS_ENABLED(CONFIG_VERSION_VARIABLE))
+                env_set("ver", version_string);  /* set version variable */
+
+        cli_init();
+
+        if (IS_ENABLED(CONFIG_USE_PREBOOT))
+                run_preboot_environment_command();
+
+        if (event_notify_null(EVT_POST_PREBOOT))
+                return;
+
+        if (IS_ENABLED(CONFIG_UPDATE_TFTP))
+                update_tftp(0UL, NULL, NULL);
+
+        if (IS_ENABLED(CONFIG_EFI_CAPSULE_ON_DISK_EARLY)) {
+                /* efi_init_early() already called */
+                if (efi_init_obj_list() == EFI_SUCCESS)
+                        efi_launch_capsules();
+        }
+
+        process_button_cmds();
+
+        s = bootdelay_process();
+        if (cli_process_fdt(&s))
+                cli_secure_boot_cmd(s);
+
+        autoboot_command(s);
+
+        /* if standard boot if enabled, assume that it will be able to boot */
+        if (IS_ENABLED(CONFIG_BOOTSTD_PROG)) {
+                int ret;
+
+                ret = bootstd_prog_boot();
+                printf("Standard boot failed (err=%dE)\n", ret);
+                panic("Failed to boot");
+        }
+
+        cli_loop();
+
+        panic("No CLI available");
+}
+
+
+common/autoboot.c:452:const char *bootdelay_process(void)
+const char *bootdelay_process(void)
+{
+        char *s;
+        int bootdelay;
+
+        bootcount_inc();
+
+        s = env_get("bootdelay");
+        bootdelay = s ? (int)simple_strtol(s, NULL, 10) : CONFIG_BOOTDELAY;
+
+        /*
+         * Does it really make sense that the devicetree overrides the user
+         * setting? It is possibly helpful for security since the device tree
+         * may be signed whereas the environment is often loaded from storage.
+         */
+        if (IS_ENABLED(CONFIG_OF_CONTROL))
+                bootdelay = ofnode_conf_read_int("bootdelay", bootdelay);
+
+        debug("### main_loop entered: bootdelay=%d\n\n", bootdelay);
+
+        if (IS_ENABLED(CONFIG_AUTOBOOT_MENU_SHOW))
+                bootdelay = menu_show(bootdelay);
+        bootretry_init_cmd_timeout();
+
+#ifdef CONFIG_POST
+        if (gd->flags & GD_FLG_POSTFAIL) {
+                s = env_get("failbootcmd");
+        } else
+#endif /* CONFIG_POST */
+        if (bootcount_error())
+                s = env_get("altbootcmd");
+        else
+                s = env_get("bootcmd");
+
+        if (IS_ENABLED(CONFIG_OF_CONTROL))
+                process_fdt_options();
+        stored_bootdelay = bootdelay;
+
+        return s;
+}
+
+```
+
+process_button_cmds() 明显是处理按键逻辑
+
+```c
+void process_button_cmds(void)
+{
+        struct button_cmd cmd = {0};
+        int i = 0;
+
+        while (get_button_cmd(i++, &cmd) && i < MAX_BTN_CMDS) {
+                if (!cmd.pressed)
+                        continue;
+
+                log_info("BTN '%s'> %s\n", cmd.btn_name, cmd.cmd);
+                run_command(cmd.cmd, CMD_FLAG_ENV);
+                /* Don't run commands for multiple buttons */
+                return;
+        }
+}
+
+```
+
+
+启用配置
+```shell
+CONFIG_BUTTON=y
+CONFIG_BUTTON_ADC=y
+CONFIG_BUTTON_CMD=y
+```
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
+```text
+# 索引 0 的配置
+button_cmd_0_name=Recovery key
+button_cmd_0=run recovery_bootcmd
+```
 
 
 

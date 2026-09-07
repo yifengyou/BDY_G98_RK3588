@@ -2383,6 +2383,72 @@ bootargs=storagemedia=mtd androidboot.storagemedia=mtd androidboot.mode=normal
 
 
 
+## loader模式按键检测
+
+
+```c
+#if CONFIG_IS_ENABLED(IRQ)
+#if defined(CONFIG_PWRKEY_DNL_TRIGGER_NUM) && \
+                (CONFIG_PWRKEY_DNL_TRIGGER_NUM > 0)
+static void power_key_download(struct dm_key_uclass_platdata *uc_key)
+{
+        int trig_cnt = CONFIG_PWRKEY_DNL_TRIGGER_NUM;
+        static u64 old_rise_ms;
+        
+        if (uc_key->code == KEY_POWER && old_rise_ms != uc_key->rise_ms) {
+                old_rise_ms = uc_key->rise_ms;
+                uc_key->trig_cnt++;
+                if (uc_key->trig_cnt >= trig_cnt) {
+                        printf("\nEnter download mode by pwrkey\n");
+                        irq_handler_disable(uc_key->irq);
+                        run_command("download", 0);
+                }
+        }
+}       
+
+int pwrkey_download_init(void)
+{
+        return (KEY_NOT_EXIST == key_read(KEY_POWER)); 
+}
+#endif  
+
+static void gpio_irq_handler(int irq, void *data)
+{
+        struct udevice *dev = data;
+        struct dm_key_uclass_platdata *uc_key = dev_get_uclass_platdata(dev);
+
+        if (uc_key->irq != irq)
+                return;
+
+        if (uc_key->irq_thread) {
+                uc_key->irq_thread(irq, data);
+        } else {
+                if (irq_get_gpio_level(irq)) {
+                        uc_key->rise_ms = key_timer(0);
+                        KEY_DBG("%s: key dn: %llu ms\n",
+                                uc_key->name, uc_key->fall_ms);
+                } else {
+                        uc_key->fall_ms = key_timer(0);
+                        KEY_DBG("%s: key up: %llu ms\n",
+                                uc_key->name, uc_key->rise_ms);
+                }
+
+                /* Must delay */
+                mdelay(10);
+                irq_revert_irq_type(irq);
+        }
+
+        /* Hook event: enter download mode by pwrkey */
+#if defined(CONFIG_PWRKEY_DNL_TRIGGER_NUM) && \
+                (CONFIG_PWRKEY_DNL_TRIGGER_NUM > 0)
+        power_key_download(uc_key);
+#endif
+}
+#endif
+
+```
+
+
 
 
 
