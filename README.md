@@ -29,6 +29,7 @@
   * [android13适配](docs/适配记录/android/android13.md)
   * [android14适配](docs/适配记录/android/android14.md)
 * [外壳机箱](docs/外壳机箱.md)
+* [需求清单](docs/需求清单.md)
 
 
 ## 参数规格
