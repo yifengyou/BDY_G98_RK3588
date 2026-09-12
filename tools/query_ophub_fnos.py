@@ -7,7 +7,7 @@ import os
 # ================= 配置区域 =================
 REPO = "ophub/fnnas"
 OUTPUT_FILE = "ophub_fnos.json"
-FILTER_KEYWORD = "g98"  # 过滤关键词（不区分大小写）
+FILTER_KEYWORD = "d3588"  # 过滤关键词（不区分大小写）
 # 强烈建议填写 GitHub Personal Access Token
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
 # ==========================================
