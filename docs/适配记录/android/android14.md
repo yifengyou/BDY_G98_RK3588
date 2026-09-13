@@ -2077,8 +2077,354 @@ index 54ae5ac2f545..d621a4298d3c 100644
 
 
 
+## android修改设备名称
+
+![](./images/5523507918500.png)
+
+![](./images/5535351785400.png)
+
+![](./images/5545300200300.png)
 
 
+```shell
+# cat device/khadas/rk3588/kedge2/kedge2.mk  
+#
+# Copyright 2014 The Android Open-Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# First lunching is U, api_level is 34
+PRODUCT_SHIPPING_API_LEVEL := 34
+PRODUCT_DTBO_TEMPLATE := $(LOCAL_PATH)/dt-overlay.in
+
+include device/khadas/common/build/rockchip/DynamicPartitions.mk
+include device/khadas/rk3588/kedge2/BoardConfig.mk
+include device/khadas/common/BoardConfig.mk
+$(call inherit-product, device/khadas/rk3588/device.mk)
+$(call inherit-product, device/khadas/common/device.mk)
+$(call inherit-product, frameworks/native/build/tablet-10in-xhdpi-2048-dalvik-heap.mk)
+
+DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/../overlay
+
+PRODUCT_CHARACTERISTICS := tablet
+
+PRODUCT_NAME := kedge2
+PRODUCT_DEVICE := kedge2
+PRODUCT_BRAND := rockchip
+PRODUCT_MODEL := BDY-G98
+PRODUCT_MANUFACTURER := Khadas
+PRODUCT_AAPT_PREF_CONFIG := mdpi
+
+$(shell python device/khadas/rk3588/auto_generator.py preinstall)
+-include device/khadas/rk3588/preinstall/preinstall.mk
+PRODUCT_COPY_FILES += \
+    device/khadas/rk3588/preinstall/preinstall.sh:system/bin/preinstall.sh \
+    device/khadas/rk3588/kedge2/cmdserver:system/bin/cmdserver \
+    device/khadas/rk3588/kedge2/cmdclient:system/bin/cmdclient
+
+#
+## add Rockchip properties
+#
+PRODUCT_PROPERTY_OVERRIDES += ro.kofficial.version=true
+PRODUCT_PROPERTY_OVERRIDES += ro.sf.lcd_density=240
+PRODUCT_PROPERTY_OVERRIDES += ro.wifi.sleep.power.down=true
+PRODUCT_PROPERTY_OVERRIDES += persist.wifi.sleep.delay.ms=0
+PRODUCT_PROPERTY_OVERRIDES += persist.bt.power.down=true
+PRODUCT_PROPERTY_OVERRIDES += persist.sys.rotation.efull=true
+PRODUCT_PROPERTY_OVERRIDES += persist.demo.hdmirotates=true
+PRODUCT_PROPERTY_OVERRIDES += ro.config.media_vol_default=12
+PRODUCT_PROPERTY_OVERRIDES += vendor.hwc.enable_dynamic_display_mode=1
+PRODUCT_PROPERTY_OVERRIDES += ro.lockscreen.disable.default=true
+
+PRODUCT_PROPERTY_OVERRIDES += service.adb.tcp.port=5555
+BUILD_NUMBER2 := $(shell $(DATE) +%Y%m%d.%H%M%S)
+PRODUCT_PROPERTY_OVERRIDES += ro.build.display.id=BDY-G98-android-14-v$(BUILD_NUMBER2)
+```
+
+修改时间戳
+```shell
+BUILD_NUMBER2 := $(shell $(DATE) +%Y%m%d.%H%M%S)
+```
+
+```shell
+
+console:/ # getprop ro.product.model
+Edge2
+
+修改后：
+
+console:/ # getprop ro.product.model                                           
+BDY-G98
+console:/ # 
+
+```
+
+```text
+khadas-android/android14/device/khadas/rk3588]# git diff
+diff --git a/kedge2/kedge2.mk b/kedge2/kedge2.mk
+index f8f0c94..be06473 100755
+--- a/kedge2/kedge2.mk
++++ b/kedge2/kedge2.mk
+@@ -32,9 +32,10 @@ PRODUCT_CHARACTERISTICS := tablet
+ PRODUCT_NAME := kedge2
+ PRODUCT_DEVICE := kedge2
+ PRODUCT_BRAND := rockchip
+-PRODUCT_MODEL := Edge2
++PRODUCT_MODEL := BDY-G98
+ PRODUCT_MANUFACTURER := Khadas
+ PRODUCT_AAPT_PREF_CONFIG := mdpi
++PRODUCT_LOCALES := zh_CN en_US
+ 
+ $(shell python device/khadas/rk3588/auto_generator.py preinstall)
+ -include device/khadas/rk3588/preinstall/preinstall.mk
+@@ -58,5 +59,8 @@ PRODUCT_PROPERTY_OVERRIDES += vendor.hwc.enable_dynamic_display_mode=1
+ PRODUCT_PROPERTY_OVERRIDES += ro.lockscreen.disable.default=true
+ 
+ PRODUCT_PROPERTY_OVERRIDES += service.adb.tcp.port=5555
+-BUILD_NUMBER2 := $(shell $(DATE) +%Y%m%d)
+-PRODUCT_PROPERTY_OVERRIDES += ro.build.display.id=Edge2-android-14-v$(BUILD_NUMBER2)
++BUILD_NUMBER2 := $(shell $(DATE) +%Y%m%d.%H%M%S)
++PRODUCT_PROPERTY_OVERRIDES += ro.build.display.id=BDY-G98-android-14-v$(BUILD_NUMBER2)
++
++PRODUCT_PACKAGES += \
++    Magisk
+diff --git a/preinstall/Android.mk b/preinstall/Android.mk
+index 58dbdc6..5780225 100644
+--- a/preinstall/Android.mk
++++ b/preinstall/Android.mk
+@@ -1,10 +1,10 @@
+ LOCAL_PATH := $(my-dir)
+ 
+ include $(CLEAR_VARS)
+-LOCAL_MODULE := tts
++LOCAL_MODULE := Chrome
+ LOCAL_MODULE_CLASS := APPS
+ LOCAL_MODULE_PATH := $(TARGET_OUT)/preinstall
+-LOCAL_REPLACE_PREBUILT_APK_INSTALLED := $(LOCAL_PATH)/tts.apk
++LOCAL_REPLACE_PREBUILT_APK_INSTALLED := $(LOCAL_PATH)/Chrome.apk
+ LOCAL_CERTIFICATE := PRESIGNED
+ LOCAL_DEX_PREOPT := false
+ LOCAL_MODULE_TAGS := optional
+@@ -12,10 +12,10 @@ LOCAL_MODULE_SUFFIX := $(COMMON_ANDROID_PACKAGE_SUFFIX)
+ include $(BUILD_PREBUILT)
+ 
+ include $(CLEAR_VARS)
+-LOCAL_MODULE := Chrome
++LOCAL_MODULE := tts
+ LOCAL_MODULE_CLASS := APPS
+ LOCAL_MODULE_PATH := $(TARGET_OUT)/preinstall
+-LOCAL_REPLACE_PREBUILT_APK_INSTALLED := $(LOCAL_PATH)/Chrome.apk
++LOCAL_REPLACE_PREBUILT_APK_INSTALLED := $(LOCAL_PATH)/tts.apk
+ LOCAL_CERTIFICATE := PRESIGNED
+ LOCAL_DEX_PREOPT := false
+ LOCAL_MODULE_TAGS := optional
+diff --git a/preinstall/preinstall.mk b/preinstall/preinstall.mk
+index 555331a..8a830e1 100644
+--- a/preinstall/preinstall.mk
++++ b/preinstall/preinstall.mk
+@@ -1,2 +1,2 @@
+-PRODUCT_PACKAGES += tts
+ PRODUCT_PACKAGES += Chrome
++PRODUCT_PACKAGES += tts
+
+
+```
+
+
+## android修改默认为中文
+
+```text
+# rg 'PRODUCT_LOCALES'
+packages/services/Car/car_product/build/car.mk
+188:PRODUCT_LOCALES := \
+
+device/khadas/common/car/packages_car.mk
+191:PRODUCT_LOCALES := \
+
+build/soong/mk2rbc/config_variables_test.go
+53:		{"PRODUCT_LOCALES", VarClassConfig, starlarkTypeList},
+
+build/soong/mk2rbc/test/config_variables.mk.test
+10:_product_list_vars += PRODUCT_LOCALES
+
+build/make/target/product/languages_full.mk
+22:PRODUCT_LOCALES += en_XC
+
+build/make/target/product/languages_default.mk
+19:PRODUCT_LOCALES := \
+
+build/make/target/product/full_base.mk
+45:PRODUCT_LOCALES := en_US
+
+build/make/core/sysprop.mk
+291:	        PRODUCT_DEFAULT_LOCALE="$(call get-default-product-locale,$(PRODUCT_LOCALES))" \
+
+build/make/core/product_config.mk
+302:# in PRODUCT_LOCALES, add them to PRODUCT_LOCALES.
+303:extra_locales := $(filter-out $(PRODUCT_LOCALES),$(CUSTOM_LOCALES))
+307:    $(info Adding CUSTOM_LOCALES [$(extra_locales)] to PRODUCT_LOCALES [$(PRODUCT_LOCALES)])
+309:  PRODUCT_LOCALES += $(extra_locales)
+313:# Add PRODUCT_LOCALES to PRODUCT_AAPT_CONFIG
+314:PRODUCT_AAPT_CONFIG := $(PRODUCT_LOCALES) $(PRODUCT_AAPT_CONFIG)
+
+build/make/core/product.mk
+37:_product_list_vars += PRODUCT_LOCALES
+
+build/make/buildspec.mk.default
+79:# of PRODUCT_LOCALES.
+
+```
+
+
+## android添加apk
+
+方式一：修改设备配置（测试成功）
+
+
+```shell
+diff --git a/preinstall/Android.mk b/preinstall/Android.mk
+index 58dbdc6..bd3a599 100644
+--- a/preinstall/Android.mk
++++ b/preinstall/Android.mk
+@@ -1,5 +1,16 @@
+ LOCAL_PATH := $(my-dir)
+ 
++include $(CLEAR_VARS)
++LOCAL_MODULE := Chrome
++LOCAL_MODULE_CLASS := APPS
++LOCAL_MODULE_PATH := $(TARGET_OUT)/preinstall
++LOCAL_REPLACE_PREBUILT_APK_INSTALLED := $(LOCAL_PATH)/Chrome.apk
++LOCAL_CERTIFICATE := PRESIGNED
++LOCAL_DEX_PREOPT := false
++LOCAL_MODULE_TAGS := optional
++LOCAL_MODULE_SUFFIX := $(COMMON_ANDROID_PACKAGE_SUFFIX)
++include $(BUILD_PREBUILT)
++
+ include $(CLEAR_VARS)
+ LOCAL_MODULE := tts
+ LOCAL_MODULE_CLASS := APPS
+@@ -12,10 +23,10 @@ LOCAL_MODULE_SUFFIX := $(COMMON_ANDROID_PACKAGE_SUFFIX)
+ include $(BUILD_PREBUILT)
+ 
+ include $(CLEAR_VARS)
+-LOCAL_MODULE := Chrome
++LOCAL_MODULE := Magisk
+ LOCAL_MODULE_CLASS := APPS
+ LOCAL_MODULE_PATH := $(TARGET_OUT)/preinstall
+-LOCAL_REPLACE_PREBUILT_APK_INSTALLED := $(LOCAL_PATH)/Chrome.apk
++LOCAL_REPLACE_PREBUILT_APK_INSTALLED := $(LOCAL_PATH)/Magisk-v30.7.apk
+ LOCAL_CERTIFICATE := PRESIGNED
+ LOCAL_DEX_PREOPT := false
+ LOCAL_MODULE_TAGS := optional
+diff --git a/preinstall/preinstall.mk b/preinstall/preinstall.mk
+index 555331a..e82f942 100644
+--- a/preinstall/preinstall.mk
++++ b/preinstall/preinstall.mk
+@@ -1,2 +1,3 @@
+-PRODUCT_PACKAGES += tts
+ PRODUCT_PACKAGES += Chrome
++PRODUCT_PACKAGES += tts
++PRODUCT_PACKAGES += Magisk
+```
+
+
+
+方式二：验证无效，忽略
+
+```shell
+[root@7945HX /android14/packages/apps/Magisk]# ls
+.  ..  Android.mk  Magisk-v30.7.apk
+[root@7945HX /android14/packages/apps/Magisk]# cat Android.mk 
+LOCAL_PATH := $(call my-dir)
+include $(CLEAR_VARS)
+LOCAL_MODULE := Magisk
+LOCAL_SRC_FILES := Magisk-v30.7.apk
+LOCAL_MODULE_CLASS := APPS
+LOCAL_MODULE_TAGS := optional
+LOCAL_PRIVILEGED_MODULE := true
+LOCAL_CERTIFICATE := PRESIGNED
+include $(BUILD_PREBUILT)
+
+# cat device/khadas/rk3588/kedge2/kedge2.mk
+#
+# Copyright 2014 The Android Open-Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# First lunching is U, api_level is 34
+PRODUCT_SHIPPING_API_LEVEL := 34
+PRODUCT_DTBO_TEMPLATE := $(LOCAL_PATH)/dt-overlay.in
+
+include device/khadas/common/build/rockchip/DynamicPartitions.mk
+include device/khadas/rk3588/kedge2/BoardConfig.mk
+include device/khadas/common/BoardConfig.mk
+$(call inherit-product, device/khadas/rk3588/device.mk)
+$(call inherit-product, device/khadas/common/device.mk)
+$(call inherit-product, frameworks/native/build/tablet-10in-xhdpi-2048-dalvik-heap.mk)
+
+DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/../overlay
+
+PRODUCT_CHARACTERISTICS := tablet
+
+PRODUCT_NAME := kedge2
+PRODUCT_DEVICE := kedge2
+PRODUCT_BRAND := rockchip
+PRODUCT_MODEL := BDY-G98
+PRODUCT_MANUFACTURER := Khadas
+PRODUCT_AAPT_PREF_CONFIG := mdpi
+PRODUCT_LOCALES := zh_CN en_US
+
+$(shell python device/khadas/rk3588/auto_generator.py preinstall)
+-include device/khadas/rk3588/preinstall/preinstall.mk
+PRODUCT_COPY_FILES += \
+    device/khadas/rk3588/preinstall/preinstall.sh:system/bin/preinstall.sh \
+    device/khadas/rk3588/kedge2/cmdserver:system/bin/cmdserver \
+    device/khadas/rk3588/kedge2/cmdclient:system/bin/cmdclient
+
+#
+## add Rockchip properties
+#
+PRODUCT_PROPERTY_OVERRIDES += ro.kofficial.version=true
+PRODUCT_PROPERTY_OVERRIDES += ro.sf.lcd_density=240
+PRODUCT_PROPERTY_OVERRIDES += ro.wifi.sleep.power.down=true
+PRODUCT_PROPERTY_OVERRIDES += persist.wifi.sleep.delay.ms=0
+PRODUCT_PROPERTY_OVERRIDES += persist.bt.power.down=true
+PRODUCT_PROPERTY_OVERRIDES += persist.sys.rotation.efull=true
+PRODUCT_PROPERTY_OVERRIDES += persist.demo.hdmirotates=true
+PRODUCT_PROPERTY_OVERRIDES += ro.config.media_vol_default=12
+PRODUCT_PROPERTY_OVERRIDES += vendor.hwc.enable_dynamic_display_mode=1
+PRODUCT_PROPERTY_OVERRIDES += ro.lockscreen.disable.default=true
+
+PRODUCT_PROPERTY_OVERRIDES += service.adb.tcp.port=5555
+BUILD_NUMBER2 := $(shell $(DATE) +%Y%m%d)
+PRODUCT_PROPERTY_OVERRIDES += ro.build.display.id=BDY-G98-android-14-v$(BUILD_NUMBER2)
+
+PRODUCT_PACKAGES += \
+    Magisk
+
+```
 
 
 
