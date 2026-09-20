@@ -133,9 +133,205 @@ console:/ #
 ```
 
 
+## khadas android13 uboot
 
+```shell
+
+# git log --pretty=format:"%h %an <%ae> %s" --graph
+
+* b26af094768 Xiong Zhang <xiong.zhang@wesion.com> Support custom startup logo. Path:/vendor/custom
+* 2396b5554e3 Xiong Zhang <xiong.zhang@wesion.com> Support device tree overlay
+* 4fda4ee51f3 Goenjoy Huang <goenjoy@khadas.com> DP: fix 1080p cannot work for dp [1/2]
+* e3d24d162d4 Goenjoy Huang <goenjoy@khadas.com> LCD: Fixed the problem of a bright line on the far right side of the old 5-inch screen [1/2]
+* 97d8eedbe08 goenjoy <goenjoy@namtso.com> hdmi: add hdmi_out_mode kernel parameter transmission
+* 0ab871385ab Goenjoy Huang <goenjoy@khadas.com> camera: compatible camera with both OS08A10 and IMX415
+* e1db41021b2 Goenjoy Huang <goenjoy@khadas.com> LCD: Compatible with old TS050 and new TS050 [1/3]
+* b3da3768656 Goenjoy Huang <goenjoy@khadas.com> LCD: NEW Compatible with TS050,TS101 and HDMI [1/3]
+* bef2dfdb1e9 Goenjoy Huang <goenjoy@khadas.com> Edge2: set led initial status as blue on
+* bf1e675a705 Goenjoy Huang <goenjoy@khadas.com> kbi: update kbi code
+* f5fee78d343 Goenjoy Huang <goenjoy@khadas.com> LOGO: Compatible with TS050 and TS101 [1/2]
+* 678f3957b10 Goenjoy Huang <goenjoy@khadas.com> LCD: Compatible with TS050 and TS101 [1/4]
+* 61aff002cab Haylrn Zhao <haylrn.zhao@wesion.com> Edge2: Add edge2 10inch mipi logo rotate 180 degrees
+* dcac78ed406 Haylrn Zhao <haylrn.zhao@wesion.com> Edge2: Change LED state and add run update
+* abce459a502 Goenjoy Huang <goenjoy@khadas.com> Edge2: add usid run
+* e9f6ac55742 Jack Zhao <jack.zhao@wesion.com> Edge2: add reboot_test mode
+* b847015bbd4 Jack Zhao <jack.zhao@wesion.com> Edge2: kbi: fix usid
+* 741dfda8343 Jack Zhao <jack.zhao@wesion.com> Edge2: fix the startup priority mode error after restart
+* 72f30117985 Goenjoy Huang <goenjoy@khadas.com> Edge2: MCU: modify MCU to i2c2 for edge2-v11 board
+* 8b87413e7f6 Jack Zhao <jack.zhao@wesion.com> Edge2: add preliminary support for kbi cmd
+* 6ecc50be3b4 Jack Zhao <jack.zhao@wesion.com> Edge2: configs: enble CMD_I2C
+* d808dc53305 Jack Zhao <jack.zhao@wesion.com> arm: dts: Edge2: fix SD firmware startup VCC5v failure
+* 9b2caf61854 Goenjoy Huang <goenjoy@khadas.com> Edge2: Enble TYPEC0_PWR_EN pin
+* c88006ec338 Goenjoy Huang <goenjoy@khadas.com> LCD: Fix mipi panel reset pin control[1/2]
+* 7b87560f199 goenjoy <goenjoy@khadas.com> Edge2: set vcc5V
+* 6cea7ea84ad goenjoy <goenjoy@khadas.com> Edge2: Enble CMD_GPIO, CMD_I2C, CMD_RUN config
+* ec8f6c3f1de goenjoy <goenjoy@khadas.com> Edge2: Fix cannot enter uboot command line mode
+* dfabeae4792 Goenjoy Huang <goenjoy@khadas.com> Add Khadas edge2 config (from rk3588_defconfig) and dts (from rk3588-evb.dts)
+
+
+* 4024d9e5d8d Joseph Chen <chenjh@rock-chips.com> spl: fit: Not allow append fdt failed
+```
 
 
 ## khadas edge2 android 
+
+
+
+## redroid
+
+https://github.com/cnflysky/redroid-rk3588
+
+
+## uboot卡死-禁用mipi驱动
+
+```shell
+=== rockchip_show_logo start ===
+  route: crtc_id=2, is_init=0, is_enable=0, conn_type=16
+header load_bmp_logo cmd ext4load mmc 0:9 0x00000000ebd530b0 logo_kernel.bmp 200...
+Failed to mount ext2 filesystem...
+** Unrecognized filesystem type **
+header rockchip_read_resource_file len 512...
+pdst load_bmp_logo cmd ext4load mmc 0:9 0x00000000edf00000 logo_kernel.bmp 5ad8...
+Failed to mount ext2 filesystem...
+** Unrecognized filesystem type **
+pdst rockchip_read_resource_file len 23256...
+  load_bmp_logo ok: 600x600 bpp=16, calling display_logo...
+  >> display_logo: crtc_id=2, is_init=0
+Rockchip UBOOT DRM driver version: v1.0.1
+  >> display_init: crtc_id=2, conn_type=16
+vp0 have layer nr:2[0 2 ], primary plane: 2
+vp1 have layer nr:2[1 3 ], primary plane: 3
+vp2 have layer nr:2[6 8 ], primary plane: 8
+vp3 have layer nr:2[7 9 ], primary plane: 9
+Using display timing dts
+dsi@fde20000:  detailed mode clock 152198 kHz, flags[a]
+    H: 1080 1184 1188 1315
+    V: 1920 1924 1927 1929
+bus_format: 100e
+VOP update mode to: 1080x1920p60, type: MIPI0 for VP2
+VP2 set crtc_clock to 152195KHz
+  >> display_init returned 0, is_init=1
+  >> display_check done, calling display_set_plane...
+VOP VP2 enable Esmart2[600x600->600x600@240x660] fmt[2] addr[0xedf06000]
+  >> display_set_plane returned 0
+  >> calling display_enable...
+  >> display_enable: crtc_id=2, conn_type=16
+  >>   crtc_funcs->prepare...
+  >>   crtc_funcs->prepare done
+  >>   rockchip_connector_pre_enable...
+    >> connector_path_pre_enable: conn=dsi@fde20000, has_funcs=1, has_bridge=0, has_panel=1
+    >>   calling conn->funcs->prepare (dsi@fde20000)...
+    >> dw_mipi_dsi2_connector_prepare: dsi@fde20000
+final DSI-Link bandwidth: 1014633 Kbps x 4
+    >> dw_mipi_dsi2_pre_enable: start
+    >>   calling mipi_dcphy_power_on...
+
+```
+
+
+![](./images/45541366870100.png)
+
+推荐这种方式，禁用mipi驱动
+
+```shell
+
+diff --git a/u-boot/configs/kedge2_defconfig b/u-boot/configs/kedge2_defconfig
+index 34f228d2b..3f62df302 100644
+--- a/u-boot/configs/kedge2_defconfig
++++ b/u-boot/configs/kedge2_defconfig
+@@ -205,10 +205,10 @@ CONFIG_DM_VIDEO=y
+ CONFIG_DISPLAY=y
+ CONFIG_DRM_ROCKCHIP=y
+ CONFIG_DRM_ROCKCHIP_DW_HDMI_QP=y
+-CONFIG_DRM_ROCKCHIP_DW_MIPI_DSI2=y
++# CONFIG_DRM_ROCKCHIP_DW_MIPI_DSI2 is not set
+ CONFIG_DRM_ROCKCHIP_DW_DP=y
+ CONFIG_DRM_ROCKCHIP_ANALOGIX_DP=y
+-CONFIG_DRM_ROCKCHIP_SAMSUNG_MIPI_DCPHY=y
++# CONFIG_DRM_ROCKCHIP_SAMSUNG_MIPI_DCPHY is not set
+ CONFIG_PHY_ROCKCHIP_SAMSUNG_HDPTX_HDMI=y
+ CONFIG_USE_TINY_PRINTF=y
+ CONFIG_LIB_RAND=y
+
+
+```
+
+## kernel5.10 启动卡死
+
+```shell
+[  186.264344][    T7] dwhdmi-rockchip fde80000.hdmi: registered ddc I2C bus driver
+[  186.268249][    T7] dw-hdmi-qp-hdcp dw-hdmi-qp-hdcp.8.auto: dw_hdcp_qp_hdcp_probe success
+[  186.268561][    T7] rockchip-drm display-subsystem: bound fde80000.hdmi (ops dw_hdmi_rockchip_ops)
+[  186.268599][    T7] dw-mipi-dsi2 fde20000.dsi: [drm:dw_mipi_dsi2_bind] *ERROR* Failed to find panel or bridge: -517
+[  186.298479][    T7] rockchip-vop2 fdd90000.vop: [drm:vop2_bind] vp0 assign plane mask: 0x5, primary plane phy id: 2
+[  186.298502][    T7] rockchip-vop2 fdd90000.vop: [drm:vop2_bind] vp1 assign plane mask: 0xa, primary plane phy id: 3
+[  186.298516][    T7] rockchip-vop2 fdd90000.vop: [drm:vop2_bind] vp2 assign plane mask: 0x140, primary plane phy id: 8
+[  186.298530][    T7] rockchip-vop2 fdd90000.vop: [drm:vop2_bind] vp3 assign plane mask: 0x280, primary plane phy id: 9
+[  186.330156][    T7] rockchip-drm display-subsystem: bound fdd90000.vop (ops vop2_component_ops)
+[  186.332328][    T7] dwhdmi-rockchip fde80000.hdmi: registered ddc I2C bus driver
+[  186.336399][    T7] dw-hdmi-qp-hdcp dw-hdmi-qp-hdcp.8.auto: dw_hdcp_qp_hdcp_probe success
+[  186.336715][    T7] rockchip-drm display-subsystem: bound fde80000.hdmi (ops dw_hdmi_rockchip_ops)
+[  186.336753][    T7] dw-mipi-dsi2 fde20000.dsi: [drm:dw_mipi_dsi2_bind] *ERROR* Failed to find panel or bridge: -517
+[  186.367153][    T7] rockchip-vop2 fdd90000.vop: [drm:vop2_bind] vp0 assign plane mask: 0x5, primary plane phy id: 2
+[  186.367179][    T7] rockchip-vop2 fdd90000.vop: [drm:vop2_bind] vp1 assign plane mask: 0xa, primary plane phy id: 3
+[  186.367194][    T7] rockchip-vop2 fdd90000.vop: [drm:vop2_bind] vp2 assign plane mask: 0x140, primary plane phy id: 8
+[  186.367208][    T7] rockchip-vop2 fdd90000.vop: [drm:vop2_bind] vp3 assign plane mask: 0x280, primary plane phy id: 9
+[  186.398897][    T7] rockchip-drm display-subsystem: bound fdd90000.vop (ops vop2_component_ops)
+[  186.401108][    T7] dwhdmi-rockchip fde80000.hdmi: registered ddc I2C bus driver
+[  186.405180][    T7] dw-hdmi-qp-hdcp dw-hdmi-qp-hdcp.8.auto: dw_hdcp_qp_hdcp_probe success
+[  186.405488][    T7] rockchip-drm display-subsystem: bound fde80000.hdmi (ops dw_hdmi_rockchip_ops)
+[  186.405527][    T7] dw-mipi-dsi2 fde20000.dsi: [drm:dw_mipi_dsi2_bind] *ERROR* Failed to find panel or bridge: -517
+[  186.437618][    T7] rockchip-vop2 fdd90000.vop: [drm:vop2_bind] vp0 assign plane mask: 0x5, primary plane phy id: 2
+[  186.437641][    T7] rockchip-vop2 fdd90000.vop: [drm:vop2_bind] vp1 assign plane mask: 0xa, primary plane phy id: 3
+[  186.437655][    T7] rockchip-vop2 fdd90000.vop: [drm:vop2_bind] vp2 assign plane mask: 0x140, primary plane phy id: 8
+[  186.437669][    T7] rockchip-vop2 fdd90000.vop: [drm:vop2_bind] vp3 assign plane mask: 0x280, primary plane phy id: 9
+[  186.466997][    T7] rockchip-drm display-subsystem: bound fdd90000.vop (ops vop2_component_ops)
+[  186.469266][    T7] dwhdmi-rockchip fde80000.hdmi: registered ddc I2C bus driver
+[  186.472966][    T7] dw-hdmi-qp-hdcp dw-hdmi-qp-hdcp.8.auto: dw_hdcp_qp_hdcp_probe success
+[  186.473277][    T7] rockchip-drm display-subsystem: bound fde80000.hdmi (ops dw_hdmi_rockchip_ops)
+[  186.473316][    T7] dw-mipi-dsi2 fde20000.dsi: [drm:dw_mipi_dsi2_bind] *ERROR* Failed to find panel or bridge: -517
+[  186.504363][    T7] rockchip-vop2 fdd90000.vop: [drm:vop2_bind] vp0 assign plane mask: 0x5, primary plane phy id: 2
+[  186.504389][    T7] rockchip-vop2 fdd90000.vop: [drm:vop2_bind] vp1 assign plane mask: 0xa, primary plane phy id: 3
+[  186.504404][    T7] rockchip-vop2 fdd90000.vop: [drm:vop2_bind] vp2 assign plane mask: 0x140, primary plane phy id: 8
+[  186.504418][    T7] rockchip-vop2 fdd90000.vop: [drm:vop2_bind] vp3 assign plane mask: 0x280, primary plane phy id: 9
+[  186.559859][    T7] rockchip-drm display-subsystem: bound fdd90000.vop (ops vop2_component_ops)
+[  186.562039][    T7] dwhdmi-rockchip fde80000.hdmi: registered ddc I2C bus driver
+[  186.565863][    T7] dw-hdmi-qp-hdcp dw-hdmi-qp-hdcp.8.auto: dw_hdcp_qp_hdcp_probe success
+[  186.566183][    T7] rockchip-drm display-subsystem: bound fde80000.hdmi (ops dw_hdmi_rockchip_ops)
+[  186.566222][    T7] dw-mipi-dsi2 fde20000.dsi: [drm:dw_mipi_dsi2_bind] *ERROR* Failed to find panel or bridge: -517
+[  186.596896][    T7] rockchip-vop2 fdd90000.vop: [drm:vop2_bind] vp0 assign plane mask: 0x5, primary plane phy id: 2
+[  186.596920][    T7] rockchip-vop2 fdd90000.vop: [drm:vop2_bind] vp1 assign plane mask: 0xa, primary plane phy id: 3
+[  186.596934][    T7] rockchip-vop2 fdd90000.vop: [drm:vop2_bind] vp2 assign plane mask: 0x140, primary plane phy id: 8
+[  186.596949][    T7] rockchip-vop2 fdd90000.vop: [drm:vop2_bind] vp3 assign plane mask: 0x280, primary plane phy id: 9
+[  186.626545][    T7] rockchip-drm display-subsystem: bound fdd90000.vop (ops vop2_component_ops)
+[  186.629965][    T7] dwhdmi-rockchip fde80000.hdmi: registered ddc I2C bus driver
+[  186.633774][    T7] dw-hdmi-qp-hdcp dw-hdmi-qp-hdcp.8.auto: dw_hdcp_qp_hdcp_probe success
+[  186.634090][    T7] rockchip-drm display-subsystem: bound fde80000.hdmi (ops dw_hdmi_rockchip_ops)
+[  186.634129][    T7] dw-mipi-dsi2 fde20000.dsi: [drm:dw_mipi_dsi2_bind] *ERROR* Failed to find panel or bridge: -517
+```
+
+
+禁用dw-mipi-dsi2验证，确实可以解决问题。部分依赖khadas mipi定义需要微调
+
+```shell
+
+diff --git a/drivers/video/of_display_timing.c b/drivers/video/of_display_timing.c
+index cd9f2f158ce2..b727a36cb0ce 100644
+--- a/drivers/video/of_display_timing.c
++++ b/drivers/video/of_display_timing.c
+@@ -140,7 +140,7 @@ EXPORT_SYMBOL_GPL(of_get_display_timing);
+  * of_get_display_timings - parse all display_timing entries from a device_node
+  * @np: device_node with the subnodes
+  **/
+-extern int khadas_mipi_id;
++int khadas_mipi_id;
+ struct display_timings *of_get_display_timings(const struct device_node *np)
+ {
+        struct device_node *timings_np;
+
+```
+
+
+
 
 

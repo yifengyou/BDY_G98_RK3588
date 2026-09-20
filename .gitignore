@@ -15,3 +15,7 @@ rockchip-linux-u-boot.git
 /recovery/only-spi/recovery-g98_only-spi.img
 /uboot-upstream.git
 /khadas-android14-g98.git
+/edk2-uefi.git
+/khadas-android12-g98.git/
+/khadas-android13-g98.git/
+

@@ -482,7 +482,7 @@ Error reading the chip: -121
 TP05 id=0xffffff87
 Error reading the chip: -121
 TP10 id=0xffffff87
-hlm khadas_mipi_id=0
+hlm khadas_mipi_id=0 // rockchip_panel_ofdata_to_platdata
 new TS050 to parse panel init sequence2
 get vp0 plane mask:0x5, primary id:2, cursor_plane:-1, from dts
 get vp1 plane mask:0xa, primary id:3, cursor_plane:-1, from dts
@@ -512,7 +512,12 @@ final DSI-Link bandwidth: 1014640 Kbps x 4
 ```
 
 
+这里是因为视图显示logo，mipi屏幕显示，但实际上没有对应硬件，就会出现卡死情况。官方适配的时候似乎没有考虑充分。
 
+
+rockchip_show_bmp
+
+// load_bmp_logo
 
 增加补丁
 
@@ -2425,6 +2430,605 @@ PRODUCT_PACKAGES += \
     Magisk
 
 ```
+
+
+
+## uboot引导android流程
+
+```shell
+kedge2# printenv
+DEBUG: cmd_process: argv[0]='printenv', argc=1, flag=0
+arch=arm
+autoload=no
+baudrate=1500000
+board=evb_rk3588
+board_name=evb_rk3588
+boot_a_script=load ${devtype} ${devnum}:${distro_bootpart} ${scriptaddr} ${prefix}${script}; source ${scriptaddr}
+boot_extlinux=sysboot ${devtype} ${devnum}:${distro_bootpart} any ${scriptaddr} ${prefix}extlinux/extlinux.conf
+boot_net_usb_start=usb start
+boot_prefixes=/ /boot/
+boot_script_dhcp=boot.scr.uimg
+boot_scripts=boot.scr.uimg boot.scr
+boot_targets=mmc1 mmc0 mtd2 mtd1 mtd0 usb0 pxe dhcp 
+bootargs=storagemedia=emmc androidboot.storagemedia=emmc androidboot.mode=normal  androidboot.dtb_idx=0 androidboot.dtbo_idx=0
+bootcmd=boot_android ${devtype} ${devnum};boot_fit;bootrkp;run distro_bootcmd;
+bootcmd_dhcp=run boot_net_usb_start; if dhcp ${scriptaddr} ${boot_script_dhcp}; then source ${scriptaddr}; fi;
+bootcmd_mmc0=setenv devnum 0; run mmc_boot
+bootcmd_mmc1=setenv devnum 1; run mmc_boot
+bootcmd_mtd0=setenv devnum 0; run mtd_boot
+bootcmd_mtd1=setenv devnum 1; run mtd_boot
+bootcmd_mtd2=setenv devnum 2; run mtd_boot
+bootcmd_pxe=run boot_net_usb_start; dhcp; if pxe get; then pxe boot; fi
+bootcmd_usb0=setenv devnum 0; run usb_boot
+bootdelay=1
+cpu=armv8
+devnum=0
+devtype=mmc
+distro_bootcmd=for target in ${boot_targets}; do run bootcmd_${target}; done
+eth1addr=2e:6e:87:ee:bc:d8
+ethaddr=06:73:47:fe:f6:84
+fdt_addr_r=0x08300000
+fdtbo_addr_r=0x05000000
+filesize_s=0x107b4a
+kernel_addr_c=0x05480000
+kernel_addr_r=0x00400000
+mmc_boot=if mmc dev ${devnum}; then setenv devtype mmc; run scan_dev_for_boot_part; fi
+mtd_boot=if mtd_blk dev ${devnum}; then setenv devtype mtd; run scan_dev_for_boot_part; fi
+partitions=uuid_disk=${uuid_gpt_disk};name=uboot,start=8MB,size=4MB,uuid=${uuid_gpt_loader2};name=trust,size=4M,uuid=${uuid_gpt_atf};name=misc,size=4MB,uuid=${uuid_gpt_misc};name=resource,size=16MB,uuid=${uuid_gpt_resource};name=kernel,size=32M,uuid=${uuid_gpt_kernel};name=boot,size=32M,bootable,uuid=${uuid_gpt_boot};name=recovery,size=32M,uuid=${uuid_gpt_recovery};name=backup,size=112M,uuid=${uuid_gpt_backup};name=cache,size=512M,uuid=${uuid_gpt_cache};name=system,size=2048M,uuid=${uuid_gpt_system};name=metadata,size=16M,uuid=${uuid_gpt_metadata};name=vendor,size=32M,uuid=${uuid_gpt_vendor};name=oem,size=32M,uuid=${uuid_gpt_oem};name=frp,size=512K,uuid=${uuid_gpt_frp};name=security,size=2M,uuid=${uuid_gpt_security};name=userdata,size=-,uuid=${uuid_gpt_userdata};
+pxefile_addr_r=0x00600000
+ramdisk_addr_r=0x0a200000
+rkimg_bootdev=if mmc dev 1 && rkimgtest mmc 1; then setenv devtype mmc; setenv devnum 1; echo Boot from SDcard;elif mmc dev 0; then setenv devtype mmc; setenv devnum 0;elif mtd_blk dev 0; then setenv devtype mtd; setenv devnum 0;elif mtd_blk dev 1; then setenv devtype mtd; setenv devnum 1;elif mtd_blk dev 2; then setenv devtype mtd; setenv devnum 2;elif rknand dev 0; then setenv devtype rknand; setenv devnum 0;elif rksfc dev 0; then setenv devtype spinand; setenv devnum 0;elif rksfc dev 1; then setenv devtype spinor; setenv devnum 1;else;setenv devtype ramdisk; setenv devnum 0;fi; 
+scan_dev_for_boot=echo Scanning ${devtype} ${devnum}:${distro_bootpart}...; for prefix in ${boot_prefixes}; do run scan_dev_for_extlinux; run scan_dev_for_scripts; done;
+scan_dev_for_boot_part=part list ${devtype} ${devnum} -bootable devplist; env exists devplist || setenv devplist 1; for distro_bootpart in ${devplist}; do if fstype ${devtype} ${devnum}:${distro_bootpart} bootfstype; then run scan_dev_for_boot; fi; done
+scan_dev_for_extlinux=if test -e ${devtype} ${devnum}:${distro_bootpart} ${prefix}extlinux/extlinux.conf; then echo Found ${prefix}extlinux/extlinux.conf; run boot_extlinux; echo SCRIPT FAILED: continuing...; fi
+scan_dev_for_scripts=for script in ${boot_scripts}; do if test -e ${devtype} ${devnum}:${distro_bootpart} ${prefix}${script}; then echo Found U-Boot script ${prefix}${script}; run boot_a_script; echo SCRIPT FAILED: continuing...; fi; done
+scriptaddr=0x00500000
+serial#=7279d3d9550e0311
+soc=rockchip
+stderr=serial,vidconsole
+stdout=serial,vidconsole
+usb_boot=usb start; if usb dev ${devnum}; then setenv devtype usb; run scan_dev_for_boot_part; fi
+vendor=rockchip
+
+Environment size: 4206/32764 bytes
+
+```
+
+U-Boot 默认执行的命令是 bootcmd 环境变量中定义的那一串指令
+
+```shell
+
+bootcmd=boot_android ${devtype} ${devnum};boot_fit;bootrkp;run distro_bootcmd;
+
+boot_android ${devtype} ${devnum};boot_fit;bootrkp;run distro_bootcmd;
+```
+
+其中的变量
+```shell
+
+kedge2# printenv devtype
+DEBUG: cmd_process: argv[0]='printenv', argc=2, flag=0
+devtype=mmc
+kedge2# printenv devnum 
+DEBUG: cmd_process: argv[0]='printenv', argc=2, flag=0
+devnum=0
+kedge2# 
+
+```
+
+所以本质，运行的是
+
+```shell
+kedge2# boot_android mmc 0
+```
+
+
+
+## update镜像制作
+
+```shell
+start to make update.img...
+Android Firmware Package Tool v2.2
+------ PACKAGE ------
+Add file: ./package-file
+package-file,Add file: ./package-file done,offset=0x800,size=0x2b2,userspace=0x1
+Add file: ./Image/MiniLoaderAll.bin
+bootloader,Add file: ./Image/MiniLoaderAll.bin done,offset=0x1000,size=0x761c0,userspace=0xed
+Add file: ./Image/parameter.txt
+parameter,Add file: ./Image/parameter.txt done,offset=0x77800,size=0x2b6,userspace=0x1,flash_address=0x00000000
+Add file: ./Image/uboot.img
+uboot,Add file: ./Image/uboot.img done,offset=0x78000,size=0x400000,userspace=0x800,flash_address=0x00004000
+Add file: ./Image/misc.img
+misc,Add file: ./Image/misc.img done,offset=0x478000,size=0xc000,userspace=0x18,flash_address=0x00008000
+Add file: ./Image/dtbo.img
+dtbo,Add file: ./Image/dtbo.img done,offset=0x484000,size=0x400000,userspace=0x800,flash_address=0x0000a000
+Add file: ./Image/vbmeta.img
+vbmeta,Add file: ./Image/vbmeta.img done,offset=0x884000,size=0x1000,userspace=0x2,flash_address=0x0000c000
+Add file: ./Image/boot.img
+boot,Add file: ./Image/boot.img done,offset=0x885000,size=0x25b9800,userspace=0x4b73,flash_address=0x0000c800
+Add file: ./Image/recovery.img
+recovery,Add file: ./Image/recovery.img done,offset=0x2e3e800,size=0x4973800,userspace=0x92e7,flash_address=0x0002c800
+Add file: ./Image/custom.img
+custom,Add file: ./Image/custom.img done,offset=0x77b2000,size=0x5a40dc,userspace=0xb49,flash_address=0x0005c800
+Add file: ./Image/baseparameter.img
+baseparameter,Add file: ./Image/baseparameter.img done,offset=0x7d56800,size=0x100000,userspace=0x200,flash_address=0x0022ec00
+Add file: ./Image/super.img
+super,Add file: ./Image/super.img done,offset=0x7e56800,size=0x747de5dc,userspace=0xe8fbd,flash_address=0x0022f400
+Add CRC...
+Make firmware OK!
+------ OK ------
+********rkImageMaker ver 2.23********
+Generating new image, please wait...
+Writing head info...
+Writing boot file...
+Writing firmware...
+Generating MD5 data...
+MD5 data generated successfully!
+New image generated successfully!
+Making update.img OK.
+Make update image ok!
+
+
+```
+
+增加调试
+
+```shell
++ mkdir -p RKTools/linux/Linux_Pack_Firmware/rockdev/Image/
++ cp -f rockdev/Image-kedge2/MiniLoaderAll.bin rockdev/Image-kedge2/baseparameter.img rockdev/Image-kedge2/boot-debug.img rockdev/Image-kedge2/boot.img rockdev/Image-kedge2/config.cfg rockdev/Image-kedge2/custom.img rockdev/Image-kedge2/dtbo.img rockdev/Image-kedge2/misc.img rockdev/Image-kedge2/parameter.txt rockdev/Image-kedge2/pcba_small_misc.img rockdev/Image-kedge2/pcba_whole_misc.img rockdev/Image-kedge2/recovery.img rockdev/Image-kedge2/resource.img rockdev/Image-kedge2/super.img rockdev/Image-kedge2/uboot.img rockdev/Image-kedge2/vbmeta.img RKTools/linux/Linux_Pack_Firmware/rockdev/Image/
++ echo 'Make update.img'
+Make update.img
++ [[ kedge2 =~ PX30 ]]
++ [[ kedge2 =~ rk356x_box ]]
++ cd RKTools/linux/Linux_Pack_Firmware/rockdev
++ ./mkupdate.sh rk3588 Image
+packing update.img with Image -RK3588
+regenernate package-file-tmp...
+start to make update.img...
+Android Firmware Package Tool v2.2
+------ PACKAGE ------
+Add file: ./package-file
+package-file,Add file: ./package-file done,offset=0x800,size=0x2b2,userspace=0x1
+Add file: ./Image/MiniLoaderAll.bin
+bootloader,Add file: ./Image/MiniLoaderAll.bin done,offset=0x1000,size=0x761c0,userspace=0xed
+Add file: ./Image/parameter.txt
+parameter,Add file: ./Image/parameter.txt done,offset=0x77800,size=0x2b6,userspace=0x1,flash_address=0x00000000
+Add file: ./Image/uboot.img
+uboot,Add file: ./Image/uboot.img done,offset=0x78000,size=0x400000,userspace=0x800,flash_address=0x00004000
+Add file: ./Image/misc.img
+misc,Add file: ./Image/misc.img done,offset=0x478000,size=0xc000,userspace=0x18,flash_address=0x00008000
+Add file: ./Image/dtbo.img
+dtbo,Add file: ./Image/dtbo.img done,offset=0x484000,size=0x400000,userspace=0x800,flash_address=0x0000a000
+Add file: ./Image/vbmeta.img
+vbmeta,Add file: ./Image/vbmeta.img done,offset=0x884000,size=0x1000,userspace=0x2,flash_address=0x0000c000
+Add file: ./Image/boot.img
+boot,Add file: ./Image/boot.img done,offset=0x885000,size=0x25b9800,userspace=0x4b73,flash_address=0x0000c800
+Add file: ./Image/recovery.img
+recovery,Add file: ./Image/recovery.img done,offset=0x2e3e800,size=0x4973800,userspace=0x92e7,flash_address=0x0002c800
+Add file: ./Image/custom.img
+custom,Add file: ./Image/custom.img done,offset=0x77b2000,size=0x5a40dc,userspace=0xb49,flash_address=0x0005c800
+Add file: ./Image/baseparameter.img
+baseparameter,Add file: ./Image/baseparameter.img done,offset=0x7d56800,size=0x100000,userspace=0x200,flash_address=0x0022ec00
+Add file: ./Image/super.img
+super,Add file: ./Image/super.img done,offset=0x7e56800,size=0x747de5dc,userspace=0xe8fbd,flash_address=0x0022f400
+Add CRC...
+Make firmware OK!
+------ OK ------
+********rkImageMaker ver 2.23********
+Generating new image, please wait...
+Writing head info...
+Writing boot file...
+Writing firmware...
+Generating MD5 data...
+MD5 data generated successfully!
+New image generated successfully!
+Making update.img OK.
++ '[' 0 -eq 0 ']'
++ echo 'Make update image ok!'
+Make update image ok!
++ cd -
+/rockchip/android/khadas-android/android14
++ mv RKTools/linux/Linux_Pack_Firmware/rockdev/update.img rockdev/Image-kedge2/ -f
++ echo rockdev/Image-kedge2
+rockdev/Image-kedge2
++ echo RKTools/linux/Linux_Pack_Firmware
+RKTools/linux/Linux_Pack_Firmware
++ ls rockdev/Image-kedge2
+MiniLoaderAll.bin  baseparameter.img  boot-debug.img  boot.img	config.cfg  custom.img	dtbo.img  misc.img  parameter.txt  pcba_small_misc.img	pcba_whole_misc.img  recovery.img  resource.img  super.img  uboot.img  update.img  vbmeta.img
++ '[' false = true ']'
+root@kdev-ubuntu2204:/rockchip/android/khadas-android/android14#  
+
+
+```
+
+
+
+```text
++ cp -f 
+
+rockdev/Image-kedge2/MiniLoaderAll.bin 
+rockdev/Image-kedge2/baseparameter.img 
+rockdev/Image-kedge2/boot-debug.img 
+rockdev/Image-kedge2/bodge2/parameter.txt 
+rockdev/Image-kedge2/pcba_small_misc.img 
+rockdev/Image-kedge2/pcba_whole_misc.img 
+rockdev/Image-kedge2/recovery.img 
+rockdev/Imware/rockdev/Image/
+
+
+```
+
+
+```text
+# NAME	Relative path
+#
+##HWDEF	HWDEF
+package-file	package-file
+bootloader	Image/MiniLoaderAll.bin
+parameter	Image/parameter.txt
+uboot	Image/uboot.img
+misc	Image/misc.img
+dtbo	Image/dtbo.img
+vbmeta	Image/vbmeta.img
+boot	Image/boot.img
+recovery	Image/recovery.img
+custom	Image/custom.img
+baseparameter	Image/baseparameter.img
+super	Image/super.img
+# 要写入backup分区的文件就是自身(update.img)
+# SELF 是关键字，表示升级文件(update.img)自身
+# 在生成升级文件时，不加入SELF文件的内容，但在头部信息中有记录
+# 在解包升级文件时，不解包SELF文件的内容。
+backup RESERVED
+#update-script update-script
+#recover-script recover-script
+
+```
+
+
+
+## recovery模式和正常模式命令行判断
+
+当进入recovery模式的时候，也有命令行，屏幕显示功能菜单栏
+
+```shell
+console:/ # getprop ro.boot.mode
+normal
+console:/ # 
+```
+
+
+
+
+
+
+## android14 boot镜像制作
+
+```shell
+root@kdev-ubuntu2204:/rockchip/android/khadas-android/android14# find . -name boot.img |xargs -i ls -al {}
+-rw-r--r-- 1 root root 39557120 Sep 14 04:15 ./RKTools/linux/Linux_Pack_Firmware/rockdev/Image/boot.img
+-rw-r--r-- 1 root root 37777408 Sep 14 04:13 ./kernel-6.1/boot.img
+-rw-r--r-- 1 root root 39557120 Sep 14 04:15 ./out/target/product/kedge2/boot.img
+-rw-r--r-- 1 root root 39557120 Sep 14 04:15 ./rockdev/Image-kedge2/boot.img
+root@kdev-ubuntu2204:/rockchip/android/khadas-android/android14# find . -name boot.img |xargs -i md5sum {}
+004b58bf7feef5eb5d934f872a030627  ./RKTools/linux/Linux_Pack_Firmware/rockdev/Image/boot.img
+81ed807e46b6e55ca260b400c2724525  ./kernel-6.1/boot.img
+004b58bf7feef5eb5d934f872a030627  ./out/target/product/kedge2/boot.img
+004b58bf7feef5eb5d934f872a030627  ./rockdev/Image-kedge2/boot.img
+
+```
+
+```shell
+#!/bin/bash
+
+set -xe
+
+make CROSS_COMPILE=aarch64-linux-gnu- LLVM=1 LLVM_IAS=1 ARCH=arm64 kedge2_defconfig
+make CROSS_COMPILE=aarch64-linux-gnu- LLVM=1 LLVM_IAS=1 ARCH=arm64 dtbs
+make CROSS_COMPILE=aarch64-linux-gnu- LLVM=1 LLVM_IAS=1 ARCH=arm64 rk3588-bdy-g98.img -j`nproc`
+```
+
+内核构建后并非最终boot.img
+
+
+```shell
+root@kdev-ubuntu2204:/rockchip/android/khadas-android/android14# md5sum out/target/product/kedge2/kernel 
+942a5e8168403807434876cf92b0e08e  out/target/product/kedge2/kernel
+root@kdev-ubuntu2204:/rockchip/android/khadas-android/android14# md5sum kernel-6.1/arch/arm64/boot/Image
+942a5e8168403807434876cf92b0e08e  kernel-6.1/arch/arm64/boot/Image
+```
+
+
+
+```shell
+#!/bin/bash
+
+# ================= 配置变量 =================
+# 定义输出目录和产品名称
+PRODUCT_OUT="out/target/product/kedge2"
+OUTPUT_IMG="${PRODUCT_OUT}/boot.img"
+
+# 定义输入文件路径
+KERNEL="${PRODUCT_OUT}/kernel"
+RAMDISK="${PRODUCT_OUT}/ramdisk.img"
+DTB="${PRODUCT_OUT}/dtb.img"
+SECOND_STAGE="kernel-6.1/resource.img"
+
+# 定义内核启动参数
+CMDLINE="console=ttyFIQ0 firmware_class.path=/vendor/etc/firmware init=/init rootwait ro loop.max_part=7 printk.devkmsg=on kvm-arm.mode=none androidboot.console=ttyFIQ0 androidboot.wificountrycode=CN androidboot.hardware=rk30board androidboot.boot_devices=fe2e0000.mmc androidboot.selinux=permissive"
+
+# 定义大小限制 (64MB = 67108864 Bytes)
+MAX_SIZE=67108864
+
+# ================= 执行打包 =================
+echo ">>> 正在生成 boot.img ..."
+out/host/linux-x86/bin/mkbootimg \
+    --kernel "${KERNEL}" \
+    --ramdisk "${RAMDISK}" \
+    --dtb "${DTB}" \
+    --cmdline "${CMDLINE}" \
+    --os_version 14 \
+    --os_patch_level 2024-02-05 \
+    --second "${SECOND_STAGE}" \
+    --header_version 2 \
+    --output "${OUTPUT_IMG}"
+
+# 检查 mkbootimg 是否执行成功
+if [ $? -ne 0 ]; then
+    echo "error: mkbootimg 执行失败！"
+    exit 1
+fi
+
+# ================= 大小检查 =================
+echo ">>> 正在检查 boot.img 大小..."
+FILE_SIZE=$(stat -c "%s" "${OUTPUT_IMG}")
+PRINT_NAME=$(echo -n "${OUTPUT_IMG}" | tr " " +)
+
+if [ "${FILE_SIZE}" -gt "${MAX_SIZE}" ]; then
+    echo "error: ${PRINT_NAME} 太大 (${FILE_SIZE} > ${MAX_SIZE})"
+    exit 1
+elif [ "${FILE_SIZE}" -gt $((MAX_SIZE - 32768)) ]; then
+    echo "WARNING: ${PRINT_NAME} 接近大小限制 (当前: ${FILE_SIZE}; 限制: ${MAX_SIZE})"
+else
+    echo ">>> 检查通过: 文件大小为 ${FILE_SIZE} 字节。"
+fi
+```
+
+
+## 添加yt921x支持
+
+![](./images/31068117774100.png)
+
+![](./images/31071222260300.png)
+
+
+
+
+## r8125 firmware缺失
+
+```shell
+console:/ # dmesg |grep -i firmware                                            
+[    2.244317] psci: PSCIv1.1 detected in firmware.
+[    2.247273] Kernel command line: storagemedia=emmc androidboot.storagemedia=emmc androidboot.mode=normal  androidboot.dtb_idx=0 androidboot.dtbo_idx=0  androidboot.verifiedbootstate=orange androidboot.serialno=00000000000000 khadas_mipi_id=0 is_mipi_lcd_exit=0 console=ttyFIQ0 firmware_class.path=/vendor/etc/firmware init=/init rootwait ro loop.max_part=7 printk.devkmsg=on kvm-arm.mode=none androidboot.console=ttyFIQ0 androidboot.wificountrycode=CN androidboot.hardware=rk30board androidboot.boot_devices=fe2e0000.mmc androidboot.selinux=permissive androidboot.fwver=ddr-v1.17-3488111f83,spl-v1.13,bl31-v1.48,bl32-v1.16,uboot-09/14/2026
+[    2.644013] arm-scmi firmware:scmi: Enabled polling mode TX channel - prot_id:16
+[    2.644052] arm-scmi firmware:scmi: SCMI Notifications - Core Enabled.
+[    2.644077] arm-scmi firmware:scmi: SCMI Protocol v2.0 'rockchip:' Firmware version 0x0
+[    3.145309] arm-scmi firmware:scmi: Failed. SCMI protocol 17 not active.
+[    3.339405] platform regulatory.0: Direct firmware load for regulatory.db failed with error -2
+[    3.552926] init: Using Android DT directory /proc/device-tree/firmware/android/
+[    4.184128] init: Using Android DT directory /proc/device-tree/firmware/android/
+[    6.006952] mali fb000000.gpu: Loading Mali firmware 0x1010000
+[    6.007872] mali fb000000.gpu: Mali firmware git_sha: 221d2b3e5f4cf47df6227ccb24c82c4e4baa986e 
+[    7.738678] init: processing action (firmware_mounts_complete) from (/system/etc/init/hw/init.rc:528)
+[   14.345944] r8169 0003:31:00.0: Direct firmware load for rtl_nic/rtl8125b-2.fw failed with error -2
+[   14.345960] r8169 0003:31:00.0: Unable to load firmware rtl_nic/rtl8125b-2.fw (-2)
+[   15.515080] r8169 0002:21:00.0: Direct firmware load for rtl_nic/rtl8125b-2.fw failed with error -2
+[   15.515092] r8169 0002:21:00.0: Unable to load firmware rtl_nic/rtl8125b-2.fw (-2)
+console:/ # ls /vendor/etc/firmware/ |grep rtl                                 
+1|console:/ # 
+
+
+```
+
+
+最佳选择：builtin到内核中
+
+```text
+
+CONFIG_EXTRA_FIRMWARE_DIR="firmware"
+CONFIG_EXTRA_FIRMWARE="rtl_nic/rtl8125b-2.fw"
+```
+
+在内核目录树下构建即可。实测可行。
+
+```shell
+++ nproc
++ make CROSS_COMPILE=aarch64-linux-gnu- LLVM=1 LLVM_IAS=1 ARCH=arm64 rk3588-bdy-g98.img -j32
+  CALL    scripts/atomic/check-atomics.sh
+  CALL    scripts/checksyscalls.sh
+  CHK     include/generated/compile.h
+  UPD     drivers/base/firmware_loader/builtin/rtl_nic/rtl8125b-2.fw.gen.S
+  AS      drivers/base/firmware_loader/builtin/rtl_nic/rtl8125b-2.fw.gen.o
+  CC      drivers/net/ethernet/realtek/r8169_main.o
+  CC      drivers/net/phy/realtek.o
+  CC      drivers/net/ethernet/realtek/r8169_firmware.o
+  AR      drivers/base/firmware_loader/builtin/built-in.a
+  AR      drivers/base/firmware_loader/built-in.a
+  CC      drivers/net/ethernet/realtek/r8169_phy_config.o
+  AR      drivers/base/built-in.a
+  UPD     kernel/config_data
+  CHK     kernel/kheaders_data.tar.xz
+  GZIP    kernel/config_data.gz
+  CC      kernel/configs.o
+  GEN     kernel/kheaders_data.tar.xz
+  AR      drivers/net/phy/built-in.a
+  AR      kernel/built-in.a
+  AR      drivers/net/ethernet/realtek/built-in.a
+  AR      drivers/net/ethernet/built-in.a
+  AR      drivers/net/built-in.a
+  AR      drivers/built-in.a
+  CC [M]  kernel/kheaders.o
+  GEN     .version
+  CHK     include/generated/compile.h
+  UPD     include/generated/compile.h
+  CC      init/version.o
+  AR      init/built-in.a
+  LD      vmlinux.o
+  MODPOST vmlinux.symvers
+  MODINFO modules.builtin.modinfo
+  GEN     modules.builtin
+
+```
+
+
+## uboot告警错误处理
+
+```shell
+Setting bus to 2
+Error reading the chip: -121
+Error reading the chip: -121
+Error reading the chip: -121
+Error reading the chip: -121
+Error reading the chip: -121
+Error reading the chip: -121
+Error reading the chip: -121
+```
+
+
+移除kbi相关init动作，仅用于camera
+
+
+## usb 报错处理
+
+```shell
+[   13.337998][  T668] UDC core: g1: couldn't find an available UDC or it's busy
+[   13.338213][  T668] UDC core: g1: couldn't find an available UDC or it's busy
+[   13.338387][  T668] UDC core: g1: couldn't find an available UDC or it's busy
+[   13.338550][  T668] UDC core: g1: couldn't find an available UDC or it's busy
+```
+
+
+dr_mode未配置otg导致
+
+```shell
+   3 
+   2 // usbdrd_dwc3_0: usb@fc000000 (host-only on this board)
+   1 &usbdrd_dwc3_0 {
+688  |---dr_mode = "host";
+   1 |---status = "okay";
+   2 };
+   3 
+   4 // usb_host0_ehci: usb@fc800000
+   5 &usb_host0_ehci {
+   6 |---status = "okay";
+   7 };
+   8 
+   9 // usb_host0_ohci: usb@fc840000
+  10 &usb_host0_ohci {
+  11 |---status = "okay";
+  12 };
+  13 
+  14 // u2phy3: usb2phy@c000
+  15 &u2phy3 {
+  16 |---status = "okay";
+  17 };
+  18 
+  19 &u2phy3_host {
+  20 |---phy-supply = <&vcc5v0_host_regulator>;
+  21 |---status = "okay";
+  22 };
+  23 
+  24 // usbdrd3_1: usb3 wrapper @fcb40000 (disabled in dtsi; child enable alone is dead)
+  25 &usbdrd3_1 {
+  26 |---status = "okay"; 
+  27 };
+  28 
+  29 // usbdrd_dwc3_1: usb@fc400000 (host-only on this board)
+  30 &usbdrd_dwc3_1 {
+  31 |---dr_mode = "host";
+  32 |---status = "okay";
+  33 };
+
+```
+
+```shell
+console:/ # cat /sys/kernel/debug/usb/fc000000.usb/mode
+host
+console:/ # cat /sys/kernel/debug/usb/fc400000.usb/mode
+host
+console:/ #
+
+```
+
+
+## yt921x适配
+
+
+* <https://github.com/ophub/linux-6.1.y-rockchip> 
+
+```shell
+
+console:/ # ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: dummy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/ether 0e:9f:c4:8c:c8:a0 brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::c9f:c4ff:fe8c:c8a0/64 scope link 
+       valid_lft forever preferred_lft forever
+3: ifb0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN group default qlen 32
+    link/ether 7a:96:f6:45:9c:a8 brd ff:ff:ff:ff:ff:ff
+4: ifb1: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN group default qlen 32
+    link/ether 06:e4:04:e7:e3:20 brd ff:ff:ff:ff:ff:ff
+5: eth0: <BROADCAST,MULTICAST> mtu 1508 qdisc noop state DOWN group default qlen 1000
+    link/ether 2e:6e:87:ee:bc:d8 brd ff:ff:ff:ff:ff:ff
+6: eth1: <BROADCAST,MULTICAST> mtu 1508 qdisc noop state DOWN group default qlen 1000
+    link/ether 06:73:47:fe:f6:84 brd ff:ff:ff:ff:ff:ff
+7: eth2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+    link/ether 1a:2d:5e:e1:d4:63 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.33.39/24 brd 192.168.33.255 scope global eth2
+       valid_lft forever preferred_lft forever
+    inet6 fe80::56a2:cdf9:777d:999a/64 scope link stable-privacy 
+       valid_lft forever preferred_lft forever
+8: eth3: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast state DOWN group default qlen 1000
+    link/ether 0e:88:3c:0e:2e:96 brd ff:ff:ff:ff:ff:ff
+9: ip_vti0@NONE: <NOARP> mtu 1480 qdisc noop state DOWN group default qlen 1000
+    link/ipip 0.0.0.0 brd 0.0.0.0
+10: ip6_vti0@NONE: <NOARP> mtu 1364 qdisc noop state DOWN group default qlen 1000
+    link/tunnel6 :: brd ::
+11: sit0@NONE: <NOARP> mtu 1480 qdisc noop state DOWN group default qlen 1000
+    link/sit 0.0.0.0 brd 0.0.0.0
+12: ip6tnl0@NONE: <NOARP> mtu 1452 qdisc noop state DOWN group default qlen 1000
+    link/tunnel6 :: brd ::
+13: lan1@eth0: <BROADCAST,MULTICAST,M-DOWN> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 02:11:22:33:44:01 brd ff:ff:ff:ff:ff:ff
+14: lan2@eth0: <BROADCAST,MULTICAST,M-DOWN> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 02:11:22:33:44:02 brd ff:ff:ff:ff:ff:ff
+15: lan3@eth0: <BROADCAST,MULTICAST,M-DOWN> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 02:11:22:33:44:03 brd ff:ff:ff:ff:ff:ff
+16: lan4@eth0: <BROADCAST,MULTICAST,M-DOWN> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 02:11:22:33:44:04 brd ff:ff:ff:ff:ff:ff
+17: lan5@eth1: <BROADCAST,MULTICAST,M-DOWN> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 02:11:22:33:44:05 brd ff:ff:ff:ff:ff:ff
+18: lan6@eth1: <BROADCAST,MULTICAST,M-DOWN> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 02:11:22:33:44:06 brd ff:ff:ff:ff:ff:ff
+19: lan7@eth1: <BROADCAST,MULTICAST,M-DOWN> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 02:11:22:33:44:07 brd ff:ff:ff:ff:ff:ff
+20: lan8@eth1: <BROADCAST,MULTICAST,M-DOWN> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 02:11:22:33:44:08 brd ff:ff:ff:ff:ff:ff
+console:/ # uname -a
+Linux localhost 6.1.57 #39 SMP PREEMPT Mon Sep 14 23:58:08 CST 2026 aarch64 Toybox
+console:/ # 
+
+```
+
+
+
+
+
 
 
 
