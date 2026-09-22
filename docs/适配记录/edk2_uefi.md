@@ -769,8 +769,7 @@ TianoCore 提-艾-诺-科尔
 
 ```shell
 TIMESTAMP=$(date +%Y%m%d)
-CUSTOM_FIRMWARE_VER="v1.1-22_yifengyou-${TIMESTAMP}"
-
+CUSTOM_FIRMWARE_VER="v1.1-28_yifengyou-${TIMESTAMP}"
 
 export EDK2_SECUREBOOT_FLAGS=" \
   -D DEFAULT_KEYS=TRUE \
@@ -788,6 +787,157 @@ export EDK2_BUILD_FLAGS=" \
 ./build.sh --device bdy-g98 --release Release --edk2-flags "${EDK2_BUILD_FLAGS}"
 
 ```
+
+```shell
+
+workspace/Build/BDY-G98/DEBUG_GCC/BuildOptions:1:gCommandLineDefines: {'FIRMWARE_VER': 'v1.1-28-g57bf372e', 'NETWORK_ALLOW_HTTP_CONNECTIONS': 'TRUE', 'NETWORK_ISCSI_ENABLE': 'TRUE', 'INCLUDE_TFTP_COMMAND': 'TRUE', 'DEFAULT_KEYS': 'TRUE', 'PK_DEFAULT_FILE': 'keys/pk.cer', 'KEK_DEFAULT_FILE1': 'keys/ms_kek.cer', 'DB_DEFAULT_FILE1': 'keys/ms_db1.cer', 'DB_DEFAULT_FILE2': 'keys/ms_db2.cer', 'DBX_DEFAULT_FILE1': 'keys/arm64_dbx.bin', 'SECURE_BOOT_ENABLE': 'TRUE', 'ARCH': 'AARCH64'}
+grep: workspace/Build/BDY-G98/DEBUG_GCC/GlobalVar_a1b2c3d4-e5f6-7890-abcd-ef1234567890_AARCH64.bin: binary file matches
+
+```
+
+
+## uefi 2.5G r8125驱动
+
+
+NETWORK_ENABLE=TRUE来启用RtkUndiDxe.efi
+
+RtkUndiDxe.efi中包含了8125/8126/8127/8168/8169
+
+
+
+
+```shell
+On branch bdy-g98
+Your branch is up to date with 'origin/bdy-g98'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+  (commit or discard the untracked or modified content in submodules)
+	modified:   edk2 (modified content, untracked content)
+	modified:   edk2-rockchip/Platform/BDY/BDY-G98/BDY-G98.Modules.fdf.inc
+	modified:   edk2-rockchip/Platform/BDY/BDY-G98/BDY-G98.dsc
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	edk2-rockchip/Platform/BDY/Drivers/RealtekLan/
+
+no changes added to commit (use "git add" and/or "git commit -a")
+[root@7945HX /rockchip/BDY_G98_RK3588.git/edk2-uefi.git]# git diff
+diff --git a/edk2 b/edk2
+--- a/edk2
++++ b/edk2
+@@ -1 +1 @@
+-Subproject commit 46548b1adac82211d8d11da12dd914f41e7aa775
++Subproject commit 46548b1adac82211d8d11da12dd914f41e7aa775-dirty
+diff --git a/edk2-rockchip/Platform/BDY/BDY-G98/BDY-G98.Modules.fdf.inc b/edk2-rockchip/Platform/BDY/BDY-G98/BDY-G98.Modules.fdf.inc
+index 93c57c91..cf1252bb 100644
+--- a/edk2-rockchip/Platform/BDY/BDY-G98/BDY-G98.Modules.fdf.inc
++++ b/edk2-rockchip/Platform/BDY/BDY-G98/BDY-G98.Modules.fdf.inc
+@@ -14,3 +14,7 @@
+ 
+   # Splash screen logo
+   INF $(VENDOR_DIRECTORY)/Drivers/LogoDxe/LogoDxe.inf
++^M
++  # RTL8125 2.5G Ethernet^M
++  INF $(VENDOR_DIRECTORY)/Drivers/RealtekLan/RealtekLanDxe.inf^M
++
+diff --git a/edk2-rockchip/Platform/BDY/BDY-G98/BDY-G98.dsc b/edk2-rockchip/Platform/BDY/BDY-G98/BDY-G98.dsc
+index 5165c480..a80eee6d 100644
+--- a/edk2-rockchip/Platform/BDY/BDY-G98/BDY-G98.dsc
++++ b/edk2-rockchip/Platform/BDY/BDY-G98/BDY-G98.dsc
+@@ -136,3 +136,6 @@
+   # Splash screen logo
+   $(VENDOR_DIRECTORY)/Drivers/LogoDxe/LogoDxe.inf
+ 
++  # RTL8125 2.5G Ethernet^M
++  $(VENDOR_DIRECTORY)/Drivers/RealtekLan/RealtekLanDxe.inf
+
+
+```
+
+
+
+```shell
+
+/edk2-uefi.git/edk2-non-osi/Drivers/Realtek
+/edk2-uefi.git/edk2-non-osi/Drivers/Realtek/License.txt
+/edk2-uefi.git/edk2-non-osi/Drivers/Realtek/Bus
+/edk2-uefi.git/edk2-non-osi/Drivers/Realtek/Bus/Pcie
+/edk2-uefi.git/edk2-non-osi/Drivers/Realtek/Bus/Pcie/PcieNetworking
+/edk2-uefi.git/edk2-non-osi/Drivers/Realtek/Bus/Pcie/PcieNetworking/License.txt
+/edk2-uefi.git/edk2-non-osi/Drivers/Realtek/Bus/Pcie/PcieNetworking/RtkUndiDxe.inf
+/edk2-uefi.git/edk2-non-osi/Drivers/Realtek/Bus/Pcie/PcieNetworking/AArch64
+/edk2-uefi.git/edk2-non-osi/Drivers/Realtek/Bus/Pcie/PcieNetworking/AArch64/RtkUndiDxe.efi
+/edk2-uefi.git/edk2-non-osi/Drivers/Realtek/Bus/Usb
+/edk2-uefi.git/edk2-non-osi/Drivers/Realtek/Bus/Usb/UsbNetworking
+/edk2-uefi.git/edk2-non-osi/Drivers/Realtek/Bus/Usb/UsbNetworking/RtkUsbUndiDxe.inf
+/edk2-uefi.git/edk2-non-osi/Drivers/Realtek/Bus/Usb/UsbNetworking/AArch64
+/edk2-uefi.git/edk2-non-osi/Drivers/Realtek/Bus/Usb/UsbNetworking/AArch64/RtkUsbUndiDxe.efi
+
+
+```
+
+根据日志，已经集成了efi文件
+
+```shell
+
+edk2-uefi.git/workspace]# rg RtkUndiDxe
+Build/BDY-G98/DEBUG_GCC/FV/Guid.xref
+97:22DE1691-D65D-456A-993E-A253DD1F308C RtkUndiDxe
+
+Build/BDY-G98/DEBUG_GCC/FV/FVMAIN.inf
+123:EFI_FILE_NAME = /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace/Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308C.ffs
+
+Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308C.ffs.txt
+1:GenFfs -t EFI_FV_FILETYPE_DRIVER -g 22DE1691-D65D-456A-993E-A253DD1F308C -o /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace/Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308C.ffs -i /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace/Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308CSEC2.1.pe32 -i /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace/Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308CSEC3.ui -i /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace/Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308CSEC4.ver
+
+Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308CSEC4.ver.txt
+1:GenSec -s EFI_SECTION_VERSION -n 1.0 -o /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace/Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308CSEC4.ver
+
+Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308CSEC2.1.pe32.txt
+1:GenSec -s EFI_SECTION_PE32 -o /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace/Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308CSEC2.1.pe32 /edk2-uefi.git/edk2-non-osi/Drivers/Realtek/Bus/Pcie/PcieNetworking/AArch64/RtkUndiDxe.efi
+[root@7945HX /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace]# rg RtkUndiDxe
+Build/BDY-G98/DEBUG_GCC/FV/FVMAIN.inf
+123:EFI_FILE_NAME = /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace/Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308C.ffs
+
+Build/BDY-G98/DEBUG_GCC/FV/Guid.xref
+97:22DE1691-D65D-456A-993E-A253DD1F308C RtkUndiDxe
+
+Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308CSEC2.1.pe32.txt
+1:GenSec -s EFI_SECTION_PE32 -o /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace/Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308CSEC2.1.pe32 /edk2-uefi.git/edk2-non-osi/Drivers/Realtek/Bus/Pcie/PcieNetworking/AArch64/RtkUndiDxe.efi
+
+Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308C.ffs.txt
+1:GenFfs -t EFI_FV_FILETYPE_DRIVER -g 22DE1691-D65D-456A-993E-A253DD1F308C -o /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace/Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308C.ffs -i /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace/Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308CSEC2.1.pe32 -i /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace/Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308CSEC3.ui -i /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace/Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308CSEC4.ver
+
+Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308CSEC4.ver.txt
+1:GenSec -s EFI_SECTION_VERSION -n 1.0 -o /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace/Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308CSEC4.ver
+[root@7945HX /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace]# rg RtkUndiDxe
+Build/BDY-G98/DEBUG_GCC/FV/Guid.xref
+97:22DE1691-D65D-456A-993E-A253DD1F308C RtkUndiDxe
+
+Build/BDY-G98/DEBUG_GCC/FV/FVMAIN.inf
+123:EFI_FILE_NAME = /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace/Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308C.ffs
+
+Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308C.ffs.txt
+1:GenFfs -t EFI_FV_FILETYPE_DRIVER -g 22DE1691-D65D-456A-993E-A253DD1F308C -o /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace/Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308C.ffs -i /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace/Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308CSEC2.1.pe32 -i /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace/Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308CSEC3.ui -i /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace/Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308CSEC4.ver
+
+Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308CSEC4.ver.txt
+1:GenSec -s EFI_SECTION_VERSION -n 1.0 -o /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace/Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308CSEC4.ver
+
+Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308CSEC2.1.pe32.txt
+1:GenSec -s EFI_SECTION_PE32 -o /rockchip/BDY_G98_RK3588.git/edk2-uefi.git/workspace/Build/BDY-G98/DEBUG_GCC/FV/Ffs/22DE1691-D65D-456A-993E-A253DD1F308CRtkUndiDxe/22DE1691-D65D-456A-993E-A253DD1F308CSEC2.1.pe32 /edk2-uefi.git/edk2-non-osi/Drivers/Realtek/Bus/Pcie/PcieNetworking/AArch64/RtkUndiDxe.efi
+
+```
+
+
+
+
+
+
+
+
+
 
 
 
