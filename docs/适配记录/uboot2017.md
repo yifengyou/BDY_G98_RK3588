@@ -1156,7 +1156,7 @@ root@iStoreOS:~#
 ```shell
 U-Boot next-dev-ga7159c6b5c-250929-dirty #root (Aug 08 2026 - 11:15:44 +0800)
 
-Model: BYD G98 Compiled By yifengyou
+Model: BDY G98 Compiled By yifengyou
 MPIDR: 0x0
 PreSerial: 2, raw, 0xfeb50000
 DRAM:  16 GiB

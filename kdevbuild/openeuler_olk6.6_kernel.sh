@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ========================================================================
-# BYD G98 (RK3588) Linux Kernel & U-Boot 自动化构建脚本
+# BDY G98 (RK3588) Linux Kernel & U-Boot 自动化构建脚本
 # 功能：编译 U-Boot、Linux OLK-6.6 内核、模块、头文件及 kernel-devel 包
 # ========================================================================
 
@@ -56,8 +56,8 @@ mkdir -p "${WORKDIR}/release"
 echo ">>> [2/7] 下载并部署 U-Boot..."
 cd ${WORKDIR}/
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588-uboot/releases/download/bdy-g98-uboot/BYD_G98_UBOOT.zip
-unzip BYD_G98_UBOOT.zip
+wget -c https://github.com/yifengyou/BDY_G98_RK3588-uboot/releases/download/bdy-g98-uboot/BDY_G98_UBOOT.zip
+unzip BDY_G98_UBOOT.zip
 mv RKDevTool_Release_v3.37/uboot.img ${WORKDIR}/release/uboot.img
 
 ls -alh ${WORKDIR}/release/uboot.img
@@ -93,7 +93,7 @@ fi
 #==========================================================================#
 echo ">>> [4/7] 配置内核..."
 
-# 加载 BYD G98 专用 defconfig
+# 加载 BDY G98 专用 defconfig
 make ARCH=arm64 \
   CROSS_COMPILE=aarch64-linux-gnu- \
   KBUILD_BUILD_USER="builder" \

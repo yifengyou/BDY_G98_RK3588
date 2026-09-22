@@ -43,8 +43,8 @@ mkdir -p ${WORKDIR}/release
 #==========================================================================#
 cd ${WORKDIR}/
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588-uboot/releases/download/bdy-g98-uboot/BYD_G98_UBOOT.zip
-unzip BYD_G98_UBOOT.zip
+wget -c https://github.com/yifengyou/BDY_G98_RK3588-uboot/releases/download/bdy-g98-uboot/BDY_G98_UBOOT.zip
+unzip BDY_G98_UBOOT.zip
 mv RKDevTool_Release_v3.37/uboot.img ${WORKDIR}/release/uboot.img
 
 ls -alh ${WORKDIR}/release/uboot.img

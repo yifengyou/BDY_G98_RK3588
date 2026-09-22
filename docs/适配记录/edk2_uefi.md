@@ -763,11 +763,82 @@ TianoCore 提-艾-诺-科尔
 
 
 
+## 如何修改版本号
+
+添加CUSTOM_FIRMWARE_VER变量定义即可
+
+```shell
+TIMESTAMP=$(date +%Y%m%d)
+CUSTOM_FIRMWARE_VER="v1.1-22_yifengyou-${TIMESTAMP}"
+
+
+export EDK2_SECUREBOOT_FLAGS=" \
+  -D DEFAULT_KEYS=TRUE \
+  -D PK_DEFAULT_FILE=keys/pk.cer \
+  -D KEK_DEFAULT_FILE1=keys/ms_kek.cer \
+  -D DB_DEFAULT_FILE1=keys/ms_db1.cer \
+  -D DB_DEFAULT_FILE2=keys/ms_db2.cer \
+  -D DBX_DEFAULT_FILE1=keys/arm64_dbx.bin \
+  -D SECURE_BOOT_ENABLE=TRUE"
+
+export EDK2_BUILD_FLAGS=" \
+  ${EDK2_SECUREBOOT_FLAGS} \
+  -D FIRMWARE_VER=${CUSTOM_FIRMWARE_VER}"
+
+./build.sh --device bdy-g98 --release Release --edk2-flags "${EDK2_BUILD_FLAGS}"
+
+```
 
 
 
 
 
+---
+
+
+## 测试情况
+
+## BDY-G98_UEFI_Release_v2.img
+
+HDMI 正常，基于radxa修改，显示radxa logo
+
+![](./images/375992179900.png)
+
+![](./images/387861117600.png)
+
+![](./images/400654270400.png)
+
+![](./images/411630023600.png)
+
+![](./images/426071922300.png)
+
+![](./images/446629084900.png)
+
+![](./images/470159243600.png)
+
+![](./images/483714349200.png)
+
+![](./images/1309145937000.png)
+
+![](./images/1441909925400.png)
+
+![](./images/2530266865500.png)
+
+![](./images/2878934242100.png)
+
+![](./images/2906425989800.png)
+
+
+
+
+## RK3588_PHOENIX_UEFI_NOR_FLASH.img
+
+
+HDMI不显示
+
+## RK3588_NOR_FLASH.img
+
+HDMI不显示
 
 
 

@@ -1647,7 +1647,7 @@ INFO:    SPSR = 0x3c9
 
 U-Boot next-dev-gc09af4f875-250929-dirty #root (Aug 29 2026 - 01:13:35 +0800)
 
-Model: BYD G98 Compiled By yifengyou
+Model: BDY G98 Compiled By yifengyou
 MPIDR: 0x0
 PreSerial: 2, raw, 0xfeb50000
 DRAM:  16 GiB
@@ -1669,7 +1669,7 @@ boot mode: None
 Failed to load DTB, ret=-2
 No valid DTB, ret=-22
 Failed to get kernel dtb, ret=-22
-Model: BYD G98 Compiled By yifengyou
+Model: BDY G98 Compiled By yifengyou
 rockchip_set_ethaddr: vendor_storage_write failed -5
 rockchip_set_serialno: could not find efuse/otp device
 Minidump: init...
@@ -3533,7 +3533,7 @@ INFO:    SPSR = 0x3c9
 
 U-Boot next-dev-gc09af4f875-250929-dirty #root (Aug 29 2026 - 01:13:35 +0800)
 
-Model: BYD G98 Compiled By yifengyou
+Model: BDY G98 Compiled By yifengyou
 MPIDR: 0x0
 PreSerial: 2, raw, 0xfeb50000
 DRAM:  16 GiB
@@ -3555,7 +3555,7 @@ boot mode: None
 Failed to load DTB, ret=-2
 No valid DTB, ret=-22
 Failed to get kernel dtb, ret=-22
-Model: BYD G98 Compiled By yifengyou
+Model: BDY G98 Compiled By yifengyou
 rockchip_set_ethaddr: vendor_storage_write failed -5
 rockchip_set_serialno: could not find efuse/otp device
 Minidump: init...
@@ -5409,7 +5409,7 @@ INFO:    SPSR = 0x3c9
 
 U-Boot next-dev-gc09af4f875-250929-dirty #root (Aug 29 2026 - 01:13:35 +0800)
 
-Model: BYD G98 Compiled By yifengyou
+Model: BDY G98 Compiled By yifengyou
 MPIDR: 0x0
 PreSerial: 2, raw, 0xfeb50000
 DRAM:  16 GiB
@@ -5431,7 +5431,7 @@ boot mode: None
 Failed to load DTB, ret=-2
 No valid DTB, ret=-22
 Failed to get kernel dtb, ret=-22
-Model: BYD G98 Compiled By yifengyou
+Model: BDY G98 Compiled By yifengyou
 rockchip_set_ethaddr: vendor_storage_write failed -5
 rockchip_set_serialno: could not find efuse/otp device
 Minidump: init...

@@ -295,7 +295,7 @@ INFO:    SPSR = 0x3c9
 
 U-Boot next-dev (Sep 01 2026 - 12:35:24 +0800)
 
-Model: BYD G98 Compiled By yifengyou v20260901
+Model: BDY G98 Compiled By yifengyou v20260901
 MPIDR: 0x0
 PreSerial: 2, raw, 0xfeb50000
 DRAM:  16 GiB
@@ -317,7 +317,7 @@ boot mode: None
 Failed to load DTB, ret=-2
 No valid DTB, ret=-22
 Failed to get kernel dtb, ret=-22
-Model: BYD G98 Compiled By yifengyou v20260901
+Model: BDY G98 Compiled By yifengyou v20260901
 rockchip_set_ethaddr: vendor_storage_write failed -5
 rockchip_set_serialno: could not find efuse/otp device
 Minidump: init...
