@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+    paths:
+      - '.github/workflows/recovery_uboot2017.yml'
   repository_dispatch:
   workflow_dispatch:
 

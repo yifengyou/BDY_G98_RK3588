@@ -108,10 +108,10 @@ wget -c https://github.com/yifengyou/BDY_G98_RK3588-linux-stable/releases/downlo
 ls -alh rk3588-bdy-g98.dtb
 md5sum rk3588-bdy-g98.dtb
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588-linux-stable/releases/download/linux_stable_kernel/kos-6.18.y.tar.gz
-ls -alh kos.tar.gz
-md5sum kos.tar.gz
-tar -xf kos.tar.gz
+wget -c https://github.com/yifengyou/BDY_G98_RK3588-linux-stable/releases/download/linux_stable_kernel/kos-7.3.0-rc4-kdev.tar.gz
+ls -alh kos-7.3.0-rc4-kdev.tar.gz
+md5sum kos-7.3.0-rc4-kdev.tar.gz
+tar -xf kos-7.3.0-rc4-kdev.tar.gz
 
 # update rootfs with ko
 if [ -d kos/lib/modules ]; then
