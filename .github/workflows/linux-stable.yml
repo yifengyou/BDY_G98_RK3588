@@ -8,7 +8,7 @@ on:
       - master
     paths:
       - '.github/workflows/linux-stable.yml'
-      - 'kdevbuild/linux_stable_kernel.sh'
+      - 'kdevbuild/linux_stable_image.sh'
 
 env:
   TZ: Asia/Shanghai

@@ -7,7 +7,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 LOG_FILE="${WORKDIR}/build.log"
 exec > >(tee -a "$LOG_FILE") 2>&1
-export BUILD_TAG="BDY_G98_stable_${set_rootfs}"
+export BUILD_TAG="BDY_G98_linux-stable_${set_rootfs}"
 
 #==========================================================================#
 #                        init build env                                    #
