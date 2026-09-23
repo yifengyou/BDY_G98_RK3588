@@ -78,9 +78,9 @@ cd ${WORKDIR}
 mkdir -p rockchip-linux_develop-6.6
 cd rockchip-linux_develop-6.6
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/linux_stable_kernel/uboot.img
-ls -alh uboot.img
-mv uboot.img ${WORKDIR}/rockdev/uboot.img
+wget -c https://github.com/yifengyou/BDY_G98_RK3588-uboot-mainline/releases/download/bdy-g98-uboot/uboot-g98_only-emmc.img
+ls -alh uboot-g98_only-emmc.img
+mv uboot-g98_only-emmc.img ${WORKDIR}/rockdev/uboot.img
 ls -alh ${WORKDIR}/rockdev/uboot.img
 md5sum ${WORKDIR}/rockdev/uboot.img
 
@@ -92,23 +92,23 @@ cd ${WORKDIR}
 mkdir -p rockchip-linux_develop-6.6
 cd rockchip-linux_develop-6.6
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/linux_stable_kernel/Image
-ls -alh Image
-md5sum Image
+wget -c https://github.com/yifengyou/BDY_G98_RK3588-linux-stable/releases/download/linux_stable_kernel/Image-7.3.0-rc4-kdev
+ls -alh Image-7.3.0-rc4-kdev
+md5sum Image-7.3.0-rc4-kdev
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/linux_stable_kernel/config-7.0-kdev
-ls -alh config-7.0-kdev
-md5sum config-7.0-kdev
+wget -c https://github.com/yifengyou/BDY_G98_RK3588-linux-stable/releases/download/linux_stable_kernel/config-7.3.0-rc4-kdev
+ls -alh config-7.3.0-rc4-kdev
+md5sum config-7.3.0-rc4-kdev
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/linux_stable_kernel/System.map-7.0-kdev
-ls -alh System.map-7.0-kdev
-md5sum System.map-7.0-kdev
+wget -c https://github.com/yifengyou/BDY_G98_RK3588-linux-stable/releases/download/linux_stable_kernel/System.map-7.3.0-rc4-kdev
+ls -alh System.map-7.3.0-rc4-kdev
+md5sum System.map-7.3.0-rc4-kdev
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/linux_stable_kernel/rk3588-bdy-g98.dtb
+wget -c https://github.com/yifengyou/BDY_G98_RK3588-linux-stable/releases/download/linux_stable_kernel/rk3588-bdy-g98.dtb
 ls -alh rk3588-bdy-g98.dtb
 md5sum rk3588-bdy-g98.dtb
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/linux_stable_kernel/kos.tar.gz
+wget -c https://github.com/yifengyou/BDY_G98_RK3588-linux-stable/releases/download/linux_stable_kernel/kos-6.18.y.tar.gz
 ls -alh kos.tar.gz
 md5sum kos.tar.gz
 tar -xf kos.tar.gz
@@ -149,10 +149,10 @@ mount boot.img /mnt
 
 mkdir -p /mnt/dtb
 cp -a rk3588-bdy-g98.dtb /mnt/dtb/
-cp -f Image /mnt/vmlinuz-7.0-kdev
-cp -f config-7.0-kdev /mnt/config-7.0-kdev
-cp -f System.map-7.0-kdev /mnt/System.map-7.0-kdev
-touch /mnt/initrd.img-7.0-kdev
+cp -f Image-7.3.0-rc4-kdev /mnt/Image-7.3.0-rc4-kdev
+cp -f config-7.3.0-rc4-kdev /mnt/config-7.3.0-rc4-kdev
+cp -f System.map-7.3.0-rc4-kdev /mnt/System.map-7.3.0-rc4-kdev
+touch /mnt/initrd.img
 
 cat >/mnt/extlinux.conf <<EOF
 ## /extlinux/extlinux.conf
@@ -170,15 +170,15 @@ timeout 90
 
 label l0
 	menu label Linux kernel 7.0-kdev
-	linux vmlinuz-7.0-kdev
-	initrd initrd.img-7.0-kdev
+	linux Image-7.3.0-rc4-kdev
+	initrd initrd.img
 	fdt /dtb/rk3588-bdy-g98.dtb
 	append root=PARTUUID=614e0000-0000-4b53-8000-1d28000054a9 rw console=ttyS2,1500000 console=tty1 cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory net.ifnames=0 biosdevname=0 level=10 loglevel=10 selinux=0 crashkernel=384M-:128M systemd.mask=systemd-growfs@-.service rockchip.dmc_freq=528000 video=HDMI-A-1:1920x1080@60
 
 label l0r
 	menu label Linux kernel 7.0-kdev (rescue target)
-	linux vmlinuz-7.0-kdev
-	initrd initrd.img-7.0-kdev
+	linux vmlinuz
+	initrd initrd.img
 	fdt /dtb/rk3588-bdy-g98.dtb
 	append root=PARTUUID=614e0000-0000-4b53-8000-1d28000054a9 rw console=ttyS2,1500000 console=tty1 cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory net.ifnames=0 biosdevname=0 level=10 loglevel=10 selinux=0 crashkernel=384M-:128M single
 
@@ -205,24 +205,8 @@ ls -alh ${WORKDIR}/rockdev/boot.img
 md5sum ${WORKDIR}/rockdev/boot.img
 
 
-
 #==========================================================================#
-# Script Purpose: Generate Rockchip Firmware Image with RKDevTool          #
-#                                                                          #
-# This script prepares the required partition images and packages them     #
-# into a firmware update bundle compatible with Rockchip's RKDevTool.      #
-#                                                                          #
-# Input Images (must exist before execution):                              #
-#   - ${WORKDIR}/rockdev/uboot.img   : U-Boot bootloader image             #
-#   - ${WORKDIR}/rockdev/boot.img    : Kernel + DTB boot image             #
-#   - ${WORKFS}/rockdev/rootfs.img   : Root filesystem image               #
-#                                                                          #
-# Output:                                                                  #
-#   - ${WORKDIR}/release/            : Final RKDevTool-compatible firmware #
-#                                      package (e.g., update.img)          #
-#                                                                          #
-# Note: Verify that all source images are correctly built and placed in    #
-#       the ${WORKDIR}/rockdev/ directory prior to running this script.    #
+#                 Generate Rockchip Firmware Image with RKDevTool          #
 #==========================================================================#
 
 cd ${WORKDIR}
@@ -232,15 +216,15 @@ ls -alh ${WORKDIR}/rockchip-tools.git
 mkdir -p ${WORKDIR}/release
 mkdir -p ${WORKDIR}/rockdev_img_tmp
 cp -a ${WORKDIR}/rockchip-tools.git/RKDevTool-v3.37-G98-RK3588 \
-  ${WORKDIR}/rockdev_img_tmp/RKDevTool
-mkdir -p ${WORKDIR}/rockdev_img_tmp/RKDevTool/Image/
+  ${WORKDIR}/rockdev_img_tmp/RKDevTool-v3.37-G98-RK3588
+mkdir -p ${WORKDIR}/rockdev_img_tmp/RKDevTool-v3.37-G98-RK3588/Image/
 
-cp -a ${WORKDIR}/rockdev/uboot.img ${WORKDIR}/rockdev_img_tmp/RKDevTool/Image/
-cp -a ${WORKDIR}/rockdev/boot.img ${WORKDIR}/rockdev_img_tmp/RKDevTool/Image/
-cp -a ${WORKDIR}/rockdev/rootfs.img ${WORKDIR}/rockdev_img_tmp/RKDevTool/Image/
+cp -a ${WORKDIR}/rockdev/uboot.img ${WORKDIR}/rockdev_img_tmp/RKDevTool-v3.37-G98-RK3588/Image/
+cp -a ${WORKDIR}/rockdev/boot.img ${WORKDIR}/rockdev_img_tmp/RKDevTool-v3.37-G98-RK3588/Image/
+cp -a ${WORKDIR}/rockdev/rootfs.img ${WORKDIR}/rockdev_img_tmp/RKDevTool-v3.37-G98-RK3588/Image/
 
 cd ${WORKDIR}/rockdev_img_tmp/
-rar a ${WORKDIR}/release/${BUILD_TAG} RKDevTool
+rar a ${WORKDIR}/release/${BUILD_TAG} RKDevTool-v3.37-G98-RK3588
 cd ${WORKDIR}/release/
 sha256sum ${BUILD_TAG}
 

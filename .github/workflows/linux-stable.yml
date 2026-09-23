@@ -3,6 +3,12 @@ name: linux stable
 on:
   repository_dispatch:
   workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/linux-stable.yml'
+      - 'kdevbuild/linux_stable_kernel.sh'
 
 env:
   TZ: Asia/Shanghai
@@ -320,7 +326,8 @@ jobs:
           removeArtifacts: false
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          body: | # linux_stable_image
+          body: |
+            # linux_stable_image
 
             ## 系统密码
 
