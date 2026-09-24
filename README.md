@@ -1,4 +1,4 @@
-# 彼度云 BDY-G98(BDY-Z98)
+# 彼度云 BYD-G98(BYD-Z98)
 
 ![](./images/49007261450600.png)
 
@@ -80,25 +80,17 @@
 
 ## 内核适配进度
 
-| 配置文件名 | 仓库地址 | 分支 | 适配进度 | 备注 |
-| :--- | :--- | :--- | :--- | :--- |
-| `ophub_6.18.y` | `https://github.com/ophub/linux-6.18.y.git` | `ophub_6.18.y` | ✅ 已完成 | 初步完成 |
-| `rockchip-linux_develop-6.1` | `https://github.com/rockchip-linux/kernel.git` | `develop-6.1` | ✅ 已完成 | 初步完成 |
-| `rockchip-linux_develop-6.6` | `https://github.com/rockchip-linux/kernel.git` | `develop-6.6` | ✅ 已完成 | 初步完成 |
-| `ophub_linux-6.1.y-rockchip` | `https://github.com/ophub/linux-6.1.y-rockchip` | `linux-6.1.y-rockchip` | 🔄 进行中 | 适配中 |
-| `openeuler_OLK6.6` | `https://atomgit.com/openeuler/kernel` | `OLK-6.6` | 🔄 进行中 | 适配中 |
-| `ophub_6.1.y` | | | ⬜ 未开始  | |
-| `ophub_6.6.y` | | | ⬜ 未开始  | |
-| `ophub_6.12.y` | | | ⬜ 未开始  | |
-| `armbian_rk-6.1-rkr5.1` | | | ⬜ 未开始  | |
-| `friendlyarm_nanopi6-v6.1.y` | | | ⬜ 未开始  | |
-| `linux-stable` | | | ⬜ 未开始  | |
-| `lubancat_lbc-develop-6.1` | | | ⬜ 未开始  | |
-| `official_5.10.66` | | | ⬜ 未开始  | |
-| `openeuler_OLK6.6` | | | ⬜ 未开始  | |
-| `orangepi-xunlong_orange-pi-6.1-rk35xx` | | | ⬜ 未开始  | |
-| `radxa_linux-6.1-stan-rkr5.1` | | | ⬜ 未开始  | |
-| `torvalds_linux` | | | ⬜ 未开始  | | 
+| 仓库地址 | 分支 | 适配进度 | 备注 |
+| :--- | :--- | :--- | :--- |
+| `https://github.com/ophub/linux-6.18.y.git` | `ophub_6.18.y` | ✅ 已完成 | 初步完成 |
+| `https://github.com/rockchip-linux/kernel.git` | `develop-6.1` | ✅ 已完成 | 初步完成 |
+| `https://github.com/rockchip-linux/kernel.git` | `develop-6.6` | ✅ 已完成 | 初步完成 |
+| `https://github.com/ophub/linux-6.1.y-rockchip` | `linux-6.1.y-rockchip` | 🔄 进行中 | 适配中 |
+| `https://atomgit.com/openeuler/kernel` | `OLK-6.6` | 🔄 进行中 | 适配中 |
+| `https://mirrors.cernet.edu.cn/linux-stable.git` | `master` | 🔄 进行中 | 适配中 |
+| `https://github.com/ophub/ophub_6.1.y` | `master` | 🔄 进行中 | 适配中 |
+| `https://github.com/ophub/ophub_6.6.y` | `master` | 🔄 进行中 | 适配中 |
+| `https://github.com/ophub/ophub_6.12.y` | `master` | 🔄 进行中 | 适配中 |
 
 ---
 
