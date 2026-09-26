@@ -75,8 +75,8 @@ ls -alh ${WORKDIR}/rockdev/rootfs.img
 #==========================================================================#
 cd ${WORKDIR}
 
-mkdir -p rockchip-linux_develop-6.6
-cd rockchip-linux_develop-6.6
+mkdir -p linux-stable
+cd linux-stable
 
 wget -c https://github.com/yifengyou/BDY_G98_RK3588-uboot-mainline/releases/download/bdy-g98-uboot/uboot-g98_only-emmc.img
 ls -alh uboot-g98_only-emmc.img
@@ -89,8 +89,8 @@ md5sum ${WORKDIR}/rockdev/uboot.img
 #==========================================================================#
 cd ${WORKDIR}
 
-mkdir -p rockchip-linux_develop-6.6
-cd rockchip-linux_develop-6.6
+mkdir -p linux-stable
+cd linux-stable
 
 wget -c https://github.com/yifengyou/BDY_G98_RK3588-linux-stable/releases/download/linux_stable_kernel/Image-7.3.0-rc4-kdev
 ls -alh Image-7.3.0-rc4-kdev

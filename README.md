@@ -24,6 +24,7 @@
   * [uboot v2017](docs/适配记录/uboot2017.md)
   * [uboot v2026](docs/适配记录/uboot2026.md)
   * [recovery](docs/适配记录/recovery.md)
+  * [rkdeveloptool](docs/适配记录/rkdeveloptool.md)
   * [kernel](docs/适配记录/kernel.md)
   * [android12适配](docs/适配记录/android/android12.md)
   * [android13适配](docs/适配记录/android/android13.md)
