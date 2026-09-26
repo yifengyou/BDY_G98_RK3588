@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - '.github/workflows/recovery_uboot2026.yml'
+      - 'recovery_uboot2026/kdev-build.sh'
   repository_dispatch:
   workflow_dispatch:
 
