@@ -63,8 +63,12 @@ jobs:
           cd recovery_uboot2026
           ./kdev-build.sh
           ls -alh output
-          sudo cp output/emmc_full_disk.img output/G98-Recovery_ONLY-EMMC.zip /builder/emmc_release/
-          sudo cp output/spi_full_disk.img  output/G98-Recovery_ONLY-SPI.zip  /builder/spi_release/
+          TIMESTAMP=$(date +%Y%m%d)
+          sudo cp output/emmc_full_disk* /builder/emmc_release/
+          sudo cp output/G98-Recovery_ONLY-EMMC* /builder/emmc_release/
+
+          sudo cp output/spi_full_disk* /builder/spi_release/
+          sudo cp output/G98-Recovery_ONLY-SPI*  /builder/spi_release/
 
       - name: List build output
         run: |
