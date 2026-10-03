@@ -78,9 +78,9 @@ cd ${WORKDIR}
 mkdir -p openeuler_OLK-6.6
 cd openeuler_OLK-6.6
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/uboot.img
-ls -alh uboot.img
-mv uboot.img ${WORKDIR}/rockdev/uboot.img
+wget -c https://github.com/yifengyou/BDY_G98_RK3588-uboot-mainline/releases/download/bdy-g98-uboot/uboot-g98_only-emmc.img
+ls -alh uboot-g98_only-emmc.img
+mv uboot-g98_only-emmc.img ${WORKDIR}/rockdev/uboot.img
 ls -alh ${WORKDIR}/rockdev/uboot.img
 md5sum ${WORKDIR}/rockdev/uboot.img
 
@@ -92,38 +92,38 @@ cd ${WORKDIR}
 mkdir -p openeuler_OLK-6.6
 cd openeuler_OLK-6.6
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/Image-OLK-6.6-kdev
-ls -alh Image-OLK-6.6-kdev
-md5sum Image-OLK-6.6-kdev
+wget -c https://github.com/yifengyou/BDY_G98_RK3588-openeuler/releases/download/OpenEuler_OLK6.6/Image-6.6.0-kdev
+ls -alh Image-6.6.0-kdev
+md5sum Image-6.6.0-kdev
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/config-OLK-6.6-kdev
-ls -alh config-OLK-6.6-kdev
-md5sum config-OLK-6.6-kdev
+wget -c https://github.com/yifengyou/BDY_G98_RK3588-openeuler/releases/download/OpenEuler_OLK6.6/config-6.6.0-kdev
+ls -alh config-6.6.0-kdev
+md5sum config-6.6.0-kdev
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/System.map-OLK-6.6-kdev
-ls -alh System.map-OLK-6.6-kdev
-md5sum System.map-OLK-6.6-kdev
+wget -c https://github.com/yifengyou/BDY_G98_RK3588-openeuler/releases/download/OpenEuler_OLK6.6/System.map-6.6.0-kdev
+ls -alh System.map-6.6.0-kdev
+md5sum System.map-6.6.0-kdev
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/rk3588-bdy-g98.dtb
+wget -c https://github.com/yifengyou/BDY_G98_RK3588-openeuler/releases/download/OpenEuler_OLK6.6/rk3588-bdy-g98.dtb
 ls -alh rk3588-bdy-g98.dtb
 md5sum rk3588-bdy-g98.dtb
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/kos-OLK-6.6.tar.gz
-ls -alh kos-OLK-6.6.tar.gz
-md5sum kos-OLK-6.6.tar.gz
-tar -xf kos-OLK-6.6.tar.gz
+wget -c https://github.com/yifengyou/BDY_G98_RK3588-openeuler/releases/download/OpenEuler_OLK6.6/kos-6.6.0-kdev.tar.gz
+ls -alh kos-6.6.0-kdev.tar.gz
+md5sum kos-6.6.0-kdev.tar.gz
+tar -xf kos-6.6.0-kdev.tar.gz
 du -sh kos
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/kernel-devel-OLK-6.6.tar.gz
-ls -alh kernel-devel-OLK-6.6.tar.gz
-md5sum kernel-devel-OLK-6.6.tar.gz
-tar -xf kernel-devel-OLK-6.6.tar.gz
+wget -c https://github.com/yifengyou/BDY_G98_RK3588-openeuler/releases/download/OpenEuler_OLK6.6/kernel-devel-6.6.0-kdev.tar.gz
+ls -alh kernel-devel-6.6.0-kdev.tar.gz
+md5sum kernel-devel-6.6.0-kdev.tar.gz
+tar -xf kernel-devel-6.6.0-kdev.tar.gz
 du -sh kernel-devel
 
-wget -c https://github.com/yifengyou/BDY_G98_RK3588/releases/download/openeuler_OLK-6.6_kernel/kernel-headers-OLK-6.6.tar.gz
-ls -alh kernel-headers-OLK-6.6.tar.gz
-md5sum kernel-headers-OLK-6.6.tar.gz
-tar -xf kernel-headers-OLK-6.6.tar.gz
+wget -c https://github.com/yifengyou/BDY_G98_RK3588-openeuler/releases/download/OpenEuler_OLK6.6/kernel-headers-6.6.0-kdev.tar.gz
+ls -alh kernel-headers-6.6.0-kdev.tar.gz
+md5sum kernel-headers-6.6.0-kdev.tar.gz
+tar -xf kernel-headers-6.6.0-kdev.tar.gz
 du -sh kernel-headers
 
 # ============================================================
@@ -204,9 +204,9 @@ mount boot.img /mnt
 
 mkdir -p /mnt/dtb
 cp -a rk3588-bdy-g98.dtb /mnt/dtb/
-cp -f Image-OLK-6.6-kdev /mnt/vmlinuz-OLK-6.6-kdev
-cp -f config-OLK-6.6-kdev /mnt/config-OLK-6.6-kdev
-cp -f System.map-OLK-6.6-kdev /mnt/System.map-OLK-6.6-kdev
+cp -f Image-6.6.0-kdev /mnt/vmlinuz-OLK-6.6-kdev
+cp -f config-6.6.0-kdev /mnt/config-6.6.0-kdev
+cp -f System.map-6.6.0-kdev /mnt/System.map-6.6.0-kdev
 touch /mnt/initrd.img-OLK-6.6-kdev
 
 cat >/mnt/extlinux.conf <<EOF
@@ -285,15 +285,15 @@ ls -alh ${WORKDIR}/rockchip-tools.git
 mkdir -p ${WORKDIR}/release
 mkdir -p ${WORKDIR}/rockdev_img_tmp
 cp -a ${WORKDIR}/rockchip-tools.git/RKDevTool-v3.37-G98-RK3588 \
-  ${WORKDIR}/rockdev_img_tmp/RKDevTool
-mkdir -p ${WORKDIR}/rockdev_img_tmp/RKDevTool/Image/
+  ${WORKDIR}/rockdev_img_tmp/RKDevTool-v3.37-G98-RK3588
+mkdir -p ${WORKDIR}/rockdev_img_tmp/RKDevTool-v3.37-G98-RK3588/Image/
 
-cp -a ${WORKDIR}/rockdev/uboot.img ${WORKDIR}/rockdev_img_tmp/RKDevTool/Image/
-cp -a ${WORKDIR}/rockdev/boot.img ${WORKDIR}/rockdev_img_tmp/RKDevTool/Image/
-cp -a ${WORKDIR}/rockdev/rootfs.img ${WORKDIR}/rockdev_img_tmp/RKDevTool/Image/
+cp -a ${WORKDIR}/rockdev/uboot.img ${WORKDIR}/rockdev_img_tmp/RKDevTool-v3.37-G98-RK3588/Image/
+cp -a ${WORKDIR}/rockdev/boot.img ${WORKDIR}/rockdev_img_tmp/RKDevTool-v3.37-G98-RK3588/Image/
+cp -a ${WORKDIR}/rockdev/rootfs.img ${WORKDIR}/rockdev_img_tmp/RKDevTool-v3.37-G98-RK3588/Image/
 
 cd ${WORKDIR}/rockdev_img_tmp/
-rar a ${WORKDIR}/release/${BUILD_TAG} RKDevTool
+rar a ${WORKDIR}/release/${BUILD_TAG} RKDevTool-v3.37-G98-RK3588
 cd ${WORKDIR}/release/
 sha256sum ${BUILD_TAG}
 
