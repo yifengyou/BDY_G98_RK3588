@@ -21,3 +21,7 @@ rockchip-linux-u-boot.git
 /edk2.git
 /linux-stable.git
 /openeuler_kernel.git
+/OpenCloudOS-Kernel.git/
+/cloud-kernel.git/
+/*.git
+

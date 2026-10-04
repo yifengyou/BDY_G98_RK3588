@@ -600,7 +600,68 @@ FPS: 61（vsync 60Hz 上限）
 
 
 
+## 重启出现crash
 
+```shell
+
+[root@G98 ~]# reboot -f
+Rebooting.
+[  166.980958] kernelspace aet: 0 comm: kworker/4:4 tgid: 213 pid: 213 cpu: 4
+[  166.980965] SError Interrupt on CPU4, code 0x00000000be000011 -- SError
+[  166.980970] CPU: 4 PID: 213 Comm: kworker/4:4 Tainted: G   M                6.6.0-kdev #14
+[  166.980975] Hardware name: BDY G98 (DT)
+[  166.980978] Workqueue: pm pm_runtime_work
+[  166.980987] pstate: 20400009 (nzCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[  166.980992] pc : rk_iommu_read+0xc/0x1c
+[  166.981001] lr : rk_iommu_enable_stall+0x40/0x1e4
+[  166.981008] sp : ffff800084b9bc00
+[  166.981009] x29: ffff800084b9bc00 x28: 0000000000000000 x27: 0000000000000000
+[  166.981016] x26: 0000000000000000 x25: 0000000000000008 x24: 00000000000f4240
+[  166.981021] x23: 0000000000000000 x22: ffff000100dcb4f4 x21: 0000000000000008
+[  166.981027] x20: ffff800080c649ec x19: ffff000100ae6180 x18: 0000000000000040
+[  166.981032] x17: ffff0001006b7200 x16: 0000000000000003 x15: 014b8f51298de0dc
+[  166.981038] x14: 000000058084a964 x13: 00000000000001bf x12: 00000000000001bf
+[  166.981043] x11: 00000000000000c0 x10: 0000000000000a60 x9 : ffff800084b9bd10
+[  166.981048] x8 : ffff00010a3aba00 x7 : fefefefefefefeff x6 : 00000000f7c041b9
+[  166.981053] x5 : 00000000000000c0 x4 : 0000000001000100 x3 : 0000000000000001
+[  166.981059] x2 : 0000000000000001 x1 : 0000000000000004 x0 : 0000000000000000
+[  166.981065] Kernel panic - not syncing: Asynchronous SError Interrupt
+[  166.981067] CPU: 4 PID: 213 Comm: kworker/4:4 Tainted: G   M                6.6.0-kdev #14
+[  166.981072] Hardware name: BDY G98 (DT)
+[  166.981074] Workqueue: pm pm_runtime_work
+[  166.981078] Call trace:
+[  166.981081]  dump_backtrace+0x94/0x114
+[  166.981091]  show_stack+0x18/0x24
+[  166.981099]  dump_stack_lvl+0x74/0xc0
+[  166.981107]  dump_stack+0x18/0x24
+[  166.981113]  panic+0x360/0x3b0
+[  166.981119]  nmi_panic+0x8c/0x90
+[  166.981123]  arm64_serror_panic+0x78/0x88
+[  166.981127]  arm64_is_fatal_ras_serror+0x70/0x1b4
+[  166.981131]  do_serror+0x78/0x8c
+[  166.981135]  el1h_64_error_handler+0x44/0xa4
+[  166.981143]  el1h_64_error+0x78/0x7c
+[  166.981147]  rk_iommu_read+0xc/0x1c
+[  166.981153]  rk_iommu_disable+0x2c/0x1e0
+[  166.981159]  rk_iommu_suspend+0x2c/0x44
+[  166.981165]  pm_generic_runtime_suspend+0x2c/0x44
+[  166.981172]  __rpm_callback+0x48/0x1dc
+[  166.981177]  rpm_callback+0x68/0x74
+[  166.981180]  rpm_suspend+0x114/0x664
+[  166.981183]  pm_runtime_work+0xc4/0xc8
+[  166.981187]  process_one_work+0x140/0x3bc
+[  166.981193]  worker_thread+0x1a8/0x360
+[  166.981197]  kthread+0x114/0x120
+[  166.981201]  ret_from_fork+0x10/0x20
+[  166.981301] Kernel Offset: disabled
+[  166.981303] CPU features: 0x00,0000001c,00000003,80090143,1001720b
+[  166.981307] Memory Limit: none
+DDR cb12b99cc23 hcy 26/08/04-14:19.50,fwver: v1.21
+ch0 ttot10
+ch1 ttot10
+ch2 ttot10
+
+```
 
 
 
