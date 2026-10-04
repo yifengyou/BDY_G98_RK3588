@@ -86,12 +86,12 @@
 | `https://github.com/ophub/linux-6.18.y.git` | `ophub_6.18.y` | ✅ 已完成 | 初步完成 |
 | `https://github.com/rockchip-linux/kernel.git` | `develop-6.1` | ✅ 已完成 | 初步完成 |
 | `https://github.com/rockchip-linux/kernel.git` | `develop-6.6` | ✅ 已完成 | 初步完成 |
-| `https://github.com/ophub/linux-6.1.y-rockchip` | `linux-6.1.y-rockchip` | 🔄 进行中 | 适配中 |
-| `https://atomgit.com/openeuler/kernel` | `OLK-6.6` | 🔄 进行中 | 适配中 |
-| `https://mirrors.cernet.edu.cn/linux-stable.git` | `master` | 🔄 进行中 | 适配中 |
+| `https://atomgit.com/openeuler/kernel` | `OLK-6.6` | ✅ 已完成 | 初步完成 |
+| `https://mirrors.cernet.edu.cn/linux-stable.git` | `master` | ✅ 已完成 | 初步完成 |
 | `https://github.com/ophub/ophub_6.1.y` | `master` | 🔄 进行中 | 适配中 |
 | `https://github.com/ophub/ophub_6.6.y` | `master` | 🔄 进行中 | 适配中 |
 | `https://github.com/ophub/ophub_6.12.y` | `master` | 🔄 进行中 | 适配中 |
+| `https://github.com/ophub/linux-6.1.y-rockchip` | `linux-6.1.y-rockchip` | 🔄 进行中 | 适配中 |
 
 ---
 

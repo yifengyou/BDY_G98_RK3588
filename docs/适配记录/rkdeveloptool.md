@@ -1418,3 +1418,73 @@ sudo ./rkdisktool erase 0x4000 0x2000 /dev/sdb
 | 依赖 | libusb-1.0 | 仅 libc/libstdc++ |
 
 新工具完全独立于 libusb，只依赖标准 C/C++ 库和 Linux 内核接口，可以直接对任何本地块设备进行分区和镜像烧写。
+
+
+
+## 测试
+
+
+```shell
+[root@bdy-g98 /mnt]# /root/rkdeveloptool all /dev/nvme1n1 parameter.txt images/ 
+--format 
+Disk /dev/nvme1n1: 28131328 sectors (13736 MB)
+
+=== Step 1: Writing GPT partition table ===
+GPT written.
+
+=== Step 2: Writing parameter ===
+Writing parameter to sector 0x2000 (1 sectors)...
+Writing parameter succeeded.
+
+=== Step 3: Writing images from images/ ===
+
+--- Partition 'uboot' (offset=0x2000, size=0x2000) ---
+Writing images//uboot.img (2505728 bytes) to /dev/nvme1n1 at sector 0x2000...
+Writing image: 100%
+Writing image succeeded.
+
+--- Partition 'boot' (offset=0x6000, size=0x100000) ---
+Writing images//boot.img (268435456 bytes) to /dev/nvme1n1 at sector 0x6000...
+Writing image: 100%
+Writing image succeeded.
+
+--- Partition 'rootfs' (offset=0x106000, size=0xffffffff) ---
+Writing images//rootfs.img (4329332736 bytes) to /dev/nvme1n1 at sector 0x106000...
+Writing image: 100%
+Writing image succeeded.
+
+=== Step 4: Formatting partitions ===
+Skipping format for 'uboot' (has image)
+Skipping format for 'boot' (has image)
+Skipping format for 'rootfs' (has image)
+
+=== Done! ===
+
+```
+
+
+
+## 正确思路
+
+1. 首先解析config.cfg，获取parameter.txt解析分区，根据config.cfg刷写对应分区即可
+
+
+* package-file + parameter.txt
+
+rockchip update风格镜像，需要package-file描述固件镜像文件列表（文件路径），然后解析parameter.txt将对应固件写入对应分区。
+
+* config.cfg + parameter.txt
+
+RKDevTool.exe 工具解析config.cfg，提取到固件镜像文件列表（文件路径），然后解析parameter.txt将对应固件写入对应分区。
+
+
+package-file样例：
+```shell
+package-file    package-file
+bootloader    MiniLoaderAll.bin
+parameter    parameter.txt
+uboot    uboot.img
+boot    boot.img
+rootfs    rootfs.img
+
+```

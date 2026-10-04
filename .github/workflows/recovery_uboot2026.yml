@@ -64,7 +64,6 @@ jobs:
           cd recovery_uboot2026
           ./kdev-build.sh
           ls -alh output
-          TIMESTAMP=$(date +%Y%m%d)
           sudo cp output/emmc_full_disk* /builder/emmc_release/
           sudo cp output/G98-Recovery_ONLY-EMMC* /builder/emmc_release/
 
