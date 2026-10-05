@@ -1292,7 +1292,7 @@ try_rockchip_fw=mw.l 0x01fffff8 0 1; mw.l 0x04fffff8 0 1; mw.l 0x07000000 0 1; r
 ```
 
 
-
+sysboot blkmap 0:2 any 0x00c00000 /recovery.conf
 
 
 

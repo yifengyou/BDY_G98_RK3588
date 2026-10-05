@@ -1,4 +1,4 @@
-name: openeuler kernel OLK6.6
+name: openeuler kernel linux-6.6
 
 on:
   repository_dispatch:
