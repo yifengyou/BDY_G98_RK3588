@@ -664,6 +664,100 @@ ch2 ttot10
 ```
 
 
+## pwm风扇
+
+![](./images/10005246947700.png)
+
+
+3.3v就是pwm端口 这个线序没错 中间没标的是测速口
+
+![](./images/6282326906900.png)
+
+![](./images/10025927371900.png)
+
+
+
+```shell
+    pwm@febe0010 {
+        compatible = "rockchip,rk3588-pwm\0rockchip,rk3328-pwm";
+        reg = <0x00 0xfebe0010 0x00 0x10>;
+        clocks = <0x24 0x4f 0x24 0x4e>;
+        clock-names = "pwm\0pclk";
+        pinctrl-0 = <0x160>;
+        pinctrl-names = "default";
+        #pwm-cells = <0x03>;
+        status = "okay";
+    };
+    
+    
+    pwm9 {
+
+         pwm9m0-pins {
+             rockchip,pins = <0x03 0x08 0x0b 0x10e>;
+             phandle = <0xe6>;
+         };
+
+         pwm9m1-pins {
+             rockchip,pins = <0x04 0x19 0x0b 0x10e>;
+             phandle = <0x160>;
+         };
+    };
+```
+
+
+
+
+
+```c
+
+diff --git a/arch/arm64/boot/dts/rockchip/rk3588-bdy-g98.dts b/arch/arm64/boot/dts/rockchip/rk3588-bdy-g98.dts
+index f241379f5e1c..ec9a8a390c1a 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3588-bdy-g98.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3588-bdy-g98.dts
+@@ -142,6 +142,13 @@ work-led {
+                        linux,default-trigger = "heartbeat";
+                };
+        };
++
++       fan: pwm-fan {
++               compatible = "pwm-fan";
++               pwms = <&pwm9 0 50000 0>;
++               cooling-levels = <0 80 150 200 255>;
++               #cooling-cells = <2>;
++       };
+ };
+ 
+ /* ===== CPU Power ===== */
+@@ -754,4 +761,8 @@ &rga {
+        status = "okay";
+ };
+ 
+-
++/* ===== PWM Fan ===== */
++&pwm9 {
++       pinctrl-0 = <&pwm9m1_pins>;
++       status = "okay";
++};
+
+
+
+```
+
+![](./images/15477844094600.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
